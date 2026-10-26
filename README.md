@@ -10,7 +10,7 @@
 
 ## 下载
 
-[Releases](releases) 页面提供：
+[Releases](https://github.com/shenliuyu18/lumen/releases) 页面提供：
 
 | 文件 | 说明 |
 | --- | --- |
