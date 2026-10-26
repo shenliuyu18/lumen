@@ -66,58 +66,136 @@ import androidx.compose.ui.unit.sp
 import studio.lumen.reader.MainViewModel
 import studio.lumen.reader.data.BilingualParagraph
 import java.net.URI
+import androidx.compose.material.icons.automirrored.outlined.OpenInNew
+import androidx.compose.material.icons.outlined.Bookmark
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.platform.LocalContext
+import studio.lumen.reader.ui.OffscreenExtractor
+import studio.lumen.reader.ui.components.GlassButton
+import studio.lumen.reader.ui.components.GlassCard
+import studio.lumen.reader.ui.components.GlassIconButton
 
 @Composable
-fun BilingualScreen(viewModel: MainViewModel, onBack: () -> Unit, onAsk: (String) -> Unit) {
+fun ReadingScreen(
+    viewModel: MainViewModel,
+    onBack: () -> Unit,
+    onAsk: (String) -> Unit,
+    onOpenSite: () -> Unit
+) {
+    val context = LocalContext.current
     val bilingual by viewModel.bilingual.collectAsState()
+    val current by viewModel.currentArticle.collectAsState()
     val store by viewModel.store.collectAsState()
-    val article = bilingual
     var saveParagraph by remember { mutableStateOf<BilingualParagraph?>(null) }
     var meaning by remember { mutableStateOf("") }
-    if (article == null) {
-        Column(modifier = Modifier.fillMaxSize().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("请先进入双语精读", style = MaterialTheme.typography.titleLarge)
-            TextButton(onClick = onBack) { Text("返回") }
+    var extracting by remember { mutableStateOf(false) }
+    var failure by remember { mutableStateOf<String?>(null) }
+    var attempt by remember { mutableIntStateOf(0) }
+    val scripts = remember { viewModel.catalogScripts() }
+    val url = current?.url.orEmpty()
+    val extractor = remember(url) { OffscreenExtractor(context, scripts, viewModel::adblockScript) }
+    DisposableEffect(extractor) { onDispose { extractor.destroy() } }
+    LaunchedEffect(url, attempt) {
+        if (url.isBlank() || bilingual != null) return@LaunchedEffect
+        extracting = true
+        failure = null
+        extractor.load(url) { result ->
+            extracting = false
+            result.onSuccess { viewModel.startBilingual(it) }.onFailure { failure = it.message }
         }
-        return
     }
-    val translated = article.paragraphs.count { it.translation != null }
+    val article = bilingual
+    val translated = article?.paragraphs?.count { it.translation != null } ?: 0
     val progress by animateFloatAsState(
-        targetValue = if (article.paragraphs.isEmpty()) 1f else translated.toFloat() / article.paragraphs.size,
+        targetValue = if (article == null || article.paragraphs.isEmpty()) 1f
+        else translated.toFloat() / article.paragraphs.size,
         label = "translation-progress"
     )
-    val host = remember(article.url) {
-        runCatching { URI(article.url).host?.removePrefix("www.") }.getOrNull()?.takeIf { it.isNotBlank() }
-            ?: article.url
+    val host = remember(article?.url) {
+        runCatching { URI(article?.url.orEmpty()).host?.removePrefix("www.") }
+            .getOrNull()?.takeIf { it.isNotBlank() } ?: article?.url.orEmpty()
     }
 
     Scaffold(
+        containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         topBar = {
             TopAppBar(
                 title = {
                     Column {
-                        Text("双语精读", fontFamily = FontFamily.Serif)
+                        Text("阅读模式", fontFamily = FontFamily.Serif)
                         Text(
-                            "${article.provider} · ${article.paragraphs.size} 段",
+                            when {
+                                article != null -> "${article.provider} · ${article.paragraphs.size} 段"
+                                failure != null -> "抽取失败"
+                                else -> "正在后台抽取正文…"
+                            },
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "返回原文")
-                    }
+                    GlassIconButton(Icons.AutoMirrored.Outlined.ArrowBack, "返回", onBack)
                 },
                 actions = {
-                    IconButton(onClick = { onAsk("deepseek") }) {
-                        Icon(Icons.Outlined.QuestionAnswer, contentDescription = "向 DeepSeek 提问")
-                    }
+                    GlassIconButton(
+                        icon = Icons.Outlined.Bookmark,
+                        label = "收藏",
+                        onClick = { current?.let(viewModel::toggleSaved) },
+                        enabled = current != null
+                    )
+                    GlassIconButton(Icons.Outlined.QuestionAnswer, "提问", { onAsk("deepseek") })
+                    GlassIconButton(Icons.Outlined.Refresh, "刷新", { attempt++ }, enabled = url.isNotBlank())
+                    GlassIconButton(
+                        icon = Icons.AutoMirrored.Outlined.OpenInNew,
+                        label = "原站",
+                        onClick = onOpenSite,
+                        enabled = url.isNotBlank()
+                    )
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconContentColor = MaterialTheme.colorScheme.onSurface
+                )
             )
         }
     ) { padding ->
+        if (article == null) {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(padding),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                if (failure != null) {
+                    Text("没能提取到正文", style = MaterialTheme.typography.titleLarge)
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        failure.orEmpty(),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.height(18.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        GlassButton("重新抽取", onClick = { attempt++ })
+                        GlassButton("打开原站", onClick = onOpenSite)
+                    }
+                } else {
+                    CircularProgressIndicator()
+                    Spacer(Modifier.height(14.dp))
+                    Text(
+                        "正在后台读取原文并抽取正文…",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            return@Scaffold
+        }
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 4.dp, bottom = 40.dp),
@@ -147,7 +225,7 @@ fun BilingualScreen(viewModel: MainViewModel, onBack: () -> Unit, onAsk: (String
             }
         }
     }
-    if (saveParagraph != null) {
+    if (saveParagraph != null && article != null) {
         AlertDialog(
             onDismissRequest = { saveParagraph = null },
             title = { Text("保存到词句本") },
@@ -189,11 +267,7 @@ private fun HeaderCard(
     progress: Float,
     host: String
 ) {
-    Card(
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.48f))
-    ) {
-        Column(Modifier.fillMaxWidth().padding(22.dp)) {
+    GlassCard(contentPadding = 22.dp) {
             Text(
                 "BILINGUAL READING",
                 style = MaterialTheme.typography.labelSmall,
@@ -247,7 +321,6 @@ private fun HeaderCard(
                     }
                 }
             }
-        }
     }
     Spacer(Modifier.height(10.dp))
 }
@@ -267,11 +340,7 @@ private fun MetaChip(text: String, color: Color) {
 @Composable
 private fun FooterCard(onBack: () -> Unit, onAsk: () -> Unit) {
     Spacer(Modifier.height(28.dp))
-    Card(
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
-    ) {
-        Column(Modifier.fillMaxWidth().padding(20.dp)) {
+    GlassCard(contentPadding = 20.dp) {
             Text(
                 "读到这里",
                 style = MaterialTheme.typography.titleMedium,
@@ -293,7 +362,6 @@ private fun FooterCard(onBack: () -> Unit, onAsk: () -> Unit) {
                     Text("继续提问")
                 }
             }
-        }
     }
 }
 

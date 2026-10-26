@@ -1,10 +1,14 @@
+/*
+ * 悬浮液态玻璃底栏。选中气泡的按压/拖拽形变与折射参数改编自
+ * legado-with-MD3（https://github.com/HapeLee/legado-with-MD3，GNU GPLv3）的
+ * ui/widget/components/FloatingBottomBar.kt 与 topbar/TopBarLiquidGlass.kt。
+ */
 package studio.lumen.reader.ui.components
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,8 +39,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -44,13 +46,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.LayerBackdrop
-import com.kyant.backdrop.drawBackdrop
-import com.kyant.backdrop.effects.blur
-import com.kyant.backdrop.effects.lens
-import com.kyant.backdrop.effects.vibrancy
-import com.kyant.backdrop.highlight.Highlight
-import com.kyant.backdrop.shadow.InnerShadow
-import com.kyant.backdrop.shadow.Shadow
 import kotlin.math.abs
 
 data class LiquidNavItem(val label: String, val icon: ImageVector)
@@ -65,26 +60,24 @@ object NavIcons {
 }
 
 /**
- * 悬浮液态玻璃底栏。选中项由一颗气泡标出：切换时气泡按动画速度横向拉伸、纵向压扁，
- * 经过的背景内容被真实折射；只有选中项显示文字标签。
+ * 悬浮玻璃底栏：选中项由一颗气泡标出，切换时按动画速度横向拉伸、纵向压扁，
+ * 气泡经过的背景内容被真实折射；只有选中项显示文字标签。
  */
 @Composable
 fun LiquidBottomBar(
     items: List<LiquidNavItem>,
     selectedIndex: Int,
-    backdrop: LayerBackdrop?,
     onSelected: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    height: Dp = 74.dp
+    height: Dp = 74.dp,
+    backdrop: LayerBackdrop? = LocalGlassBackdrop.current
 ) {
     val scheme = MaterialTheme.colorScheme
     val shape = RoundedCornerShape(percent = 50)
     val density = LocalDensity.current
 
     BoxWithConstraints(modifier.fillMaxWidth().height(height)) {
-        val cells = items.size.coerceAtLeast(1)
-        val barWidthPx = with(density) { maxWidth.toPx() }
-        val cellWidthPx = barWidthPx / cells
+        val cellWidthPx = with(density) { maxWidth.toPx() } / items.size.coerceAtLeast(1)
         val blobWidth = with(density) { (cellWidthPx - 12.dp.toPx()).coerceAtLeast(44.dp.toPx()).toDp() }
         val travel = remember { Animatable(selectedIndex.toFloat()) }
         val position by remember { derivedStateOf { travel.value } }
@@ -102,12 +95,13 @@ fun LiquidBottomBar(
             Modifier
                 .fillMaxWidth()
                 .height(height)
-                .glassSurface(
-                    backdrop = backdrop,
+                .liquidGlass(
                     shape = shape,
                     blurRadius = 16.dp,
-                    refraction = 22.dp,
-                    tint = scheme.surface.copy(alpha = if (backdrop == null) 1f else 0.45f)
+                    lensRadius = 22.dp,
+                    surfaceColor = scheme.surface.copy(alpha = 0.5f),
+                    interactive = false,
+                    backdrop = backdrop
                 )
         )
 
@@ -123,12 +117,14 @@ fun LiquidBottomBar(
                     scaleY = 1f - amount * 0.5f
                     transformOrigin = TransformOrigin.Center
                 }
-                .glassSurface(
-                    backdrop = backdrop,
+                .liquidGlass(
                     shape = shape,
                     blurRadius = 5.dp,
-                    refraction = 34.dp,
-                    tint = scheme.primary.copy(alpha = if (backdrop == null) 0.18f else 0.10f)
+                    lensRadius = 34.dp,
+                    surfaceColor = scheme.primary.copy(alpha = 0.12f),
+                    shadow = false,
+                    interactive = false,
+                    backdrop = backdrop
                 )
         )
 
@@ -162,29 +158,4 @@ fun LiquidBottomBar(
             }
         }
     }
-}
-
-/** 有背景层时画真玻璃，没有时退化为半透明面板。 */
-@Composable
-private fun Modifier.glassSurface(
-    backdrop: LayerBackdrop?,
-    shape: RoundedCornerShape,
-    blurRadius: Dp,
-    refraction: Dp,
-    tint: Color
-): Modifier {
-    if (backdrop == null) return this.clip(shape).background(tint)
-    return this.drawBackdrop(
-        backdrop = backdrop,
-        shape = { shape },
-        effects = {
-            vibrancy()
-            blur(blurRadius.toPx())
-            lens(refraction.toPx(), refraction.toPx(), chromaticAberration = true)
-        },
-        highlight = { Highlight.Default },
-        shadow = { Shadow(radius = 22.dp) },
-        innerShadow = { InnerShadow(radius = 7.dp, alpha = 0.45f) },
-        onDrawSurface = { drawRect(tint) }
-    )
 }

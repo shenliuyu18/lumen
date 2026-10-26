@@ -72,12 +72,13 @@ fun CircleIconButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    IconButton(
-        onClick = onClick,
+    Box(
         modifier = modifier
             .size(44.dp)
             .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .liquidGlass(lensRadius = 18.dp)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
     ) {
         Icon(icon, contentDescription = contentDescription, tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(20.dp))
     }
@@ -93,7 +94,7 @@ fun SectionLabel(text: String, modifier: Modifier = Modifier) {
     )
 }
 
-/** 近黑圆角面板，承载一组列表行。 */
+/** 玻璃面板，承载一组列表行。 */
 @Composable
 fun PanelCard(
     modifier: Modifier = Modifier,
@@ -102,8 +103,13 @@ fun PanelCard(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(22.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant),
+            .liquidGlass(
+                shape = RoundedCornerShape(22.dp),
+                blurRadius = 10.dp,
+                lensRadius = 18.dp,
+                surfaceColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.55f),
+                interactive = false
+            ),
         content = content
     )
 }
@@ -245,7 +251,12 @@ fun StatCard(
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(18.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .liquidGlass(
+                blurRadius = 8.dp,
+                lensRadius = 16.dp,
+                surfaceColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                interactive = false
+            )
             .padding(horizontal = 14.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

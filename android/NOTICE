@@ -1,0 +1,15 @@
+Lumen · 观读 — Android 模块许可声明
+=====================================
+
+本目录（`android/`）下的应用代码以 **GNU GPLv3** 授权发布，全文见同目录的 `LICENSE`。
+
+原因：其中的界面组件改编自开源项目 **legado-with-MD3**（`https://github.com/HapeLee/legado-with-MD3`，
+GNU GPLv3，本身是 `gedoor/legado` 的 Material 3 / Compose 分支）。GPLv3 具有传染性，
+因此包含其衍生代码的安卓模块整体按 GPLv3 提供，并随二进制分发对应源码。
+
+派生文件在每个源文件头部标注了来源与改动说明；未标注的文件为本项目原创，同样按 GPLv3 分发。
+
+仓库其余部分（Wails 桌面端、Go 后端、插件规范与文档）仍为 MIT，见根目录 `LICENSE`，
+版权归属遵循上游 `sadinoel0106/Lumen`。
+
+第三方库许可见根目录 `THIRD_PARTY_NOTICES.md`。

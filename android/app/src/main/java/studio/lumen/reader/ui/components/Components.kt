@@ -57,11 +57,7 @@ fun CategoryChips(categories: List<String>, selected: String, onSelect: (String)
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(categories) { category ->
-            FilterChip(
-                selected = selected == category,
-                onClick = { onSelect(category) },
-                label = { Text(category) }
-            )
+            GlassChip(label = category, selected = selected == category, onClick = { onSelect(category) })
         }
     }
 }
@@ -75,12 +71,7 @@ fun ArticleCard(
     onAsk: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-    ) {
-        Column(modifier = Modifier.padding(18.dp)) {
+    GlassCard(modifier = modifier, onClick = onClick) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Surface(
                     color = MaterialTheme.colorScheme.primaryContainer,
@@ -97,14 +88,13 @@ fun ArticleCard(
                 Text(article.category + " · " + relativeTime(article.publishedAt), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.weight(1f))
                 if (article.score > 0) {
-                    AssistChip(onClick = {}, label = { Text("推荐 ${article.score}") })
+                    GlassChip(label = "推荐 ${article.score}", selected = false, onClick = onAsk)
                 }
-                IconButton(onClick = onToggleSaved) {
-                    Icon(
-                        if (saved) Icons.Outlined.Bookmark else Icons.Outlined.BookmarkBorder,
-                        contentDescription = "收藏"
-                    )
-                }
+                GlassIconButton(
+                    icon = if (saved) Icons.Outlined.Bookmark else Icons.Outlined.BookmarkBorder,
+                    label = "收藏",
+                    onClick = onToggleSaved
+                )
             }
             Spacer(Modifier.height(12.dp))
             Text(
@@ -128,18 +118,14 @@ fun ArticleCard(
             Spacer(Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 article.quality?.label?.takeIf { it.isNotBlank() }?.let {
-                    AssistChip(onClick = {}, label = { Text(it) })
+                    GlassChip(label = it, selected = false, onClick = onAsk)
                 }
                 Spacer(Modifier.weight(1f))
-                TextButton(onClick = onAsk) { Text("提问") }
-                TextButton(onClick = onClick) {
-                    Text("阅读")
-                    Spacer(Modifier.width(4.dp))
-                    Icon(Icons.Outlined.ArrowForward, contentDescription = null)
-                }
+                GlassButton(label = "提问", onClick = onAsk)
+                Spacer(Modifier.width(8.dp))
+                GlassButton(label = "阅读", onClick = onClick, icon = Icons.Outlined.ArrowForward)
             }
         }
-    }
 }
 
 fun relativeTime(timestamp: Long?): String {

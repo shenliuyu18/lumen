@@ -24,14 +24,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun PluginRequiredCard(onOpenPlugins: () -> Unit, modifier: Modifier = Modifier) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-        )
-    ) {
-        Column(Modifier.fillMaxWidth().padding(20.dp)) {
+    GlassCard(modifier = modifier, contentPadding = 20.dp) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     Icons.Outlined.Extension,
@@ -53,7 +46,6 @@ fun PluginRequiredCard(onOpenPlugins: () -> Unit, modifier: Modifier = Modifier)
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(Modifier.height(12.dp))
-            Button(onClick = onOpenPlugins) { Text("打开插件中心") }
-        }
+        GlassButton(label = "打开插件中心", onClick = onOpenPlugins)
     }
 }

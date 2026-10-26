@@ -42,6 +42,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -56,21 +57,39 @@ import studio.lumen.reader.ui.components.relativeTime
 import studio.lumen.reader.ui.components.CircleIconButton
 import studio.lumen.reader.ui.components.PageHeader
 import studio.lumen.reader.ui.components.UnderlineTabs
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.outlined.Article
+import androidx.compose.material.icons.outlined.Bookmark
+import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.MenuBook
+import androidx.compose.material.icons.outlined.Style
+import androidx.compose.material.icons.outlined.Timer
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import kotlin.math.roundToInt
+import studio.lumen.reader.ui.components.ArcGauge
+import studio.lumen.reader.ui.components.GlassCard
+import studio.lumen.reader.ui.components.StatCard
 
-private val studyTabs = listOf("词句本", "复习", "收藏", "足迹")
+private val studyTabs = listOf("概览", "词句本", "复习", "收藏", "足迹")
+private const val dailyGoal = 3
 
 @Composable
 fun StudyScreen(viewModel: MainViewModel, onOpenArticle: (Article) -> Unit) {
     val store by viewModel.store.collectAsState()
     var tab by rememberSaveable { mutableIntStateOf(0) }
     Scaffold(
+        containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         topBar = {
             Column {
                 PageHeader(
                     title = "学习空间",
                     subtitle = "词句、收藏、足迹与复习",
                     actions = {
-                        if (tab == 3) {
+                        if (tab == 4) {
                             CircleIconButton(Icons.Outlined.DeleteSweep, "清空足迹", onClick = { viewModel.clearHistory() })
                         }
                     }
@@ -85,10 +104,62 @@ fun StudyScreen(viewModel: MainViewModel, onOpenArticle: (Article) -> Unit) {
         }
     ) { padding ->
         when (tab) {
-            0 -> VocabTab(store.vocabulary, viewModel, Modifier.padding(padding))
-            1 -> ReviewTab(store.vocabulary.filter { it.dueAt <= System.currentTimeMillis() }, viewModel, Modifier.padding(padding))
-            2 -> SavedTab(store.saved, viewModel, onOpenArticle, Modifier.padding(padding))
+            0 -> OverviewTab(store, Modifier.padding(padding))
+            1 -> VocabTab(store.vocabulary, viewModel, Modifier.padding(padding))
+            2 -> ReviewTab(store.vocabulary.filter { it.dueAt <= System.currentTimeMillis() }, viewModel, Modifier.padding(padding))
+            3 -> SavedTab(store.saved, viewModel, onOpenArticle, Modifier.padding(padding))
             else -> HistoryTab(store.history, store.readingSeconds, viewModel, onOpenArticle, Modifier.padding(padding))
+        }
+    }
+}
+
+@Composable
+private fun OverviewTab(store: studio.lumen.reader.data.Store, modifier: Modifier = Modifier) {
+    val today = LocalDate.now(ZoneId.systemDefault())
+    val todayRead = store.history.count {
+        LocalDate.ofInstant(Instant.ofEpochMilli(it.readAt), ZoneId.systemDefault()) == today
+    }
+    val hours = store.readingSeconds / 3600f
+    Column(
+        modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        GlassCard {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("今日阅读目标", style = MaterialTheme.typography.titleMedium)
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "打开 $dailyGoal 篇，认真读一点",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                ArcGauge(progress = todayRead.toFloat() / dailyGoal, center = "$todayRead / $dailyGoal", unit = "篇 · 今日")
+            }
+            Spacer(Modifier.height(14.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                StatCard(Icons.Outlined.Article, "${store.articles.size} 篇", "已收录", Modifier.weight(1f))
+                StatCard(Icons.Outlined.Timer, "${hours.roundToInt()} 小时", "累计时长", Modifier.weight(1f))
+            }
+        }
+        GlassCard {
+            Text("学习数据", style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(10.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                StatCard(Icons.Outlined.MenuBook, "${store.vocabulary.size} 条", "词句收藏", Modifier.weight(1f))
+                StatCard(Icons.Outlined.Bookmark, "${store.saved.size} 篇", "稍后阅读", Modifier.weight(1f))
+            }
+            Spacer(Modifier.height(10.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                StatCard(Icons.Outlined.History, "${store.history.size} 次", "阅读足迹", Modifier.weight(1f))
+                StatCard(
+                    Icons.Outlined.Style,
+                    "${store.vocabulary.count { it.dueAt <= System.currentTimeMillis() }} 条",
+                    "待复习",
+                    Modifier.weight(1f)
+                )
+            }
         }
     }
 }

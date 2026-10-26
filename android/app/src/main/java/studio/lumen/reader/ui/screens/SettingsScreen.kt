@@ -51,6 +51,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
@@ -63,6 +64,10 @@ import studio.lumen.reader.ui.components.GlassMode
 import studio.lumen.reader.ui.components.LocalFloatingNavPadding
 import studio.lumen.reader.ui.components.PageHeader
 import java.time.LocalDate
+import studio.lumen.reader.ui.components.GlassButton
+import studio.lumen.reader.ui.components.GlassCard
+import studio.lumen.reader.ui.components.GlassChip
+import studio.lumen.reader.ui.components.LiquidSlider
 
 @Composable
 fun SettingsScreen(viewModel: MainViewModel, onOpenPlugins: () -> Unit) {
@@ -111,6 +116,8 @@ fun SettingsScreen(viewModel: MainViewModel, onOpenPlugins: () -> Unit) {
     }
 
     Scaffold(
+        containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         topBar = {
             PageHeader(
                 title = "偏好设置",
@@ -128,11 +135,11 @@ fun SettingsScreen(viewModel: MainViewModel, onOpenPlugins: () -> Unit) {
                     Text("主题", style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf("system" to "跟随系统", "light" to "浅色", "dark" to "深色").forEach { (value, label) ->
-                            FilterChip(
-                                selected = settings.themeMode == value,
-                                onClick = { viewModel.updateSettings(settings.copy(themeMode = value)) },
-                                label = { Text(label) }
-                            )
+                            GlassChip(
+label = label,
+selected = settings.themeMode == value,
+onClick = { viewModel.updateSettings(settings.copy(themeMode = value)) }
+)
                         }
                     }
                     Spacer(Modifier.height(8.dp))
@@ -141,13 +148,14 @@ fun SettingsScreen(viewModel: MainViewModel, onOpenPlugins: () -> Unit) {
                     }
                     var fontSize by remember(settings.fontSize) { mutableStateOf(settings.fontSize) }
                     Text("正文字号：$fontSize", style = MaterialTheme.typography.labelLarge)
-                    Slider(
+                    LiquidSlider(
                         value = fontSize.toFloat(),
                         onValueChange = { fontSize = it.toInt() },
                         valueRange = 14f..28f,
-                        steps = 13,
-                        onValueChangeFinished = { viewModel.updateSettings(settings.copy(fontSize = fontSize)) }
+                        steps = 13
                     )
+                    Spacer(Modifier.height(6.dp))
+                    GlassButton(label = "应用字号", onClick = { viewModel.updateSettings(settings.copy(fontSize = fontSize)) })
                 }
             }
             item {
@@ -156,11 +164,11 @@ fun SettingsScreen(viewModel: MainViewModel, onOpenPlugins: () -> Unit) {
                     val liquid = GlassMode.from(settings.glassEffect) == GlassMode.Liquid
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf(false to "关闭", true to "液态玻璃").forEach { (value, label) ->
-                            FilterChip(
-                                selected = liquid == value,
-                                onClick = { viewModel.updateSettings(settings.copy(glassEffect = if (value) "liquid" else "none")) },
-                                label = { Text(label) }
-                            )
+                            GlassChip(
+label = label,
+selected = liquid == value,
+onClick = { viewModel.updateSettings(settings.copy(glassEffect = if (value) "liquid" else "none")) }
+)
                         }
                     }
                     Spacer(Modifier.height(8.dp))
@@ -190,13 +198,13 @@ fun SettingsScreen(viewModel: MainViewModel, onOpenPlugins: () -> Unit) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf("新闻", "科技", "学术").forEach { category ->
                             val selected = category in settings.interests
-                            FilterChip(
+                            GlassChip(
+                                label = category,
                                 selected = selected,
                                 onClick = {
                                     val next = if (selected) settings.interests - category else settings.interests + category
                                     viewModel.updateSettings(settings.copy(interests = next))
-                                },
-                                label = { Text(category) }
+                                }
                             )
                         }
                     }
@@ -211,13 +219,11 @@ fun SettingsScreen(viewModel: MainViewModel, onOpenPlugins: () -> Unit) {
                             "deepl" to "DeepL",
                             "mymemory" to "MyMemory"
                         ).forEach { (value, label) ->
-                            FilterChip(
-                                selected = settings.translation.provider == value,
-                                onClick = {
-                                    viewModel.updateSettings(settings.copy(translation = settings.translation.copy(provider = value)))
-                                },
-                                label = { Text(label) }
-                            )
+                            GlassChip(
+label = label,
+selected = settings.translation.provider == value,
+onClick = { viewModel.updateSettings(settings.copy(translation = settings.translation.copy(provider = value))) }
+)
                         }
                     }
                     if (settings.translation.provider != "mymemory" && settings.translation.provider != "microsoft-web") {
@@ -261,16 +267,16 @@ fun SettingsScreen(viewModel: MainViewModel, onOpenPlugins: () -> Unit) {
                         }
                         if (provider == "deepl") {
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                FilterChip(
-                                    selected = settings.translation.deeplPlan == "free",
-                                    onClick = { viewModel.updateSettings(settings.copy(translation = settings.translation.copy(deeplPlan = "free"))) },
-                                    label = { Text("Free") }
-                                )
-                                FilterChip(
-                                    selected = settings.translation.deeplPlan == "pro",
-                                    onClick = { viewModel.updateSettings(settings.copy(translation = settings.translation.copy(deeplPlan = "pro"))) },
-                                    label = { Text("Pro") }
-                                )
+                                GlassChip(
+label = "Free",
+selected = settings.translation.deeplPlan == "free",
+onClick = { viewModel.updateSettings(settings.copy(translation = settings.translation.copy(deeplPlan = "free"))) }
+)
+                                GlassChip(
+label = "Pro",
+selected = settings.translation.deeplPlan == "pro",
+onClick = { viewModel.updateSettings(settings.copy(translation = settings.translation.copy(deeplPlan = "pro"))) }
+)
                             }
                         }
                     }
@@ -383,12 +389,10 @@ fun SettingsScreen(viewModel: MainViewModel, onOpenPlugins: () -> Unit) {
 
 @Composable
 private fun SettingSection(title: String, content: @Composable ColumnScope.() -> Unit) {
-    Card(shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(18.dp)) {
-            Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-            Spacer(Modifier.height(10.dp))
-            content()
-        }
+    GlassCard {
+        Text(title, style = MaterialTheme.typography.titleMedium)
+        Spacer(Modifier.height(10.dp))
+        content()
     }
 }
 
@@ -411,7 +415,7 @@ private fun SettingSwitch(title: String, checked: Boolean, subtitle: String?, on
 private fun WeightSlider(label: String, value: Int, onChange: (Int) -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(label, modifier = Modifier.size(width = 76.dp, height = 24.dp), style = MaterialTheme.typography.labelMedium)
-        Slider(
+        LiquidSlider(
             value = value.toFloat(),
             onValueChange = { onChange(it.toInt()) },
             valueRange = 0f..100f,

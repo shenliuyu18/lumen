@@ -25,10 +25,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Bookmark
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.MoreVert
+import androidx.compose.material.icons.outlined.QuestionAnswer
 import androidx.compose.material.icons.outlined.OpenInBrowser
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.AlertDialog
@@ -81,9 +83,8 @@ import androidx.compose.material.icons.outlined.Search
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import studio.lumen.reader.ui.components.GlassCircleButton
-import studio.lumen.reader.ui.components.LiquidSlider
-import studio.lumen.reader.ui.components.liquidSurface
+import studio.lumen.reader.ui.components.GlassIconButton
+import studio.lumen.reader.ui.components.liquidGlass
 
 private class SelectionBridge(private val handler: Handler, private val onSelection: (SelectionInfo) -> Unit) {
     @JavascriptInterface
@@ -101,7 +102,6 @@ private class SelectionBridge(private val handler: Handler, private val onSelect
 fun ReaderScreen(
     viewModel: MainViewModel,
     onBack: () -> Unit,
-    onBilingual: () -> Unit,
     onAsk: (String) -> Unit
 ) {
     val article by viewModel.currentArticle.collectAsState()
@@ -110,9 +110,6 @@ fun ReaderScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val mainHandler = remember { Handler(Looper.getMainLooper()) }
-    val json = remember { Json { ignoreUnknownKeys = true } }
-    val scripts = remember { viewModel.catalogScripts() }
-    var extracting by remember { mutableStateOf(false) }
     var askDialog by remember { mutableStateOf(false) }
 
     val current = article
@@ -132,27 +129,8 @@ fun ReaderScreen(
     BackHandler { leave() }
 
     var webView by remember { mutableStateOf<WebView?>(null) }
-    var autoStarted by remember(current.url) { mutableStateOf(false) }
     val saved = store.saved.any { it.article.url == current.url }
     val readerBackdrop = rememberLayerBackdrop()
-
-    fun runExtraction(auto: Boolean) {
-        if (extracting) return
-        val view = webView ?: return
-        extracting = true
-        val code = scripts.first + System.lineSeparator() + ";" + scripts.second
-        view.evaluateJavascript(code) { raw ->
-            extracting = false
-            runCatching {
-                val envelope = json.decodeFromString(ExtractionEnvelope.serializer(), raw)
-                if (!envelope.ok || envelope.data == null) error(envelope.error ?: "未找到可提取正文")
-                viewModel.startBilingual(envelope.data)
-                onBilingual()
-            }.onFailure {
-                if (!auto) Toast.makeText(context, it.message ?: "提取失败", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
 
     Scaffold(
         topBar = {
@@ -166,9 +144,7 @@ fun ReaderScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { leave() }) {
-                        Icon(Icons.Outlined.ArrowBack, contentDescription = "返回")
-                    }
+                    GlassIconButton(Icons.AutoMirrored.Outlined.ArrowBack, "返回", { leave() })
                 },
                 actions = {
                     IconButton(onClick = { webView?.reload() }) {
@@ -187,11 +163,7 @@ fun ReaderScreen(
         bottomBar = {
             ReaderGlassPanel(
                 backdrop = readerBackdrop,
-                extracting = extracting,
                 saved = saved,
-                fontSize = store.settings.fontSize,
-                onFontSize = { viewModel.updateSettings(store.settings.copy(fontSize = it.toInt().coerceIn(13, 30))) },
-                onBilingual = { runExtraction(false) },
                 onSave = { viewModel.toggleSaved(current) },
                 onAsk = { askDialog = true },
                 onReload = { webView?.reload() },
@@ -229,10 +201,6 @@ fun ReaderScreen(
                             view?.evaluateJavascript(SELECTION_SCRIPT, null)
                             val adScript = viewModel.adblockScript()
                             if (adScript.isNotBlank()) view?.evaluateJavascript(adScript, null)
-                            if (!autoStarted && !url.isNullOrBlank() && !url.startsWith("about:") && viewModel.consumeAutoBilingual()) {
-                                autoStarted = true
-                                view?.postDelayed({ runExtraction(true) }, 1200)
-                            }
                         }
 
                         override fun shouldOverrideUrlLoading(view: WebView?, request: android.webkit.WebResourceRequest?): Boolean {
@@ -375,61 +343,38 @@ private fun SelectionSheet(selection: SelectionInfo, viewModel: MainViewModel, o
 @Composable
 private fun ReaderGlassPanel(
     backdrop: LayerBackdrop,
-    extracting: Boolean,
     saved: Boolean,
-    fontSize: Int,
-    onFontSize: (Float) -> Unit,
-    onBilingual: () -> Unit,
     onSave: () -> Unit,
     onAsk: () -> Unit,
     onReload: () -> Unit,
     onOpen: () -> Unit
 ) {
     val scheme = MaterialTheme.colorScheme
-    Column(
-        Modifier
+    Row(
+        modifier = Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(horizontal = 14.dp, vertical = 10.dp)
-            .liquidSurface(
-                backdrop = backdrop,
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .liquidGlass(
                 shape = RoundedCornerShape(30.dp),
                 blurRadius = 16.dp,
-                refraction = 22.dp,
-                tint = scheme.surface.copy(alpha = 0.55f)
+                lensRadius = 22.dp,
+                surfaceColor = scheme.surface.copy(alpha = 0.55f),
+                backdrop = backdrop
             )
-            .padding(horizontal = 16.dp, vertical = 16.dp)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Outlined.FormatSize, contentDescription = null, tint = scheme.onSurfaceVariant)
-            Spacer(Modifier.width(14.dp))
-            LiquidSlider(
-                value = fontSize.toFloat(),
-                valueRange = 13f..30f,
-                onValueChange = onFontSize,
-                backdrop = backdrop,
-                modifier = Modifier.weight(1f)
-            )
-        }
-        Spacer(Modifier.height(16.dp))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            GlassCircleButton(
-                icon = Icons.Outlined.AutoAwesome,
-                label = if (extracting) "提取中" else "双语精读",
-                backdrop = backdrop,
-                onClick = onBilingual,
-                enabled = !extracting
-            )
-            GlassCircleButton(
-                icon = if (saved) Icons.Outlined.Bookmark else Icons.Outlined.BookmarkBorder,
-                label = "收藏",
-                backdrop = backdrop,
-                onClick = onSave
-            )
-            GlassCircleButton(Icons.Outlined.Search, "提问", backdrop, onAsk)
-            GlassCircleButton(Icons.Outlined.Refresh, "刷新", backdrop, onReload)
-            GlassCircleButton(Icons.Outlined.OpenInBrowser, "原站", backdrop, onOpen)
-        }
+        GlassIconButton(
+            icon = if (saved) Icons.Outlined.Bookmark else Icons.Outlined.BookmarkBorder,
+            label = "收藏",
+            onClick = onSave,
+            showLabel = true
+        )
+        GlassIconButton(Icons.Outlined.QuestionAnswer, "提问", onAsk, showLabel = true)
+        GlassIconButton(Icons.Outlined.Refresh, "刷新", onReload, showLabel = true)
+        GlassIconButton(Icons.Outlined.OpenInBrowser, "外部打开", onOpen, showLabel = true)
     }
 }
 

@@ -47,6 +47,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -60,6 +61,8 @@ import kotlinx.coroutines.withContext
 import studio.lumen.reader.MainViewModel
 import studio.lumen.reader.data.PluginInfo
 import studio.lumen.reader.ui.components.CircleIconButton
+import studio.lumen.reader.ui.components.GlassButton
+import studio.lumen.reader.ui.components.GlassCard
 import studio.lumen.reader.ui.components.PageHeader
 
 @Composable
@@ -87,6 +90,8 @@ fun PluginsScreen(viewModel: MainViewModel, onBack: () -> Unit) {
     val enabledCount = plugins.count { it.enabled }
 
     Scaffold(
+        containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         topBar = {
             PageHeader(
                 title = "插件中心",
@@ -103,30 +108,26 @@ fun PluginsScreen(viewModel: MainViewModel, onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             item {
-                Card(
-                    shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f))
-                ) {
-                    Column(Modifier.fillMaxWidth().padding(20.dp)) {
-                        Text("来源与阅读体验，都由插件提供", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                        Spacer(Modifier.height(6.dp))
-                        Text(
-                            "$enabledCount / ${plugins.size} 个插件已启用。Lumen 不内置来源或广告规则；导入官方 ZIP 或声明式 JS 后，来源、各站前三与去广告规则才会生效。",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                GlassCard(contentPadding = 20.dp) {
+                    Text("来源与阅读体验，都由插件提供", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        "$enabledCount / ${plugins.size} 个插件已启用。Lumen 不内置来源或广告规则；导入官方 ZIP 或声明式 JS 后，来源、各站前三与去广告规则才会生效。",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.height(14.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        GlassButton(
+                            label = if (busy) "安装中…" else "导入 ZIP / JS",
+                            onClick = { if (!busy) installLauncher.launch(arrayOf("*/*")) },
+                            icon = Icons.Outlined.FileOpen,
+                            enabled = !busy
                         )
-                        Spacer(Modifier.height(14.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Button(onClick = { if (!busy) installLauncher.launch(arrayOf("*/*")) }, enabled = !busy) {
-                                Icon(Icons.Outlined.FileOpen, contentDescription = null, modifier = Modifier.size(18.dp))
-                                Spacer(Modifier.size(6.dp))
-                                Text(if (busy) "安装中…" else "导入 ZIP / JS")
-                            }
-                            OutlinedButton(onClick = {
-                                clipboard.setText(AnnotatedString(viewModel.pluginDirectory().absolutePath))
-                                Toast.makeText(context, "插件目录已复制", Toast.LENGTH_SHORT).show()
-                            }) { Text("复制插件目录") }
-                        }
+                        GlassButton(label = "复制插件目录", onClick = {
+                            clipboard.setText(AnnotatedString(viewModel.pluginDirectory().absolutePath))
+                            Toast.makeText(context, "插件目录已复制", Toast.LENGTH_SHORT).show()
+                        })
                     }
                 }
             }
@@ -172,8 +173,7 @@ fun PluginsScreen(viewModel: MainViewModel, onBack: () -> Unit) {
 
 @Composable
 private fun PluginCard(plugin: PluginInfo, onToggle: (Boolean) -> Unit, onRemove: () -> Unit) {
-    Card(shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.fillMaxWidth().padding(18.dp)) {
+    GlassCard(contentPadding = 18.dp) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     if (plugin.type == "adblock") Icons.Outlined.Block else Icons.Outlined.TravelExplore,
@@ -213,6 +213,5 @@ private fun PluginCard(plugin: PluginInfo, onToggle: (Boolean) -> Unit, onRemove
                     Icon(Icons.Outlined.Delete, contentDescription = "移除插件", tint = MaterialTheme.colorScheme.error)
                 }
             }
-        }
     }
 }

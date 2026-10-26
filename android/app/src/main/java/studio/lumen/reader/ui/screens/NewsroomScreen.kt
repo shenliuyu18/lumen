@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -36,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import studio.lumen.reader.MainViewModel
 import studio.lumen.reader.data.Article
 import studio.lumen.reader.data.NewsroomGroup
+import studio.lumen.reader.ui.components.GlassCard
 import studio.lumen.reader.ui.components.LocalFloatingNavPadding
 import studio.lumen.reader.ui.components.PluginRequiredCard
 import studio.lumen.reader.ui.components.SectionHeader
@@ -49,6 +51,8 @@ fun NewsroomScreen(viewModel: MainViewModel, onOpenArticle: (Article) -> Unit, o
     val progress by viewModel.refreshProgress.collectAsState()
     val sourceNames = rememberSourceMap(viewModel)
     Scaffold(
+        containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         topBar = {
             Column {
                 PageHeader(
@@ -118,53 +122,54 @@ private fun rememberSourceMap(viewModel: MainViewModel): Map<String, String> =
 
 @Composable
 private fun GroupCard(group: NewsroomGroup, sourceName: String, onOpenArticle: (Article) -> Unit) {
-    Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 6.dp)) {
-        Column(modifier = Modifier.padding(18.dp)) {
-            Row {
-                Text(sourceName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                Spacer(Modifier.weight(1f))
-                Text(
-                    when {
-                        group.stale -> "旧快照"
-                        group.basis == "feed" -> "订阅顺序"
-                        else -> "首页顺序"
-                    },
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-            if (group.items.isEmpty()) {
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    group.error ?: "暂无可用头条",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error
-                )
-            } else {
-                group.items.forEachIndexed { index, article ->
-                    TextButton(
-                        onClick = { onOpenArticle(article) },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("${index + 1}", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-                        Spacer(Modifier.width(10.dp))
-                        Column(modifier = Modifier.weight(1f)) {
+    GlassCard(
+        modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp),
+        contentPadding = 18.dp
+    ) {
+        Row {
+            Text(sourceName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            Spacer(Modifier.weight(1f))
+            Text(
+                when {
+                    group.stale -> "旧快照"
+                    group.basis == "feed" -> "订阅顺序"
+                    else -> "首页顺序"
+                },
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+        if (group.items.isEmpty()) {
+            Spacer(Modifier.height(8.dp))
+            Text(
+                group.error ?: "暂无可用头条",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error
+            )
+        } else {
+            group.items.forEachIndexed { index, article ->
+                TextButton(
+                    onClick = { onOpenArticle(article) },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("${index + 1}", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                    Spacer(Modifier.width(10.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            article.title,
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontFamily = FontFamily.Serif,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        if (article.description.isNotBlank()) {
                             Text(
-                                article.title,
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontFamily = FontFamily.Serif,
+                                article.description,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis
                             )
-                            if (article.description.isNotBlank()) {
-                                Text(
-                                    article.description,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
                         }
                     }
                 }

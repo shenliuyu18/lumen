@@ -1,11 +1,11 @@
 package studio.lumen.reader.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -46,11 +46,13 @@ import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import studio.lumen.reader.MainViewModel
 import studio.lumen.reader.ui.components.GlassMode
 import studio.lumen.reader.ui.components.GlassSurface
+import studio.lumen.reader.ui.components.GlassWallpaper
 import studio.lumen.reader.ui.components.LiquidBottomBar
 import studio.lumen.reader.ui.components.LiquidNavItem
 import studio.lumen.reader.ui.components.LocalFloatingNavPadding
+import studio.lumen.reader.ui.components.LocalGlassBackdrop
 import studio.lumen.reader.ui.components.glassNavShape
-import studio.lumen.reader.ui.screens.BilingualScreen
+import studio.lumen.reader.ui.screens.ReadingScreen
 import studio.lumen.reader.ui.screens.ChatScreen
 import studio.lumen.reader.ui.screens.DiscoverScreen
 import studio.lumen.reader.ui.screens.NewsroomScreen
@@ -83,127 +85,153 @@ fun LumenRoot(viewModel: MainViewModel) {
     val glassMode = GlassMode.from(settings.glassEffect)
     val floating = settings.floatingNav
     val showNav = route in mainRoutes
-    val glassActive = showNav && glassMode != GlassMode.Off
-    val backdrop = rememberLayerBackdrop()
-    val contentBehindBar = glassActive || (showNav && floating)
+    // WebView 页面不把内容录进玻璃采样层：Chromium 画进别人的图层在部分机型会闪烁。
+    val samplingAllowed = route != "site"
+    val glassOn = glassMode != GlassMode.Off
+    // 壁纸层是页面内所有玻璃的采样源，内容层只给底栏采样：玻璃采样自己所在的渲染层
+    // 会让 RenderNode 自引用并栈溢出。
+    val wallpaperLayer = rememberLayerBackdrop()
+    val contentLayer = rememberLayerBackdrop()
+    val wallpaper = if (glassOn && samplingAllowed) wallpaperLayer else null
+    val navLayer = when {
+        !glassOn -> null
+        samplingAllowed && showNav -> contentLayer
+        else -> wallpaperLayer
+    }
+    val contentBehindBar = (glassOn || floating) && showNav
     val navPadding = when {
         !showNav -> 0.dp
         floating -> 132.dp
-        glassActive -> 128.dp
+        glassOn -> 128.dp
         else -> 0.dp
     }
     LaunchedEffect(Unit) {
         viewModel.messages.collect { snackbar.showSnackbar(it) }
     }
-    CompositionLocalProvider(LocalFloatingNavPadding provides navPadding) {
-        Scaffold(
-            contentWindowInsets = WindowInsets(0),
-            snackbarHost = { SnackbarHost(snackbar) },
-            bottomBar = {
-                if (showNav && !floating) {
-                    StandardNavigationBar(route, glassMode, if (glassActive) backdrop else null) {
-                        navController.navigateMain(it)
+    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        GlassWallpaper(Modifier.fillMaxSize(), backdrop = wallpaper)
+        CompositionLocalProvider(
+            LocalFloatingNavPadding provides navPadding,
+            LocalGlassBackdrop provides wallpaper
+        ) {
+            Scaffold(
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                contentWindowInsets = WindowInsets(0),
+                snackbarHost = { SnackbarHost(snackbar) },
+                bottomBar = {
+                    if (showNav && !floating) {
+                        StandardNavigationBar(route, glassMode, navLayer) {
+                            navController.navigateMain(it)
+                        }
                     }
                 }
-            }
-        ) { padding ->
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .padding(
-                        top = padding.calculateTopPadding(),
-                        bottom = if (contentBehindBar) 0.dp else padding.calculateBottomPadding()
-                    )
-            ) {
+            ) { padding ->
                 Box(
                     Modifier
                         .fillMaxSize()
-                        .then(if (glassActive) Modifier.layerBackdrop(backdrop) else Modifier)
+                        .padding(
+                            top = padding.calculateTopPadding(),
+                            bottom = if (contentBehindBar) 0.dp else padding.calculateBottomPadding()
+                        )
                 ) {
-                    NavHost(
-                        navController = navController,
-                        startDestination = "discover",
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        composable("discover") {
-                            DiscoverScreen(
-                                viewModel = viewModel,
-                                onOpenArticle = { article ->
-                                    viewModel.openArticle(article)
-                                    navController.navigate("reader")
-                                },
-                                onOpenNewsroom = { navController.navigate("newsroom") },
-                                onOpenPlugins = { navController.navigate("plugins") }
-                            )
-                        }
-                        composable("newsroom") {
-                            NewsroomScreen(
-                                viewModel = viewModel,
-                                onOpenArticle = { article ->
-                                    viewModel.openArticle(article)
-                                    navController.navigate("reader")
-                                },
-                                onOpenPlugins = { navController.navigate("plugins") }
-                            )
-                        }
-                        composable("sources") {
-                            SourcesScreen(
-                                viewModel = viewModel,
-                                onOpenSource = { article ->
-                                    viewModel.openArticle(article)
-                                    navController.navigate("reader")
-                                },
-                                onOpenPlugins = { navController.navigate("plugins") }
-                            )
-                        }
-                        composable("study") {
-                            StudyScreen(
-                                viewModel = viewModel,
-                                onOpenArticle = { article ->
-                                    viewModel.openArticle(article)
-                                    navController.navigate("reader")
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .then(
+                                if (glassOn && samplingAllowed) {
+                                    Modifier.layerBackdrop(contentLayer)
+                                } else {
+                                    Modifier
                                 }
                             )
-                        }
-                        composable("settings") {
-                            SettingsScreen(viewModel, onOpenPlugins = { navController.navigate("plugins") })
-                        }
-                        composable("plugins") {
-                            PluginsScreen(viewModel, onBack = { navController.popBackStack() })
-                        }
-                        composable("reader") {
-                            ReaderScreen(
-                                viewModel = viewModel,
-                                onBack = {
-                                    viewModel.finishReading()
-                                    navController.popBackStack()
-                                },
-                                onBilingual = { navController.navigate("bilingual") },
-                                onAsk = { service -> navController.navigate("chat/$service") }
-                            )
-                        }
-                        composable("bilingual") {
-                            BilingualScreen(
-                                viewModel = viewModel,
-                                onBack = { navController.popBackStack() },
-                                onAsk = { service -> navController.navigate("chat/$service") }
-                            )
-                        }
-                        composable(
-                            "chat/{service}",
-                            arguments = listOf(navArgument("service") { type = NavType.StringType })
-                        ) { entry ->
-                            ChatScreen(
-                                viewModel = viewModel,
-                                service = entry.arguments?.getString("service") ?: "chatgpt",
-                                onBack = { navController.popBackStack() }
-                            )
+                    ) {
+                        NavHost(
+                            navController = navController,
+                            startDestination = "discover",
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            composable("discover") {
+                                DiscoverScreen(
+                                    viewModel = viewModel,
+                                    onOpenArticle = { article ->
+                                        viewModel.openArticle(article)
+                                        navController.navigate("reader")
+                                    },
+                                    onOpenNewsroom = { navController.navigate("newsroom") },
+                                    onOpenPlugins = { navController.navigate("plugins") }
+                                )
+                            }
+                            composable("newsroom") {
+                                NewsroomScreen(
+                                    viewModel = viewModel,
+                                    onOpenArticle = { article ->
+                                        viewModel.openArticle(article)
+                                        navController.navigate("reader")
+                                    },
+                                    onOpenPlugins = { navController.navigate("plugins") }
+                                )
+                            }
+                            composable("sources") {
+                                SourcesScreen(
+                                    viewModel = viewModel,
+                                    onOpenSource = { article ->
+                                        viewModel.openArticle(article)
+                                        navController.navigate("reader")
+                                    },
+                                    onOpenPlugins = { navController.navigate("plugins") }
+                                )
+                            }
+                            composable("study") {
+                                StudyScreen(
+                                    viewModel = viewModel,
+                                    onOpenArticle = { article ->
+                                        viewModel.openArticle(article)
+                                        navController.navigate("reader")
+                                    }
+                                )
+                            }
+                            composable("settings") {
+                                SettingsScreen(viewModel, onOpenPlugins = { navController.navigate("plugins") })
+                            }
+                            composable("plugins") {
+                                PluginsScreen(viewModel, onBack = { navController.popBackStack() })
+                            }
+                            composable("reader") {
+                                ReadingScreen(
+                                    viewModel = viewModel,
+                                    onBack = {
+                                        viewModel.clearBilingual()
+                                        viewModel.finishReading()
+                                        navController.popBackStack()
+                                    },
+                                    onAsk = { service -> navController.navigate("chat/$service") },
+                                    onOpenSite = { navController.navigate("site") }
+                                )
+                            }
+                            composable("site") {
+                                ReaderScreen(
+                                    viewModel = viewModel,
+                                    onBack = { navController.popBackStack() },
+                                    onAsk = { service -> navController.navigate("chat/$service") }
+                                )
+                            }
+                            composable(
+                                "chat/{service}",
+                                arguments = listOf(navArgument("service") { type = NavType.StringType })
+                            ) { entry ->
+                                ChatScreen(
+                                    viewModel = viewModel,
+                                    service = entry.arguments?.getString("service") ?: "chatgpt",
+                                    onBack = { navController.popBackStack() }
+                                )
+                            }
                         }
                     }
-                }
-                if (showNav && floating) {
-                    Box(Modifier.align(Alignment.BottomCenter)) {
-                        FloatingNavigationBar(route, glassMode, backdrop) { navController.navigateMain(it) }
+                    if (showNav && floating) {
+                        Box(Modifier.align(Alignment.BottomCenter)) {
+                            FloatingNavigationBar(route, glassMode, navLayer) { navController.navigateMain(it) }
+                        }
                     }
                 }
             }
@@ -264,7 +292,7 @@ private fun StandardNavigationBar(
 private fun FloatingNavigationBar(
     route: String?,
     mode: GlassMode,
-    backdrop: LayerBackdrop,
+    backdrop: LayerBackdrop?,
     onNavigate: (String) -> Unit
 ) {
     Box(

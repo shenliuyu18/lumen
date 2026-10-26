@@ -55,6 +55,8 @@ import studio.lumen.reader.data.Article
 import studio.lumen.reader.ui.components.ArcGauge
 import studio.lumen.reader.ui.components.ArticleCard
 import studio.lumen.reader.ui.components.CircleIconButton
+import studio.lumen.reader.ui.components.GlassButton
+import studio.lumen.reader.ui.components.GlassCard
 import studio.lumen.reader.ui.components.ListRow
 import studio.lumen.reader.ui.components.LocalFloatingNavPadding
 import studio.lumen.reader.ui.components.PageHeader
@@ -69,7 +71,6 @@ import java.time.ZoneId
 import kotlin.math.roundToInt
 
 private val todayCategories = listOf("全部", "新闻", "商业", "科技", "学术", "社会", "人文", "环境", "健康")
-private const val dailyGoal = 3
 
 @Composable
 fun DiscoverScreen(
@@ -92,12 +93,6 @@ fun DiscoverScreen(
         }
     }
     val savedUrls = remember(store.saved) { store.saved.map { it.article.url }.toSet() }
-    val history = store.history
-    val todayRead = remember(history) {
-        val today = LocalDate.now(ZoneId.systemDefault())
-        history.count { LocalDate.ofInstant(java.time.Instant.ofEpochMilli(it.readAt), ZoneId.systemDefault()) == today }
-    }
-    val hours = (store.readingSeconds / 3600f)
 
     Scaffold { padding ->
         LazyColumn(
@@ -135,37 +130,6 @@ fun DiscoverScreen(
                         onOpenPlugins = onOpenPlugins,
                         modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)
                     )
-                }
-            }
-            item {
-                ReadingGoalCard(todayRead = todayRead, hours = hours, articles = store.articles.size)
-            }
-            if (history.isNotEmpty()) {
-                item {
-                    SectionLabel("最近阅读", Modifier.padding(horizontal = 20.dp))
-                }
-                item {
-                    PanelCard(Modifier.padding(horizontal = 20.dp)) {
-                        history.take(3).forEachIndexed { index, entry ->
-                            if (index > 0) Divider()
-                            ListRow(
-                                icon = Icons.Outlined.History,
-                                title = entry.article.title,
-                                subtitle = "${entry.article.source} · ${relativeTime(entry.readAt)}",
-                                onClick = { onOpenArticle(entry.article) },
-                                trailing = {
-                                    Icon(
-                                        Icons.Outlined.ArrowForward,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            )
-                        }
-                    }
-                }
-                item {
-                    CoverStrip(history.map { it.article }.distinctBy { it.url }.take(12)) { onOpenArticle(it) }
                 }
             }
             item {
@@ -237,95 +201,11 @@ fun DiscoverScreen(
 }
 
 @Composable
-private fun ReadingGoalCard(todayRead: Int, hours: Float, articles: Int) {
-    Column(Modifier.padding(horizontal = 20.dp)) {
-        PanelCard {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(start = 18.dp, end = 6.dp, top = 18.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(Modifier.weight(1f)) {
-                    Text("今日阅读目标", style = MaterialTheme.typography.titleMedium)
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        "打开 $dailyGoal 篇，认真读一点",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                ArcGauge(
-                    progress = todayRead.toFloat() / dailyGoal,
-                    center = "$todayRead / $dailyGoal",
-                    unit = "篇 · 今日"
-                )
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp).padding(bottom = 18.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                StatCard(Icons.Outlined.History, "$articles 篇", "已收录", Modifier.weight(1f))
-                StatCard(Icons.Outlined.Timer, "${hours.roundToInt()} 小时", "累计时长", Modifier.weight(1f))
-            }
-        }
-    }
-}
-
-/** 封面横滚：没有真实封面，用来源首字与色块代替。 */
-@Composable
-private fun CoverStrip(articles: List<Article>, onOpen: (Article) -> Unit) {
-    LazyRow(
-        contentPadding = PaddingValues(horizontal = 20.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        items(articles, key = { it.id }) { article ->
-            Column(
-                modifier = Modifier
-                    .width(104.dp)
-                    .clickable { onOpen(article) }
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(width = 104.dp, height = 140.dp)
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        article.source.take(2),
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
-                Spacer(Modifier.height(6.dp))
-                Text(
-                    article.title,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun Divider() {
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 18.dp)
-            .height(1.dp)
-            .background(MaterialTheme.colorScheme.outlineVariant)
-    )
-}
-
-@Composable
 private fun HeroCard(article: Article, saved: Boolean, onOpen: () -> Unit, onSave: () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        shape = RoundedCornerShape(24.dp)
+    GlassCard(
+        modifier = Modifier.padding(horizontal = 20.dp),
+        onClick = onOpen,
+        contentPadding = 0.dp
     ) {
         Column(modifier = Modifier.padding(24.dp)) {
             Text(
@@ -358,13 +238,9 @@ private fun HeroCard(article: Article, saved: Boolean, onOpen: () -> Unit, onSav
             }
             Spacer(Modifier.height(18.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Button(onClick = onOpen) {
-                    Text("开始阅读")
-                    Spacer(Modifier.width(6.dp))
-                    Icon(Icons.Outlined.ArrowForward, contentDescription = null)
-                }
+                GlassButton(label = "开始阅读", onClick = onOpen, icon = Icons.Outlined.ArrowForward)
                 Spacer(Modifier.width(8.dp))
-                TextButton(onClick = onSave) { Text(if (saved) "已收藏" else "稍后阅读") }
+                GlassButton(label = if (saved) "已收藏" else "稍后阅读", onClick = onSave)
             }
         }
     }
