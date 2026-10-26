@@ -1,0 +1,474 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+package studio.lumen.reader.ui.screens
+
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.ArrowOutward
+import androidx.compose.material.icons.outlined.BookmarkAdd
+import androidx.compose.material.icons.outlined.ErrorOutline
+import androidx.compose.material.icons.outlined.QuestionAnswer
+import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import studio.lumen.reader.MainViewModel
+import studio.lumen.reader.data.BilingualParagraph
+import java.net.URI
+
+@Composable
+fun BilingualScreen(viewModel: MainViewModel, onBack: () -> Unit, onAsk: (String) -> Unit) {
+    val bilingual by viewModel.bilingual.collectAsState()
+    val store by viewModel.store.collectAsState()
+    val article = bilingual
+    var saveParagraph by remember { mutableStateOf<BilingualParagraph?>(null) }
+    var meaning by remember { mutableStateOf("") }
+    if (article == null) {
+        Column(modifier = Modifier.fillMaxSize().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("请先进入双语精读", style = MaterialTheme.typography.titleLarge)
+            TextButton(onClick = onBack) { Text("返回") }
+        }
+        return
+    }
+    val translated = article.paragraphs.count { it.translation != null }
+    val progress by animateFloatAsState(
+        targetValue = if (article.paragraphs.isEmpty()) 1f else translated.toFloat() / article.paragraphs.size,
+        label = "translation-progress"
+    )
+    val host = remember(article.url) {
+        runCatching { URI(article.url).host?.removePrefix("www.") }.getOrNull()?.takeIf { it.isNotBlank() }
+            ?: article.url
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Column {
+                        Text("双语精读", fontFamily = FontFamily.Serif)
+                        Text(
+                            "${article.provider} · ${article.paragraphs.size} 段",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "返回原文")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { onAsk("deepseek") }) {
+                        Icon(Icons.Outlined.QuestionAnswer, contentDescription = "向 DeepSeek 提问")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
+            )
+        }
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 4.dp, bottom = 40.dp),
+            verticalArrangement = Arrangement.spacedBy(0.dp)
+        ) {
+            item {
+                HeaderCard(article, translated, progress, host)
+            }
+            itemsIndexed(article.paragraphs, key = { index, _ -> index }) { index, paragraph ->
+                ParagraphBlock(
+                    paragraph = paragraph,
+                    index = index,
+                    fontSize = store.settings.fontSize,
+                    onSave = {
+                        saveParagraph = paragraph
+                        meaning = ""
+                    },
+                    onAsk = { onAsk("deepseek") },
+                    onRetry = { viewModel.retryParagraph(index) }
+                )
+            }
+            item {
+                FooterCard(
+                    onBack = onBack,
+                    onAsk = { onAsk("deepseek") }
+                )
+            }
+        }
+    }
+    if (saveParagraph != null) {
+        AlertDialog(
+            onDismissRequest = { saveParagraph = null },
+            title = { Text("保存到词句本") },
+            text = {
+                Column {
+                    Text(
+                        saveParagraph!!.text,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontFamily = FontFamily.Serif,
+                        maxLines = 4,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = meaning,
+                        onValueChange = { meaning = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("释义 / 笔记") },
+                        minLines = 2
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    val paragraph = saveParagraph ?: return@TextButton
+                    viewModel.addVocab(paragraph.text, meaning, article.title + "\n" + article.url, article.url)
+                    saveParagraph = null
+                }) { Text("保存") }
+            },
+            dismissButton = { TextButton(onClick = { saveParagraph = null }) { Text("取消") } }
+        )
+    }
+}
+
+@Composable
+private fun HeaderCard(
+    article: studio.lumen.reader.data.BilingualArticle,
+    translated: Int,
+    progress: Float,
+    host: String
+) {
+    Card(
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.48f))
+    ) {
+        Column(Modifier.fillMaxWidth().padding(22.dp)) {
+            Text(
+                "BILINGUAL READING",
+                style = MaterialTheme.typography.labelSmall,
+                letterSpacing = 1.6.sp,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(Modifier.height(10.dp))
+            Text(
+                article.title,
+                style = MaterialTheme.typography.headlineSmall,
+                fontFamily = FontFamily.Serif,
+                fontWeight = FontWeight.Medium,
+                lineHeight = 34.sp
+            )
+            Spacer(Modifier.height(10.dp))
+            Text(host, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer(Modifier.height(14.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                MetaChip("${article.paragraphs.size} 段", MaterialTheme.colorScheme.surface)
+                MetaChip(article.provider, MaterialTheme.colorScheme.surface)
+                if (translated == article.paragraphs.size) {
+                    MetaChip("翻译完成", MaterialTheme.colorScheme.tertiaryContainer)
+                }
+            }
+            Spacer(Modifier.height(16.dp))
+            LinearProgressIndicator(
+                progress = { progress },
+                modifier = Modifier.fillMaxWidth().height(5.dp),
+                strokeCap = androidx.compose.ui.graphics.StrokeCap.Round,
+                trackColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                if (translated < article.paragraphs.size) "正在翻译 $translated / ${article.paragraphs.size} 段 · 原文与译文依次对照"
+                else "已翻译 ${article.paragraphs.size} 段 · 机器译文仅供参考，原文完整保留",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            if (article.warnings.isNotEmpty()) {
+                Spacer(Modifier.height(10.dp))
+                article.warnings.forEach {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.Outlined.ErrorOutline,
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp),
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
+                    }
+                }
+            }
+        }
+    }
+    Spacer(Modifier.height(10.dp))
+}
+
+@Composable
+private fun MetaChip(text: String, color: Color) {
+    Surface(shape = CircleShape, color = color) {
+        Text(
+            text,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun FooterCard(onBack: () -> Unit, onAsk: () -> Unit) {
+    Spacer(Modifier.height(28.dp))
+    Card(
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
+    ) {
+        Column(Modifier.fillMaxWidth().padding(20.dp)) {
+            Text(
+                "读到这里",
+                style = MaterialTheme.typography.titleMedium,
+                fontFamily = FontFamily.Serif,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(Modifier.height(6.dp))
+            Text(
+                "原文与译文都已保留。可以回到原站继续浏览，或带着不理解的段落向 DeepSeek 提问。",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(Modifier.height(14.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = onBack) { Text("回到原文") }
+                Button(onClick = onAsk) {
+                    Icon(Icons.Outlined.QuestionAnswer, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("继续提问")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ParagraphBlock(
+    paragraph: BilingualParagraph,
+    index: Int,
+    fontSize: Int,
+    onSave: () -> Unit,
+    onAsk: () -> Unit,
+    onRetry: () -> Unit
+) {
+    val isHeading = paragraph.tag.startsWith("h")
+    val originalStyle = if (isHeading) {
+        MaterialTheme.typography.titleLarge.copy(fontFamily = FontFamily.Serif, lineHeight = 32.sp)
+    } else {
+        MaterialTheme.typography.bodyLarge.copy(fontFamily = FontFamily.Serif, fontSize = fontSize.sp, lineHeight = (fontSize * 1.72).sp)
+    }
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .animateContentSize()
+            .padding(top = if (isHeading) 26.dp else 20.dp, bottom = 2.dp)
+    ) {
+        if (isHeading) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    Modifier
+                        .width(4.dp)
+                        .height(24.dp)
+                        .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
+                )
+                Spacer(Modifier.width(12.dp))
+                Text("SECTION ${(index + 1).toString().padStart(2, '0')}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                Spacer(Modifier.weight(1f))
+                ParagraphActions(onSave = onSave, onAsk = onAsk)
+            }
+            Spacer(Modifier.height(8.dp))
+        } else {
+            Text(
+                (index + 1).toString().padStart(2, '0'),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.outline,
+                modifier = Modifier.padding(start = 2.dp, bottom = 6.dp)
+            )
+        }
+        SelectionContainer {
+            Text(
+                paragraph.text,
+                style = originalStyle,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
+        Spacer(Modifier.height(if (isHeading) 8.dp else 12.dp))
+        TranslationBlock(paragraph, isHeading, onRetry)
+        if (!isHeading) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ParagraphActions(onSave = onSave, onAsk = onAsk)
+            }
+        }
+        Spacer(Modifier.height(8.dp))
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f))
+    }
+}
+
+@Composable
+private fun ParagraphActions(onSave: () -> Unit, onAsk: () -> Unit) {
+    Row {
+        IconButton(onClick = onSave, modifier = Modifier.size(34.dp)) {
+            Icon(
+                Icons.Outlined.BookmarkAdd,
+                contentDescription = "保存这段话",
+                modifier = Modifier.size(18.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        IconButton(onClick = onAsk, modifier = Modifier.size(34.dp)) {
+            Icon(
+                Icons.Outlined.QuestionAnswer,
+                contentDescription = "结合这段向 DeepSeek 提问",
+                modifier = Modifier.size(18.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun TranslationBlock(paragraph: BilingualParagraph, isHeading: Boolean, onRetry: () -> Unit) {
+    val translation = paragraph.translation
+    val error = paragraph.error
+    if (translation == null && error == null) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.32f),
+                    RoundedCornerShape(14.dp)
+                )
+                .padding(horizontal = 16.dp, vertical = 13.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(14.dp),
+                strokeWidth = 1.6.dp,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(Modifier.width(10.dp))
+            Text(
+                "正在翻译…",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        return
+    }
+    if (translation == null && error != null) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f), RoundedCornerShape(14.dp))
+                .padding(horizontal = 16.dp, vertical = 11.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                Icons.Outlined.ErrorOutline,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+                tint = MaterialTheme.colorScheme.error
+            )
+            Spacer(Modifier.width(8.dp))
+            Text(
+                error,
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onErrorContainer,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis
+            )
+            TextButton(onClick = onRetry) {
+                Icon(Icons.Outlined.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
+                Spacer(Modifier.width(4.dp))
+                Text("重试")
+            }
+        }
+        return
+    }
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+            .background(
+                if (isHeading) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.28f)
+                else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.38f),
+                RoundedCornerShape(14.dp)
+            )
+    ) {
+        Box(
+            Modifier
+                .width(3.dp)
+                .fillMaxHeight()
+                .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(topStart = 14.dp, bottomStart = 14.dp))
+        )
+        Text(
+            translation ?: "",
+            modifier = Modifier.weight(1f).padding(horizontal = 15.dp, vertical = 13.dp),
+            style = MaterialTheme.typography.bodyMedium.copy(
+                lineHeight = 24.sp,
+                fontStyle = if (isHeading) FontStyle.Italic else FontStyle.Normal
+            ),
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}

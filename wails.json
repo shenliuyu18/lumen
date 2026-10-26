@@ -1,0 +1,20 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "Lumen",
+  "outputfilename": "Lumen",
+  "frontend:dir": "ui",
+  "wailsjsdir": "ui/wailsjs",
+  "frontend:install": "",
+  "frontend:build": "",
+  "author": {
+    "name": "Lumen",
+    "email": ""
+  },
+  "info": {
+    "companyName": "Lumen",
+    "productName": "Lumen",
+    "productVersion": "1.0.0",
+    "copyright": "MIT",
+    "comments": "Lumen · 观读（Wails / WebView2）"
+  }
+}

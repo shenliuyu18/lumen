@@ -8,4 +8,3 @@
 *.yml text eol=lf
 *.png binary
 *.ico binary
-vendor/reader-extension-source/** -text

@@ -1,59 +1,121 @@
 # Lumen · 观读
 
-一款面向英语学习的 Windows 桌面阅读应用。用简洁的浅色界面，连接英文媒体、大学和研究机构，在原文阅读中积累词汇、理解句子。
+一款面向英语学习的阅读应用：Windows 桌面版 + 原生 Android 版。连接英文媒体、大学和研究机构，在原文阅读中积累词汇、理解句子。
 
-**[下载 Lumen 1.0.6 · Windows x64](https://github.com/sadinoel0106/Lumen/releases/download/v1.0.6/Lumen-Setup-1.0.6.exe)** · [完整源码 ZIP](https://github.com/sadinoel0106/Lumen/releases/download/v1.0.6/Lumen-Source-1.0.6.zip) · [版本说明](https://github.com/sadinoel0106/Lumen/releases/tag/v1.0.6)
+桌面版使用 **Wails v2 + 系统 WebView2** 重写，安装包不再携带 Chromium。当前版本 **1.0.0**。
 
-项目自有源码已按 **[MIT 许可证](LICENSE)** 开源。第三方源码保留原许可证，详见 [第三方声明](THIRD_PARTY_NOTICES.md)。媒体内容、商标和外部服务的权利由各自所有者保留。
+## 来源与致谢
+
+本项目延续自上游 [sadinoel0106/Lumen](https://github.com/sadinoel0106/Lumen)（MIT License，原始 Electron 版 1.0.6），并已获得原作者授权继续开发。产品概念、界面文案、推荐与排序规则、学习功能设计均沿自上游；1.0.0 指本次 Wails + Android 重写后的首个版本，与上游的 1.0.6 是两条版本号线索。上游版权与许可证保留在 [LICENSE](LICENSE) 与 [第三方声明](THIRD_PARTY_NOTICES.md) 中。
+
+## 下载
+
+[Releases](releases) 页面提供：
+
+| 文件 | 说明 |
+| --- | --- |
+| `Lumen-Setup-1.0.0.exe` | Windows x64 按用户安装（不需要管理员权限），未做代码签名 |
+| `Lumen-Android-1.0.0-debug.apk` | Android 8.0+（minSdk 26），debug 签名，供试用与自测 |
+| `lumen-crawler-1.0.0.zip`、`lumen-adblock-1.0.0.zip` | 官方插件，安装应用后在插件中心导入 |
+
+安装包未签名，Windows SmartScreen 会提示「未知发布者」，选择「仍要运行」即可。应用不内置插件，首次启动后请先导入上面两个插件 ZIP。
 
 ## 可以做什么
 
 - **综合推荐**：结合时效、来源影响力、跨来源同题覆盖、前沿性与学习信号，展示可查看依据的推荐。评分是规则分析，不代表实测流量或全文事实核查。
-- **各站前三**：汇总 123 个英文媒体与机构，区分首页候选和订阅顺序，并显示更新时间。网站访问限制可能导致部分来源暂时没有结果。
-- **原文与双语精读**：直接阅读原站；精读视图过滤广告、导航等独立区域，将译文放在英文段落下方。分页和未加载内容会影响提取范围，界面提供相应提示。
-- **划词与翻译**：查词、句段翻译，默认使用微软官方翻译网页；可配置自己的 Microsoft Translator 或 DeepL API。
-- **词句本与复习**：保存词句、间隔复习、收藏文章，并支持学习资料备份与 CSV 导出。
-- **阅读时随时提问**：右侧窄栏可打开 ChatGPT 官方网页，使用自己的账户；问题由你自行输入并发送。
-- **便捷导航与十款主题**：连续返回上一步、返回首页，随时切换浅色配色。
-- **足迹与缓存管理**：删除阅读足迹、清理各类缓存，或启用轻量存储模式。
+- **各站前三**：汇总 123 个英文媒体与机构，区分首页候选与订阅顺序，并显示更新时间。
+- **应用内原文阅读**：嵌入的 WebView2 阅读视图打开原站，保留登录态；支持后退、前进、刷新、缩放、外部打开与划词。
+- **自动双语精读**：打开文章后自动提取正文并逐段翻译；可在阅读页暂停、重试或返回原站排版。过滤广告、导航等独立区域，把译文放在英文段落下方。
+- **划词与翻译**：查词、句段翻译；默认用微软官方网页翻译（免密钥，即 Edge 内置的翻译服务），可改用 Microsoft Translator、DeepL 或 MyMemory。
+- **词句本与复习**：保存词句、间隔复习、收藏文章，支持学习资料 JSON 备份与 CSV 导出。
+- **阅读时提问**：侧栏可嵌入 ChatGPT 官方网页；DeepSeek 默认内嵌官方网页，支持复制选文、刷新、小窗和浏览器打开，也可切换到 API 问答。
+- **插件中心**：Lumen 不内置来源或广告规则。爬虫与去广告插件独立打包，桌面与安卓共用；支持导入 ZIP 或声明式 JS、启停与移除。去广告插件针对 Lumen 目录中的重点来源优化，在原文与精读中清理广告。
+- **十款主题、足迹与缓存管理**：浅色配色、阅读足迹、缓存清理与轻量存储模式。
+- **Android 界面质感**：可选关闭 / 液态玻璃（基于 Backdrop 库实时折射背景），以及可选的悬浮底栏；默认关闭。Android 13+ 有完整折射，Android 12 只有背景模糊，更低版本回退为半透明面板。
 
-## 安装与升级
+## Android 版
 
-1. 下载 **Lumen-Setup-1.0.6.exe**。
-2. 关闭正在运行的旧版 Lumen，运行安装程序并选择安装目录。
-3. 升级可安装到原目录；学习资料保存在独立用户资料目录，具体位置可在应用设置中查看。
+原生 Kotlin + Jetpack Compose Material 3 版本位于 [`android/`](android/README.md)，构建说明和已知差异见该目录 README。
 
-适用于 **Windows x64**。安装包未配置代码签名证书。安装包的 SHA256：
+## 插件
 
-```text
-319AC2A1BE39F4734A6BFBCA101292EAABD4AFB10FE289FE775DC9960DF37E7B
-```
+应用安装包不内置插件。官方插件作为独立 ZIP 放在 [`dist/plugins/`](dist/plugins/)：
 
-## 从源码运行
+- `lumen-crawler-1.0.0.zip`：123 个来源的 RSS、目录与「各站前三」解析规则。
+- `lumen-adblock-1.0.0.zip`：通用广告选择器、广告标签文本规则，以及针对 BBC、Guardian、NYT、Nature 等 22 个重点站点的域名规则。
 
-需要 Node.js 24 或更高版本、npm 和 Git。桌面功能与 Windows 安装包在 Windows x64 上验收。
+首次使用时在插件中心（桌面侧栏「插件中心」/ Android 设置 → 插件）导入这两个 ZIP。也可以导入自制插件：
+
+- **ZIP**：根目录或一级目录内包含 `plugin.json`，`type` 为 `crawler` 或 `adblock`。
+- **JS**：使用 `module.exports = {...}`、`export default {...}` 或 `window.__LUMEN_PLUGIN__ = {...}` 导出与 `plugin.json` 相同的 JSON 对象。Lumen 只解析对象，不执行脚本内容。
+
+插件可启停、可移除；爬虫插件停用或未安装时，媒体目录、各站前三与订阅更新不可用。插件保存在 `%APPDATA%\Lumen\plugins\<id>`（Android 为应用私有目录 `plugins/<id>`）。
+
+## 环境
+
+- Windows x64，系统已安装 WebView2 Runtime（Windows 11 通常自带）。
+- Go 1.24+。
+- Wails CLI v2.16。
+- NSIS（仅在生成安装包时需要）。
+
+## 构建与测试
 
 ```sh
-git clone https://github.com/sadinoel0106/Lumen.git
-cd Lumen
-npm ci
-npm start
+go test ./...
+go run ./cmd/package-plugins   # 生成 dist/plugins/*.zip
+wails build -platform windows/amd64
 ```
 
-第三方扩展的原始源码已随仓库提供，安装依赖时会自动准备兼容副本。无需使用开发者电脑上的额外文件夹。
+生成安装包（按用户安装，无需管理员权限）：
 
 ```sh
-npm test               # 核心测试
-npm run test:desktop   # Windows 桌面检查
-npm run dist           # 构建 Windows 安装包
+wails build -platform windows/amd64 -nsis -installscope user -webview2 download
 ```
 
-代码结构、专项测试、可选 GitHub Actions 模板和贡献说明见 [开发文档](docs/DEVELOPMENT.md)。可复现的开源快照使用标签 [`v1.0.6-source`](https://github.com/sadinoel0106/Lumen/tree/v1.0.6-source)；本页源码 ZIP 也打包自该标签。
+产物：
 
-## 数据与服务
+- `build/bin/Lumen.exe`：可执行程序。
+- `build/bin/Lumen-amd64-installer.exe`：NSIS 安装包，发布时命名为 `Lumen-Setup-1.0.0.exe`。
+- `dist/plugins/*.zip`：与安装包分开分发的官方插件包，不进入 exe/APK。
 
-仅确认公开可读的正文自动发送到所选翻译服务；登录后、付费或无法确认公开性的文章逐篇征求同意。API 密钥通过系统能力加密保存，学习备份不包含密钥。Microsoft Translator、DeepL 等 API 使用自己的账户，配额与费用由服务商决定。
+安装包未配置代码签名。Windows x64 为当前验收平台。
 
-ChatGPT 窄栏连接官方网页，需要自己的登录；不会自动发送文章或问题。关闭轻量存储模式并重启后，原文会话可加载随应用附带的第三方扩展；原许可证保留在安装资源中，效果受站点规则和网络影响。
+## 数据与迁移
 
-欢迎通过 [Issues](https://github.com/sadinoel0106/Lumen/issues) 反馈问题或提出建议；也欢迎提交 pull request。反馈时请注明应用版本、操作步骤与错误提示。
+- 资料库：`%APPDATA%\Lumen\library.json`。
+- 网站登录与缓存：`%APPDATA%\Lumen\webview2\<reader|chat|deepseek|translator|ui>`。
+- 用户插件：`%APPDATA%\Lumen\plugins\<id>`；应用只携带去广告运行引擎，不携带插件清单。
+- 首次启动会检测 Electron 版的 `%APPDATA%\lumen-reader\library.json`，备份后导入文章、设置、词句、收藏和足迹。
+- Electron 使用系统能力加密的翻译 API 密钥无法跨运行时迁移，需要在偏好设置中重新录入；新密钥使用 Windows DPAPI 保存，不进入备份。
+- 轻量存储模式使用临时网站资料目录，关闭应用后丢弃；该设置重启后生效。
+- 启动时会清理各 WebView2 档案的组件、GPU 与 HTTP 缓存（保留 Cookie 与登录态），并限制子视图缓存上限。旧 Electron 版的 `%APPDATA%\lumen-reader` 缓存不会自动删除。
+- DeepSeek 网页版需要自行登录 DeepSeek 账户；API 问答模式需要自行填写密钥，密钥使用 DPAPI 保存且不进入备份。
+
+## 结构
+
+| 路径 | 用途 |
+| --- | --- |
+| `app.go` / `main.go` | Wails 入口、绑定与事件 |
+| `internal/webhost` | 自绘 WebView2 宿主：reader / chat / translator / 独立窗口 |
+| `internal/service` | 推荐、刷新、翻译、学习资料与存储用例 |
+| `internal/feed` / `newsroom` / `rank` | RSS、各站前三、推荐排序 |
+| `internal/extractor` | 页面内 Readability 提取脚本与资产 |
+| `internal/access` | 公开性核验与逐篇翻译授权 |
+| `internal/plugins` | 插件发现、启停、ZIP/JS 安装与去广告脚本合并 |
+| `plugins/` | 官方插件源文件（不嵌入应用）与共享去广告运行引擎 |
+| `dist/plugins/` | 可独立分发的官方插件 ZIP |
+| `ui/` | 本地界面、十套主题与 Wails bridge |
+| `docs/` | 开发说明与设计记录 |
+
+## 安全与边界
+
+- 远程网页只通过白名单消息协议与 Go 通信，不获得 Wails/Go 绑定。
+- 双语精读会在打开文章后自动核对匿名可读性并逐段翻译；授权绑定文章、提供方与段落语境，只发送当前提取正文。
+- 插件只包含声明式来源与规则，不执行插件携带的代码；ZIP/JS 安装会校验路径、ID 与解压体积，插件可随时移除。
+- 去广告规则只操作页面 DOM，不修改正文，也不绕过登录或付费墙。
+- 网站权限与下载默认拒绝，外部链接交给系统浏览器。
+- 推荐的依据与快照范围如实展示，不把启发式评分当作流量或事实核查。
+
+## 许可证
+
+本仓库沿用上游的 [MIT 许可证](LICENSE)，版权归属以 `LICENSE` 中的上游作者为准；本项目的衍生修改同样以 MIT 发布。第三方源码保留各自许可证，详见 [第三方声明](THIRD_PARTY_NOTICES.md)。媒体内容、商标与外部服务的权利由各自所有者保留。

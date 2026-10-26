@@ -2,11 +2,10 @@ node_modules/
 release/
 test-results/
 *.log
-build-cache/
-build-tmp/
-
-vendor/reader-extension/
-.publish-tools/
+build/bin/
+build/windows/installer/tmp/
+ui/wailsjs/
+.wails/
 .env
 .env.*
 !.env.example
@@ -17,3 +16,16 @@ translation-keys.bin
 library.json
 .DS_Store
 Thumbs.db
+
+# Android 构建产物与本地配置
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/*.apk
+android/screenshots/
+android/@AutomationLog.txt
+android/window.xml
+
+# 内部设计草稿
+docs/superpowers/

@@ -1,0 +1,179 @@
+{
+  "format": 1,
+  "id": "lumen-adblock",
+  "name": "Lumen 去广告",
+  "version": "1.0.0",
+  "type": "adblock",
+  "description": "针对 Lumen 官方来源优化的广告识别与清理规则，保守移除广告位、赞助模块和广告标签。",
+  "author": "Lumen",
+  "license": "MIT",
+  "rules": {
+    "global": {
+      "selectors": [
+        "[data-ad]",
+        "[data-ad-slot]",
+        "[data-ad-unit]",
+        "[data-advertisement]",
+        "[aria-label*=\"Advertisement\"]",
+        "[aria-label*=\"advertisement\"]",
+        "[data-testid*=\"ad-\"]",
+        "[data-testid*=\"Ad\"]",
+        "[data-component*=\"ad-\"]",
+        "[data-qa*=\"ad\"]",
+        "[id^=\"ad-\"]",
+        "[id$=\"-ad\"]",
+        "[class~=\"ad\"]",
+        "[class~=\"ads\"]",
+        "[class*=\"ad-slot\"]",
+        "[class*=\"ad-unit\"]",
+        "[class*=\"ad-container\"]",
+        "[class*=\"advert\"]",
+        "[class*=\"adsbygoogle\"]",
+        "[class*=\"sponsor\"]",
+        ".taboola",
+        ".outbrain",
+        "[data-taboola]",
+        "[data-outbrain]",
+        "[class*=\"promoted-content\"]",
+        "[class*=\"paid-content\"]"
+      ],
+      "textPatterns": [
+        "Advertisement",
+        "Sponsored content",
+        "Sponsored",
+        "Paid content",
+        "Promoted",
+        "Partner content",
+        "Story continues below advertisement"
+      ]
+    },
+    "domains": {
+      "bbc.com": {
+        "selectors": [
+          "[data-component=\"ad-slot\"]",
+          "[data-component=\"advertisement\"]",
+          ".bbccom_advert",
+          ".dotcom-ad"
+        ]
+      },
+      "theguardian.com": {
+        "selectors": [
+          ".ad-slot",
+          "[data-gu-name=\"ad\"]",
+          "[data-testid=\"ad-slot\"]",
+          ".top-banner-ad-container",
+          ".fc-container--ad"
+        ]
+      },
+      "reuters.com": {
+        "selectors": [
+          "[data-testid*=\"Advertisement\"]",
+          "[data-testid*=\"ad-\"]",
+          ".ad-container"
+        ]
+      },
+      "apnews.com": {
+        "selectors": [
+          "[data-key=\"ad\"]"
+        ]
+      },
+      "nytimes.com": {
+        "selectors": [
+          "[data-testid=\"StandardAd\"]",
+          "[data-testid=\"Ad\"]",
+          "[id^=\"Ad\"]"
+        ]
+      },
+      "washingtonpost.com": {
+        "selectors": [
+          "[data-qa=\"ad\"]",
+          ".wp-block-ad"
+        ]
+      },
+      "npr.org": {
+        "selectors": [
+          ".ad-wrap",
+          "[data-ad]"
+        ]
+      },
+      "aljazeera.com": {
+        "selectors": [
+          ".advertising",
+          ".ad-container"
+        ]
+      },
+      "dw.com": {
+        "selectors": [
+          "[data-ad]"
+        ]
+      },
+      "ft.com": {
+        "selectors": [
+          ".o-ads",
+          "[data-testid=\"ad\"]"
+        ]
+      },
+      "economist.com": {
+        "selectors": [
+          "[data-testid=\"ad\"]"
+        ]
+      },
+      "bloomberg.com": {
+        "selectors": [
+          "[data-testid=\"ad\"]"
+        ]
+      },
+      "wsj.com": {
+        "selectors": [
+          "[data-testid=\"ad\"]"
+        ]
+      },
+      "hbr.org": {
+        "selectors": [
+          "[data-testid=\"ad\"]"
+        ]
+      },
+      "technologyreview.com": {
+        "selectors": [
+          "[data-testid=\"ad\"]"
+        ]
+      },
+      "wired.com": {
+        "selectors": [
+          "[data-testid=\"ad\"]"
+        ]
+      },
+      "nature.com": {
+        "selectors": [
+          "[data-testid=\"ad\"]",
+          ".c-ad"
+        ]
+      },
+      "science.org": {
+        "selectors": [
+          ".ads"
+        ]
+      },
+      "scientificamerican.com": {
+        "selectors": [
+          "[data-testid=\"ad\"]"
+        ]
+      },
+      "quantamagazine.org": {
+        "selectors": [
+          "[data-testid=\"ad\"]"
+        ]
+      },
+      "theatlantic.com": {
+        "selectors": [
+          "[data-testid=\"ad\"]"
+        ]
+      },
+      "newyorker.com": {
+        "selectors": [
+          "[data-testid=\"ad\"]"
+        ]
+      }
+    }
+  }
+}

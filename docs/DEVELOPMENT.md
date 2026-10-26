@@ -2,76 +2,95 @@
 
 ## 环境
 
-- Node.js 24 或更高版本，npm，Git。
-- Windows x64 用于桌面验收和构建当前的 NSIS 安装包。
-- 核心逻辑测试也可在 Linux 上运行。macOS/Linux 安装包尚未配置或验收。
+- Go 1.24 或更高版本。
+- Wails CLI v2.16。
+- Windows x64 + WebView2 Runtime。
+- NSIS（可选，用于安装包）。
 
 ```sh
-git clone https://github.com/sadinoel0106/Lumen.git
-cd Lumen
-npm ci
-npm start
+go test ./...
+wails build -platform windows/amd64
 ```
 
-`npm ci` 根据锁文件安装依赖，并运行扩展准备脚本。Electron 45 的运行组件在首次启动、桌面测试或打包前由官方安装器自动下载；准备脚本会启用 Node 对环境代理的支持，也可单独执行 `npm run electron:install`。第三方扩展原始源码随仓库提供，不依赖开发者电脑上的其他文件夹，也不需要下载不固定版本的扩展。生成的 `vendor/reader-extension/` 不提交到 Git。
-
-若使用了 `npm ci --ignore-scripts`，在运行桌面程序前自行执行 `npm run extensions:prepare`；核心测试无需下载 Electron 运行组件。需要使用不同的本地扩展源码时，可通过 `LUMEN_EXTENSION_SOURCE` 指向含 manifest.json 和原许可证的完整源码目录。
+首次构建由 Wails 生成 `ui/wailsjs/`（已忽略提交）。前端为现有原生 HTML/CSS/JS，无 Node 构建步骤。
 
 ## 测试
 
 ```sh
-npm test
-npm run test:desktop
+go test ./...
 ```
 
-核心测试覆盖推荐排序、来源目录、翻译请求格式、公开正文核查、缓存策略、正文提取、各站前三与扩展构建。桌面测试使用本地合成文章、独立测试资料目录和模拟 API 响应，不使用真实 API 密钥，不读取日常学习资料。
+覆盖：
 
-可按需执行专项桌面检查：
+- 来源目录、插件合并与停用、排序、去重、质量信号、复习间隔、CSV 注入防护。
+- 插件 ZIP 安装的路径穿越、ID 与体积校验。
+- 公开正文核验与逐篇授权规则。
+- RSS 解析、首页头条筛选、stale 快照。
+- 翻译请求与响应校验、缓存键。
+- 资料库原子读写、低存储投影、损坏恢复、Electron 数据迁移。
+- 全新安装的目录种子。
 
-```sh
-node scripts/test-106.cjs
-node scripts/navigation-test.cjs
-node scripts/storage-test.cjs
-node scripts/test-reader-extension.cjs
-node scripts/extension-fixture-debug.cjs
-```
-
-测试生成文件位于被忽略的 `test-results/`。桌面测试会打开独立应用窗口；只在具备桌面环境的 Windows 机器上运行。少数原站/服务连通性检查仍依赖网络，不应据此声称所有媒体或付费翻译账户已通过真实内容验收。
-
-## Windows 安装包
-
-```sh
-npm run dist
-```
-
-安装包位于 `release/Lumen-Setup-1.0.6.exe`；解包程序位于 `release/win-unpacked/Lumen.exe`，运行时需保留整个目录。构建缓存和临时文件分别位于项目内的 `build-cache/` 与 `build-tmp/`。当前不配置代码签名，构建不会自动发布到 GitHub。
-
-`docs/workflows/` 提供可选的 GitHub Actions 模板。维护者将其复制到 `.github/workflows/` 后可启用：核心测试自动运行；Windows 打包仅手动触发，成功后生成可下载的构建附件，不自动覆盖 Releases。
-
-## 刷新公开来源快照
-
-```sh
-node --use-env-proxy scripts/check-feeds.cjs
-node --use-env-proxy scripts/check-newsroom.cjs
-```
-
-这些命令联网访问公开订阅与来源首页，并更新 data 下的快照文件。应用本身也能在界面中更新文章。快照时间不等同于文章发布时间；失败、旧快照和不足三篇应保持如实显示。
+Windows 集成验收需手动运行应用，检查真实原站、划词、精读、翻译窗口、ChatGPT 侧栏与安装包。
 
 ## 代码结构
 
-| 目录 | 用途 |
+| 路径 | 职责 |
 | --- | --- |
-| `electron/` | 桌面主进程、网络、翻译、正文提取、权限和数据存储 |
-| `ui/` | 本地界面、主题、导航与学习交互 |
-| `data/` | 来源目录与带出处的新闻元数据快照 |
-| `scripts/` | 构建和可重复运行的检查工具 |
-| `tests/` | Node 核心测试 |
-| `vendor/reader-extension-source/` | 保留原许可证的第三方扩展原始源码 |
+| `app.go` | Wails 生命周期、绑定与事件转发；webhost 与 service 的组合 |
+| `internal/webhost` | Win32/WebView2 宿主。主窗口内使用子 HWND；翻译与 ChatGPT 小窗使用 owned top-level 窗口 |
+| `internal/service` | 业务用例：状态、刷新、翻译缓存、DeepSeek 问答、词句本、收藏、足迹、备份与存储 |
+| `internal/store` | `library.json` 原子写入、低存储投影、旧数据迁移 |
+| `internal/feed` | HTTP + gofeed 解析、normalize、并发刷新 |
+| `internal/newsroom` | goquery 抓首页、feed 回退、stale |
+| `internal/rank` | 质量信号、加权排序、多样性、复习与 CSV（纯函数） |
+| `internal/translate` | 微软官方网页 / Microsoft / DeepL / MyMemory 请求与响应 |
+| `internal/access` | 匿名抓取核验、授权 token、段落语境校验 |
+| `internal/extractor` | Readability.js + 提取包装脚本，嵌入二进制 |
+| `internal/plugins` | 插件发现、ZIP/JS 安装、来源与各站前三规则、去广告脚本合并 |
+| `internal/secrets` | DPAPI 加密保存翻译密钥 |
+| `plugins/` | 官方插件源文件（不嵌入应用）与 `runtime/ads-engine.js` 共享去广告引擎 |
+| `dist/plugins/` | 由 `go run ./cmd/package-plugins` 生成的官方插件 ZIP |
+| `cmd/package-plugins/` | 将 `plugins/<id>/plugin.json` 打成独立分发包 |
+| `android/` | Kotlin + Jetpack Compose Material 3 客户端，使用同一份插件 JSON |
 
-## 贡献前
+## WebView2 宿主
 
-修改后运行相关测试，在 pull request 中说明问题、最终行为与验证结果。不要提交 API 密钥、浏览器资料、学习备份、个人足迹、安装包或缓存。测试凭据仅使用明显的虚构值。
+- Wails v2 只有单窗口/单 WebView，因此阅读器、侧栏和小窗由 `internal/webhost` 自绘：
+  - 阅读器/侧栏：Wails 主窗口的子 HWND，bounds 由 UI 以 CSS px 传入，按窗口 DPI 换算为物理像素。
+  - 微软翻译窗口、ChatGPT 小窗：owner 顶层窗口，关闭时隐藏，可再次打开。
+- 每个角色使用独立 WebView2 数据目录：`reader`、`chat`、`chat-popup`、`translator`、`translator-window`。
+- 轻量存储模式把上述目录切换到 `%TEMP%\Lumen-<pid>`，退出时删除。
+- 远程页面不加载 Wails runtime；只通过 `window.chrome.webview.postMessage` 发送 `selection` / `location` / `extract-result` / `eval-result`。
+- 阅读视图注入的脚本只做划词监听、位置上报和按需 Readability 提取；提取结果由 `reader-extract` 返回。
+- 页面 `DOMContentLoaded` / `load` 后注入启用的去广告插件脚本；规则按域名合并，只移除广告节点，MutationObserver 处理动态插入的广告。
+- 打开文章后前端等待页面就绪，自动调用 `reader-extract` 进入双语精读；来源首页的目录入口不自动触发。
 
-翻译发送必须继续遵守“只自动翻译公开文章，其他文章逐篇确认”的规则。第三方网页不得获得 Node 或本地应用 API；原文扩展只在原文持久会话中加载。推荐依据和快照范围应准确呈现，不能把启发式评分当作真实流量或事实核查。
+## 数据与安全
 
-项目自有代码采用 MIT；修改第三方部分时保留原版权与许可证，并同步更新 `THIRD_PARTY_NOTICES.md`。
+- 资料库、密钥、插件和网站资料都在 `%APPDATA%\Lumen`；日志只输出错误与初始化信息。
+- `reader` 使用独立的持久 WebView2 配置目录；翻译与聊天各自隔离。
+- 翻译密钥通过 DPAPI 加密；备份不含密钥。
+- 打开文章后自动授权当前正文的本次翻译；仍会先匿名核对公开性并在界面标注结果。授权 token 绑定提供方、段落集合和邻段语境。
+- 应用不内置插件；插件 ZIP 只接受根目录或一级目录内的 `plugin.json`，JS 只解析 `module.exports` / `export default` / `window.__LUMEN_PLUGIN__` 中的 JSON 对象，不执行脚本。ID 限制为安全字符，ZIP 解压总体积上限 32 MB（Android 20 MB），插件可移除。
+- 网站权限与下载默认拒绝；新窗口按 http(s) 规则处理，外部协议交给系统。
+
+## 构建安装包
+
+```sh
+go run ./cmd/package-plugins
+wails build -platform windows/amd64 -nsis -installscope user -webview2 download
+```
+
+Wails 生成 `build/bin/Lumen-amd64-installer.exe`。发布时可重命名为 `Lumen-Setup-2.0.0.exe`。安装包未签名，不自动发布。
+
+## 当前限制
+
+- ChatGPT 需要网络可达并自行登录；网络不可达时侧栏显示连接失败提示。
+- DeepSeek 默认内嵌官方网页（需要登录）；切到 API 问答时需要密钥，密钥只保存在本机 DPAPI 文件中，不进入备份。
+- 自动精读依赖 Readability 能提取正文；提取失败时保留原站阅读视图并提示原因。
+- 启动时清理 WebView2 的组件/GPU/HTTP 缓存并限制缓存上限，保留 Cookie 与登录态。旧 Electron 缓存需手动清理。
+- 微软网页翻译（`microsoft-web`，双端默认）走 Edge 浏览器自带的免密钥接口 `edge.microsoft.com/translate/translatetext`，请求需带浏览器 UA 与 `Origin`/`Referer: microsoft.com`。该接口非公开，可能被限流或改版：桌面端失败时自动回退到隐藏 WebView2 抓取 Bing 翻译页，安卓端提示切换微软 API / DeepL / MyMemory。
+- 去广告效果取决于插件规则与站点当前 DOM；规则只隐藏广告，不影响正文和登录态。
+- 未安装爬虫插件时媒体目录与各站前三为空，界面会引导到插件中心；官方插件 ZIP 位于 `dist/plugins/`。
+- 旧 Electron 版加密的 API 密钥不能迁移，需要重新录入。
+- 轻量存储与网站数据清理的网站目录变更在重启后完成。
