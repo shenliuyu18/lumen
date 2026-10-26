@@ -41,5 +41,6 @@
 - 安装包未配置代码签名，Windows SmartScreen 与 Android「未知来源」提示需手动确认。
 - 微软官方网页翻译属于非公开接口，可能被限流或调整；此时可切换到微软 API、DeepL 或 MyMemory。
 - 综合推荐是规则分析，不代表实测流量，也不做全文事实核查。
-- Android 端发布的是 debug 签名 APK，不是商店签名。
+- Android 端发布的是 release 自签名 APK（`CN=Lumen Reader`），不是 Google Play 的上架签名；与 debug 包签名不同，从 debug 版换用需先卸载。
+- 未开启代码裁剪（R8/ProGuard）：WebView 的 `@JavascriptInterface` 桥接还缺少经过验证的 keep 规则。
 - 桌面与 Android 数据不自动同步，仅支持备份导入。

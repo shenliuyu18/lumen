@@ -15,7 +15,7 @@
 | 文件 | 说明 |
 | --- | --- |
 | `Lumen-Setup-1.0.0.exe` | Windows x64 按用户安装（不需要管理员权限），未做代码签名 |
-| `Lumen-Android-1.0.0-debug.apk` | Android 8.0+（minSdk 26），debug 签名，供试用与自测 |
+| `Lumen-Android-1.0.0.apk` | Android 8.0+（minSdk 26），release 自签名（非 Google Play 上架签名） |
 | `lumen-crawler-1.0.0.zip`、`lumen-adblock-1.0.0.zip` | 官方插件，安装应用后在插件中心导入 |
 
 安装包未签名，Windows SmartScreen 会提示「未知发布者」，选择「仍要运行」即可。应用不内置插件，首次启动后请先导入上面两个插件 ZIP。

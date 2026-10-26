@@ -19,22 +19,26 @@ Kotlin + Jetpack Compose Material 3 的 Lumen Android 版。
 
 ## 构建
 
-需要 JDK 21、Android SDK 36、系统 Gradle（本工程未提交 wrapper）。
+需要 JDK 21、Android SDK 37、系统 Gradle（本工程未提交 wrapper）。
 
 ```sh
 cd android
-gradle assembleDebug
+gradle assembleDebug     # 调试包
+gradle assembleRelease   # 正式签名包
 ```
 
+- 正式签名读取 `local.properties`（不入库）里的 `lumen.release.storeFile` / `keyAlias` / `storePassword` / `keyPassword`；缺省时 release 构建会退回未签名。密钥请自行备份，丢失后无法覆盖升级。
 - 构建官方插件 ZIP：在仓库根目录运行 `go run ./cmd/package-plugins`，产物在 `dist/plugins/`。
-- APK：`app/build/outputs/apk/debug/app-debug.apk`；仓库内已附预构建的 [`Lumen-Android-1.0.0-debug.apk`](Lumen-Android-1.0.0-debug.apk)（debug key 签名）。
+- 产物：`app/build/outputs/apk/debug/app-debug.apk`、`app/build/outputs/apk/release/app-release.apk`；发布用的是 `Lumen-Android-1.0.0.apk`（release 自签名）。
 
-模拟器安装：
+安装：
 
 ```sh
-adb install -r app/build/outputs/apk/debug/app-debug.apk
+adb install -r app/build/outputs/apk/release/app-release.apk
 adb shell am start -n studio.lumen.reader/.MainActivity
 ```
+
+> release 与 debug 签名不同，二者不能互相覆盖安装；从 debug 换到 release 需要先卸载。
 
 ## 界面截图
 
@@ -68,4 +72,4 @@ gradle testDebugUnitTest
 - 默认翻译为「微软网页」（Edge 内置的免密钥接口，与桌面端同一条通道）；该接口非公开、可能限流，可改用微软 API / DeepL / MyMemory。
 - ChatGPT/DeepSeek 是内置网页版，需要自行登录且受网络可达性影响。
 - 轻量存储仅停止持久化文章/译文/各站快照；WebView 登录数据不会切换临时档案。
-- 安装包为 debug APK（debug key 签名），不是商店发布签名。
+- 安装包为 release 自签名 APK（`CN=Lumen Reader`），不是 Google Play 的上架签名；未开启代码裁剪，因为 WebView 的 `@JavascriptInterface` 桥接还缺少经过验证的 R8 keep 规则。

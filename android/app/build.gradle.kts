@@ -1,8 +1,16 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.plugin.compose")
     id("org.jetbrains.kotlin.plugin.serialization")
 }
+
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+val releaseStoreFile = localProperties.getProperty("lumen.release.storeFile")
 
 android {
     namespace = "studio.lumen.reader"
@@ -16,9 +24,24 @@ android {
         versionName = "1.0.0"
     }
 
+    signingConfigs {
+        if (!releaseStoreFile.isNullOrBlank()) {
+            create("lumenRelease") {
+                storeFile = file(releaseStoreFile)
+                storePassword = localProperties.getProperty("lumen.release.storePassword")
+                keyAlias = localProperties.getProperty("lumen.release.keyAlias")
+                keyPassword = localProperties.getProperty("lumen.release.keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
+            // 未验证 R8 规则（WebView 的 @JavascriptInterface 桥接需要 keep），先只换签名不裁剪代码。
             isMinifyEnabled = false
+            if (!releaseStoreFile.isNullOrBlank()) {
+                signingConfig = signingConfigs.getByName("lumenRelease")
+            }
         }
     }
 
