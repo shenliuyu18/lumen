@@ -2,27 +2,20 @@ package studio.lumen.reader.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Public
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.ViewList
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -40,18 +33,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import studio.lumen.reader.MainViewModel
 import studio.lumen.reader.ui.components.GlassMode
-import studio.lumen.reader.ui.components.GlassSurface
 import studio.lumen.reader.ui.components.GlassWallpaper
-import studio.lumen.reader.ui.components.LiquidBottomBar
+import studio.lumen.reader.ui.components.AppBottomBar
 import studio.lumen.reader.ui.components.LiquidNavItem
 import studio.lumen.reader.ui.components.LocalFloatingNavPadding
 import studio.lumen.reader.ui.components.LocalGlassBackdrop
-import studio.lumen.reader.ui.components.glassNavShape
 import studio.lumen.reader.ui.screens.ReadingScreen
 import studio.lumen.reader.ui.screens.ChatScreen
 import studio.lumen.reader.ui.screens.DiscoverScreen
@@ -83,28 +73,17 @@ fun LumenRoot(viewModel: MainViewModel) {
     val store by viewModel.store.collectAsState()
     val settings = store.settings
     val glassMode = GlassMode.from(settings.glassEffect)
-    val floating = settings.floatingNav
     val showNav = route in mainRoutes
-    // WebView 页面不把内容录进玻璃采样层：Chromium 画进别人的图层在部分机型会闪烁。
-    val samplingAllowed = route != "site"
-    val glassOn = glassMode != GlassMode.Off
+    // WebView 与阅读模式都用纯色页面：拍进玻璃采样层既无意义，Chromium 还会在部分机型闪烁。
+    val samplingAllowed = route != "site" && route != "reader"
+    val glassOn = glassMode != GlassMode.Off && samplingAllowed
     // 壁纸层是页面内所有玻璃的采样源，内容层只给底栏采样：玻璃采样自己所在的渲染层
     // 会让 RenderNode 自引用并栈溢出。
     val wallpaperLayer = rememberLayerBackdrop()
     val contentLayer = rememberLayerBackdrop()
-    val wallpaper = if (glassOn && samplingAllowed) wallpaperLayer else null
-    val navLayer = when {
-        !glassOn -> null
-        samplingAllowed && showNav -> contentLayer
-        else -> wallpaperLayer
-    }
-    val contentBehindBar = (glassOn || floating) && showNav
-    val navPadding = when {
-        !showNav -> 0.dp
-        floating -> 132.dp
-        glassOn -> 128.dp
-        else -> 0.dp
-    }
+    val wallpaper = if (glassOn) wallpaperLayer else null
+    val navLayer = if (glassOn && showNav) contentLayer else null
+    val navPadding = if (showNav) 96.dp else 0.dp
     LaunchedEffect(Unit) {
         viewModel.messages.collect { snackbar.showSnackbar(it) }
     }
@@ -120,19 +99,24 @@ fun LumenRoot(viewModel: MainViewModel) {
                 contentWindowInsets = WindowInsets(0),
                 snackbarHost = { SnackbarHost(snackbar) },
                 bottomBar = {
-                    if (showNav && !floating) {
-                        StandardNavigationBar(route, glassMode, navLayer) {
-                            navController.navigateMain(it)
-                        }
+                    if (showNav) {
+                        AppBottomBar(
+                            items = destinations.map { LiquidNavItem(it.label, it.icon) },
+                            selectedIndex = destinations.indexOfFirst { it.route == route }.coerceAtLeast(0),
+                            onSelected = { navController.navigateMain(destinations[it].route) },
+                            glass = glassOn,
+                            backdrop = navLayer
+                        )
                     }
                 }
             ) { padding ->
                 Box(
                     Modifier
                         .fillMaxSize()
+                        .statusBarsPadding()
                         .padding(
                             top = padding.calculateTopPadding(),
-                            bottom = if (contentBehindBar) 0.dp else padding.calculateBottomPadding()
+                            bottom = padding.calculateBottomPadding()
                         )
                 ) {
                     Box(
@@ -158,7 +142,6 @@ fun LumenRoot(viewModel: MainViewModel) {
                                         viewModel.openArticle(article)
                                         navController.navigate("reader")
                                     },
-                                    onOpenNewsroom = { navController.navigate("newsroom") },
                                     onOpenPlugins = { navController.navigate("plugins") }
                                 )
                             }
@@ -228,11 +211,6 @@ fun LumenRoot(viewModel: MainViewModel) {
                             }
                         }
                     }
-                    if (showNav && floating) {
-                        Box(Modifier.align(Alignment.BottomCenter)) {
-                            FloatingNavigationBar(route, glassMode, navLayer) { navController.navigateMain(it) }
-                        }
-                    }
                 }
             }
         }
@@ -244,68 +222,5 @@ private fun androidx.navigation.NavHostController.navigateMain(route: String) {
         popUpTo("discover") { saveState = true }
         launchSingleTop = true
         restoreState = true
-    }
-}
-
-@Composable
-private fun RowScope.LumenNavItems(route: String?, onNavigate: (String) -> Unit) {
-    destinations.forEach { destination ->
-        NavigationBarItem(
-            selected = route == destination.route,
-            onClick = { onNavigate(destination.route) },
-            icon = { Icon(destination.icon, contentDescription = destination.label) },
-            label = { Text(destination.label) },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = MaterialTheme.colorScheme.primary,
-                selectedTextColor = MaterialTheme.colorScheme.primary,
-                indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f),
-                unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        )
-    }
-}
-
-@Composable
-private fun StandardNavigationBar(
-    route: String?,
-    mode: GlassMode,
-    backdrop: LayerBackdrop?,
-    onNavigate: (String) -> Unit
-) {
-    GlassSurface(
-        mode = mode,
-        shape = glassNavShape(false, mode),
-        modifier = Modifier.fillMaxWidth(),
-        backdrop = backdrop
-    ) {
-        NavigationBar(
-            containerColor = Color.Transparent,
-            tonalElevation = 0.dp
-        ) {
-            LumenNavItems(route, onNavigate)
-        }
-    }
-}
-
-@Composable
-private fun FloatingNavigationBar(
-    route: String?,
-    mode: GlassMode,
-    backdrop: LayerBackdrop?,
-    onNavigate: (String) -> Unit
-) {
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .navigationBarsPadding()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
-    ) {
-        LiquidBottomBar(
-            items = destinations.map { LiquidNavItem(it.label, it.icon) },
-            selectedIndex = destinations.indexOfFirst { it.route == route }.coerceAtLeast(0),
-            backdrop = if (mode == GlassMode.Off) null else backdrop,
-            onSelected = { onNavigate(destinations[it].route) }
-        )
     }
 }

@@ -39,10 +39,50 @@ class Translator(private val secrets: SecretStore) {
                 "microsoft-web" -> microsoftWeb(text)
                 "microsoft" -> microsoft(text, settings, secrets.get("microsoft"))
                 "deepl" -> deepl(text, context, settings, secrets.get("deepl"))
+                "ai" -> aiModel(text, context, settings, secrets.get("ai"))
                 "mymemory" -> myMemory(text)
                 else -> error("请选择翻译服务")
             }
         }
+
+    /** OpenAI 兼容的大模型翻译：地址、模型名与密钥都由用户配置。 */
+    private fun aiModel(text: String, context: String, settings: TranslationSettings, key: String?): Translation {
+        if (key.isNullOrBlank()) error("请在设置中填写大模型服务的 API 密钥")
+        val base = settings.aiBaseUrl.ifBlank { "https://api.openai.com/v1" }.trimEnd('/')
+        val modelName = settings.aiModel.ifBlank { "gpt-4o-mini" }
+        val system = "你是严谨的英译中译者。只输出中文译文，不要解释、不要加引号或列表符号；保留专有名词、数字与代码原样。"
+        val user = if (context.isBlank()) {
+            text
+        } else {
+            "上下文（仅供参考，不要翻译它）：\n$context\n\n需要翻译的段落：\n$text"
+        }
+        val payload = buildJsonObject {
+            put("model", modelName)
+            put("temperature", 0.2)
+            put("messages", buildJsonArray {
+                add(buildJsonObject { put("role", "system"); put("content", system) })
+                add(buildJsonObject { put("role", "user"); put("content", user) })
+            })
+        }.toString()
+        val request = Request.Builder()
+            .url("$base/chat/completions")
+            .post(payload.toRequestBody("application/json".toMediaType()))
+            .header("Authorization", "Bearer ${key.trim()}")
+            .build()
+        http.newCall(request).execute().use { response ->
+            val body = response.body?.string() ?: error("空响应")
+            if (!response.isSuccessful) {
+                val message = runCatching {
+                    json.parseToJsonElement(body).jsonObject["error"]?.jsonObject?.get("message")?.jsonPrimitive?.content
+                }.getOrNull()
+                error(message ?: httpError(response.code))
+            }
+            val content = json.parseToJsonElement(body).jsonObject["choices"]?.jsonArray
+                ?.firstOrNull()?.jsonObject?.get("message")?.jsonObject?.get("content")?.jsonPrimitive?.content
+            if (content.isNullOrBlank()) error("大模型服务未返回译文")
+            return Translation(content.trim(), "大模型翻译", System.currentTimeMillis())
+        }
+    }
 
     private fun microsoftWeb(text: String): Translation {
         val request = Request.Builder()

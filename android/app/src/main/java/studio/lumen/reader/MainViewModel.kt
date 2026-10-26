@@ -167,7 +167,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch { _messages.emit("阅读足迹和时长已清空") }
     }
 
-    fun startBilingual(extracted: ExtractedArticle) {
+    /** 打开阅读模式：只抽取正文，译文由用户点「双语」后再开始。 */
+    fun startReading(extracted: ExtractedArticle) {
         val article = BilingualArticle(
             title = extracted.title,
             url = extracted.url,
@@ -176,7 +177,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             provider = store.value.settings.translation.provider
         )
         _bilingual.value = article
+    }
+
+    fun translateAll() {
+        val article = _bilingual.value ?: return
         autoTranslate(article)
+    }
+
+    fun clearTranslations() {
+        val article = _bilingual.value ?: return
+        _bilingual.value = article.copy(
+            paragraphs = article.paragraphs.map { it.copy(translation = null, error = null) }
+        )
     }
 
     fun clearBilingual() {

@@ -28,6 +28,8 @@ fun GlassWallpaper(
             .then(if (backdrop != null) Modifier.layerBackdrop(backdrop) else Modifier)
             .background(scheme.background)
     ) {
+        // 玻璃关闭时不再画彩色光斑：纯色界面才有足够的文字对比度。
+        if (backdrop == null) return@Box
         Canvas(Modifier.fillMaxSize()) {
             val radius = size.width * 0.58f
             val stops = listOf(

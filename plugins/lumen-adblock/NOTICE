@@ -1,0 +1,10 @@
+Lumen 去广告插件 · 许可证说明
+==============================
+
+本插件的通用选择器子集与部分域名规则来自 **adblock_auto**
+（https://github.com/lingeringsound/adblock_auto，GPL-3.0），
+由 `go run ./cmd/import-adblock` 从 ABP 规则文件中提取外观过滤（## 选择器）后合并，
+补上 Lumen 官方来源的手写规则。
+
+合并后的插件因此以 **GPL-3.0** 分发；仓库其余部分仍为 MIT。
+网络拦截规则（$option）与脚本注入（##+js）无法在 WebView 的 DOM 清理引擎里执行，没有被导入。

@@ -98,6 +98,19 @@ Wails 生成 `build/bin/Lumen-amd64-installer.exe`。发布时按当前版本号
 
 界面里显示的版本取 `ui/app.js` 的 `displayVersion` 常量，因此 beta 标签照常展示，不受安装包版本号只能是数字的限制影响。发版时两处一起改。
 
+## 去广告规则导入
+
+```sh
+go run ./cmd/import-adblock -in adblock_auto.txt
+go run ./cmd/package-plugins
+```
+
+`adblock_auto.txt` 来自 adblock_auto（GPL-3.0）。导入器只取 `##` 外观过滤选择器：网络拦截（`$option`）与脚本注入（`##+js`）在 WebView 的 DOM 清理引擎里没法执行。通用选择器默认上限 600 条、每域名 40 条，超过就丢弃，避免每次 DOM 变动跑上千次查询；`plugins/runtime/ads-engine.js` 按 120 条一批拼成逗号选择器查询，整批语法出错时再退回逐条。合并后插件版本自动 +1，许可证保持 GPL-3.0。
+
+## 抓取并发与超时
+
+桌面 `internal/feed` 与 Android `LumenRepository` 都使用浏览器 UA、12 路并发、单源 18 秒超时、超时/连接重置重试一次，错误统一翻译为「网络超时 / HTTP 403 / HTTP 429」这类可读提示。各站前三在抓取失败时保留上一次成功的快照并标记 `stale`。
+
 ## 液态玻璃的采样层约束
 
 `io.github.kyant0:backdrop` 的 `drawBackdrop(backdrop)` 会把被采样的图层再画一遍。若某个玻璃表面采样的正是它自己所在的那个图层，渲染节点会互相引用，`RenderNode::prepareTreeImpl` 递归到栈溢出、进程直接崩溃（logcat 里是几百层 `libhwui.so` 帧）。

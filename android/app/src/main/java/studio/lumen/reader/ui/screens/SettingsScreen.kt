@@ -151,8 +151,7 @@ onClick = { viewModel.updateSettings(settings.copy(themeMode = value)) }
                     LiquidSlider(
                         value = fontSize.toFloat(),
                         onValueChange = { fontSize = it.toInt() },
-                        valueRange = 14f..28f,
-                        steps = 13
+                        valueRange = 14f..28f
                     )
                     Spacer(Modifier.height(6.dp))
                     GlassButton(label = "应用字号", onClick = { viewModel.updateSettings(settings.copy(fontSize = fontSize)) })
@@ -171,14 +170,29 @@ onClick = { viewModel.updateSettings(settings.copy(glassEffect = if (value) "liq
 )
                         }
                     }
-                    Spacer(Modifier.height(8.dp))
-                    SettingSwitch("悬浮底栏", settings.floatingNav, "底栏浮在内容之上；当前版本默认开启") {
-                        viewModel.updateSettings(settings.copy(floatingNav = it))
-                    }
                     Text(
-                        "液态玻璃会实时折射底栏下方的内容。Android 13+ 有完整折射效果，Android 12 只有背景模糊，更低版本回退为半透明面板；关闭这两项可回到贴底的普通底栏。",
+                        "液态玻璃会实时折射底栏与卡片下方的内容。Android 13+ 有完整折射效果，Android 12 只有背景模糊，更低版本回退为半透明面板；关闭后回到纯色界面。",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            item {
+                SettingSection("阅读目标") {
+                    var goal by remember(settings.dailyGoal) { mutableStateOf(settings.dailyGoal) }
+                    Text("每日目标：$goal 篇", style = MaterialTheme.typography.labelLarge)
+                    LiquidSlider(
+                        value = goal.toFloat(),
+                        onValueChange = { goal = it.toInt() },
+                        valueRange = 1f..30f
+                    )
+                    Spacer(Modifier.height(6.dp))
+                    GlassButton(
+                        label = "保存目标",
+                        onClick = {
+                            viewModel.updateSettings(settings.copy(dailyGoal = goal))
+                            Toast.makeText(context, "阅读目标已保存", Toast.LENGTH_SHORT).show()
+                        }
                     )
                 }
             }
@@ -212,18 +226,23 @@ onClick = { viewModel.updateSettings(settings.copy(glassEffect = if (value) "liq
             }
             item {
                 SettingSection("翻译") {
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
                         listOf(
                             "microsoft-web" to "微软网页",
                             "microsoft" to "微软 API",
                             "deepl" to "DeepL",
+                            "ai" to "大模型",
                             "mymemory" to "MyMemory"
                         ).forEach { (value, label) ->
                             GlassChip(
-label = label,
-selected = settings.translation.provider == value,
-onClick = { viewModel.updateSettings(settings.copy(translation = settings.translation.copy(provider = value))) }
-)
+                                label = label,
+                                selected = settings.translation.provider == value,
+                                dense = true,
+                                onClick = { viewModel.updateSettings(settings.copy(translation = settings.translation.copy(provider = value))) }
+                            )
                         }
                     }
                     if (settings.translation.provider != "mymemory" && settings.translation.provider != "microsoft-web") {
@@ -265,6 +284,32 @@ onClick = { viewModel.updateSettings(settings.copy(translation = settings.transl
                                 singleLine = true
                             )
                         }
+                        if (provider == "ai") {
+                            OutlinedTextField(
+                                value = settings.translation.aiBaseUrl,
+                                onValueChange = {
+                                    viewModel.updateSettings(
+                                        settings.copy(translation = settings.translation.copy(aiBaseUrl = it))
+                                    )
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                label = { Text("接口地址（OpenAI 兼容）") },
+                                placeholder = { Text("https://api.openai.com/v1") },
+                                singleLine = true
+                            )
+                            OutlinedTextField(
+                                value = settings.translation.aiModel,
+                                onValueChange = {
+                                    viewModel.updateSettings(
+                                        settings.copy(translation = settings.translation.copy(aiModel = it))
+                                    )
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                label = { Text("模型名称") },
+                                placeholder = { Text("gpt-4o-mini / deepseek-chat / qwen-plus") },
+                                singleLine = true
+                            )
+                        }
                         if (provider == "deepl") {
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 GlassChip(
@@ -284,7 +329,7 @@ onClick = { viewModel.updateSettings(settings.copy(translation = settings.transl
                         viewModel.updateSettings(settings.copy(translation = settings.translation.copy(useContext = it)))
                     }
                     Text(
-                        "微软网页即 Edge 浏览器自带的翻译服务，无需密钥，但属于非公开接口，可能被限流；此时可切换到微软 API 或 DeepL。MyMemory 免费但配额有限，长段落会自动分段。",
+                        "微软网页即 Edge 浏览器自带的翻译服务，无需密钥，但属于非公开接口，可能被限流；此时可切换到微软 API、DeepL 或大模型。大模型翻译走 OpenAI 兼容的 /chat/completions，地址与模型都可自定义。MyMemory 免费但配额有限，长段落会自动分段。",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

@@ -73,12 +73,12 @@ import studio.lumen.reader.ui.components.ArcGauge
 import studio.lumen.reader.ui.components.GlassCard
 import studio.lumen.reader.ui.components.StatCard
 
-private val studyTabs = listOf("概览", "词句本", "复习", "收藏", "足迹")
-private const val dailyGoal = 3
+private val studyTabs = listOf("概览", "词句本", "复习", "稍后阅读", "足迹")
 
 @Composable
 fun StudyScreen(viewModel: MainViewModel, onOpenArticle: (Article) -> Unit) {
     val store by viewModel.store.collectAsState()
+    val dailyGoal = store.settings.dailyGoal.coerceAtLeast(1)
     var tab by rememberSaveable { mutableIntStateOf(0) }
     Scaffold(
         containerColor = Color.Transparent,
@@ -87,7 +87,7 @@ fun StudyScreen(viewModel: MainViewModel, onOpenArticle: (Article) -> Unit) {
             Column {
                 PageHeader(
                     title = "学习空间",
-                    subtitle = "词句、收藏、足迹与复习",
+                    subtitle = "词句、稍后阅读、足迹与复习",
                     actions = {
                         if (tab == 4) {
                             CircleIconButton(Icons.Outlined.DeleteSweep, "清空足迹", onClick = { viewModel.clearHistory() })
@@ -104,7 +104,7 @@ fun StudyScreen(viewModel: MainViewModel, onOpenArticle: (Article) -> Unit) {
         }
     ) { padding ->
         when (tab) {
-            0 -> OverviewTab(store, Modifier.padding(padding))
+            0 -> OverviewTab(store, dailyGoal, Modifier.padding(padding))
             1 -> VocabTab(store.vocabulary, viewModel, Modifier.padding(padding))
             2 -> ReviewTab(store.vocabulary.filter { it.dueAt <= System.currentTimeMillis() }, viewModel, Modifier.padding(padding))
             3 -> SavedTab(store.saved, viewModel, onOpenArticle, Modifier.padding(padding))
@@ -114,7 +114,7 @@ fun StudyScreen(viewModel: MainViewModel, onOpenArticle: (Article) -> Unit) {
 }
 
 @Composable
-private fun OverviewTab(store: studio.lumen.reader.data.Store, modifier: Modifier = Modifier) {
+private fun OverviewTab(store: studio.lumen.reader.data.Store, dailyGoal: Int, modifier: Modifier = Modifier) {
     val today = LocalDate.now(ZoneId.systemDefault())
     val todayRead = store.history.count {
         LocalDate.ofInstant(Instant.ofEpochMilli(it.readAt), ZoneId.systemDefault()) == today

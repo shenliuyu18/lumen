@@ -14,6 +14,10 @@ Lumen 应用自有源码采用 [MIT](LICENSE)。下列第三方组件保留其�
 
 `android/` 中的拖拽手势观察、可交互高光（AGSL 径向高光与按压形变）与玻璃配方参数改编自 **legado-with-MD3**（`https://github.com/HapeLee/legado-with-MD3`，GNU GPLv3，`gedoor/legado` 的 Material 3 / Compose 分支）。受影响的文件在头部标注了来源与改动范围；该模块整体以 GPLv3 发布，见 [android/NOTICE](android/NOTICE) 与 [android/LICENSE](android/LICENSE)。仓库其余部分仍为 MIT。
 
+## adblock_auto（去广告规则）
+
+`plugins/lumen-adblock` 的通用选择器子集与部分域名规则由 `cmd/import-adblock` 从 **adblock_auto**（`https://github.com/lingeringsound/adblock_auto`，GPL-3.0）提取，插件因此以 GPL-3.0 分发（见 [plugins/lumen-adblock/NOTICE](plugins/lumen-adblock/NOTICE)）。只导入外观过滤选择器，网络拦截与脚本注入规则不会被使用。
+
 ## Android 依赖
 
 - Backdrop / Liquid Glass（`io.github.kyant0:backdrop`，含传递依赖 `io.github.kyant0:shapes`）：Apache License 2.0，用于 Android 端液态玻璃的背景采样、模糊与 AGSL 折射。版权归 Kyant0 及贡献者所有。

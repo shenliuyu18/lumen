@@ -47,6 +47,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import studio.lumen.reader.ui.components.liquidGlass
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -76,7 +79,6 @@ private val todayCategories = listOf("全部", "新闻", "商业", "科技", "�
 fun DiscoverScreen(
     viewModel: MainViewModel,
     onOpenArticle: (Article) -> Unit,
-    onOpenNewsroom: () -> Unit,
     onOpenPlugins: () -> Unit
 ) {
     val store by viewModel.store.collectAsState()
@@ -107,7 +109,6 @@ fun DiscoverScreen(
                         " · 保持好奇，读真实的英文",
                     actions = {
                         CircleIconButton(Icons.Outlined.Refresh, "更新文章") { if (!progress.running) viewModel.refresh() }
-                        CircleIconButton(Icons.Outlined.Style, "各站前三", onClick = onOpenNewsroom)
                     }
                 )
             }
@@ -133,19 +134,40 @@ fun DiscoverScreen(
                 }
             }
             item {
-                OutlinedTextField(
-                    value = query,
-                    onValueChange = { query = it; visibleCount = 30 },
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
-                    placeholder = { Text("搜索文章、媒体或关键词") },
-                    leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
-                    singleLine = true,
-                    shape = RoundedCornerShape(20.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                        .liquidGlass(shape = RoundedCornerShape(percent = 50), blurRadius = 10.dp, lensRadius = 16.dp, interactive = false)
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Outlined.Search,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp)
                     )
-                )
+                    Spacer(Modifier.width(10.dp))
+                    BasicTextField(
+                        value = query,
+                        onValueChange = { query = it; visibleCount = 30 },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                        decorationBox = { inner ->
+                            if (query.isEmpty()) {
+                                Text(
+                                    "搜索文章、媒体或关键词",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            inner()
+                        }
+                    )
+                }
             }
             item {
                 UnderlineTabs(

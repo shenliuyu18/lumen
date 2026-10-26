@@ -50,13 +50,28 @@
     return 1;
   }
 
+  function removeAll(nodes, tally) {
+    for (var i = 0; i < nodes.length; i++) tally.removed += removeNode(nodes[i]);
+  }
+
   function apply() {
+    // 规则有几百条，逐条 querySelectorAll 会让每次 DOM 变动都很慢：先按 120 条拼成
+    // 一个逗号选择器批量查询，整批语法出错时再退回逐条执行。
     var removed = 0;
-    selectors.forEach(function (selector) {
+    var tally = { removed: 0 };
+    for (var start = 0; start < selectors.length; start += 120) {
+      var chunk = selectors.slice(start, start + 120);
       try {
-        document.querySelectorAll(selector).forEach(function (el) { removed += removeNode(el); });
-      } catch (_) {}
-    });
+        removeAll(document.querySelectorAll(chunk.join(',')), tally);
+      } catch (_) {
+        chunk.forEach(function (selector) {
+          try {
+            removeAll(document.querySelectorAll(selector), tally);
+          } catch (_) {}
+        });
+      }
+    }
+    removed = tally.removed;
     if (patterns.length) {
       var candidates = document.querySelectorAll('div,aside,section,span,p,a,button');
       for (var i = 0; i < candidates.length; i++) {

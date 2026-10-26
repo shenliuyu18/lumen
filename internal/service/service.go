@@ -368,7 +368,7 @@ func (s *Service) Refresh(ctx context.Context) model.PublicState {
 	var statusMu sync.Mutex
 	queue := make(chan model.Source)
 	var workers sync.WaitGroup
-	for i := 0; i < 6; i++ {
+	for i := 0; i < 12; i++ {
 		workers.Add(1)
 		go func() {
 			defer workers.Done()
@@ -497,8 +497,28 @@ func (s *Service) TranslationConfig(values map[string]any) (model.PublicState, e
 	if useContext, ok := values["useContext"].(bool); ok {
 		next.UseContext = useContext
 	}
+	if base, ok := values["aiBaseUrl"].(string); ok {
+		base = strings.TrimSpace(base)
+		if base == "" {
+			base = "https://api.openai.com/v1"
+		}
+		if !strings.HasPrefix(base, "https://") && !strings.HasPrefix(base, "http://") {
+			base = "https://" + base
+		}
+		if len(base) > 300 {
+			base = base[:300]
+		}
+		next.AIBaseURL = base
+	}
+	if modelName, ok := values["aiModel"].(string); ok {
+		modelName = strings.TrimSpace(modelName)
+		if len(modelName) > 120 {
+			modelName = modelName[:120]
+		}
+		next.AIModel = modelName
+	}
 	if remove, ok := values["removeKey"].(bool); ok && remove {
-		if next.Provider != "microsoft" && next.Provider != "deepl" {
+		if next.Provider != "microsoft" && next.Provider != "deepl" && next.Provider != "ai" {
 			s.mu.Unlock()
 			return model.PublicState{}, fmt.Errorf("该服务不需要密钥")
 		}
@@ -508,7 +528,7 @@ func (s *Service) TranslationConfig(values map[string]any) (model.PublicState, e
 		}
 	}
 	if key, ok := values["key"].(string); ok && key != "" {
-		if next.Provider != "microsoft" && next.Provider != "deepl" {
+		if next.Provider != "microsoft" && next.Provider != "deepl" && next.Provider != "ai" {
 			s.mu.Unlock()
 			return model.PublicState{}, fmt.Errorf("该服务不需要密钥")
 		}

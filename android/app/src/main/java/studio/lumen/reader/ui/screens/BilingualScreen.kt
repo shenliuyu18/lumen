@@ -26,9 +26,11 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.ArrowOutward
+import androidx.compose.material.icons.outlined.BookmarkAdded
 import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.QuestionAnswer
+import androidx.compose.material.icons.outlined.Translate
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -93,6 +95,7 @@ fun ReadingScreen(
     var extracting by remember { mutableStateOf(false) }
     var failure by remember { mutableStateOf<String?>(null) }
     var attempt by remember { mutableIntStateOf(0) }
+    var bilingualOn by remember { mutableStateOf(false) }
     val scripts = remember { viewModel.catalogScripts() }
     val url = current?.url.orEmpty()
     val extractor = remember(url) { OffscreenExtractor(context, scripts, viewModel::adblockScript) }
@@ -103,7 +106,7 @@ fun ReadingScreen(
         failure = null
         extractor.load(url) { result ->
             extracting = false
-            result.onSuccess { viewModel.startBilingual(it) }.onFailure { failure = it.message }
+            result.onSuccess { viewModel.startReading(it) }.onFailure { failure = it.message }
         }
     }
     val article = bilingual
@@ -119,7 +122,7 @@ fun ReadingScreen(
     }
 
     Scaffold(
-        containerColor = Color.Transparent,
+        containerColor = MaterialTheme.colorScheme.background,
         contentColor = MaterialTheme.colorScheme.onSurface,
         topBar = {
             TopAppBar(
@@ -128,7 +131,7 @@ fun ReadingScreen(
                         Text("阅读模式", fontFamily = FontFamily.Serif)
                         Text(
                             when {
-                                article != null -> "${article.provider} · ${article.paragraphs.size} 段"
+                                article != null -> "${article.paragraphs.size} 段 · " + if (bilingualOn) "中英对照" else "原文"
                                 failure != null -> "抽取失败"
                                 else -> "正在后台抽取正文…"
                             },
@@ -142,8 +145,22 @@ fun ReadingScreen(
                 },
                 actions = {
                     GlassIconButton(
-                        icon = Icons.Outlined.Bookmark,
-                        label = "收藏",
+                        icon = Icons.Outlined.Translate,
+                        label = "双语",
+                        onClick = {
+                            bilingualOn = !bilingualOn
+                            if (bilingualOn) viewModel.translateAll() else viewModel.clearTranslations()
+                        },
+                        enabled = article != null,
+                        tint = if (bilingualOn) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                    )
+                    GlassIconButton(
+                        icon = if (current?.let { store.saved.any { saved -> saved.article.url == it.url } } == true) {
+                            Icons.Outlined.BookmarkAdded
+                        } else {
+                            Icons.Outlined.BookmarkAdd
+                        },
+                        label = "稍后阅读",
                         onClick = { current?.let(viewModel::toggleSaved) },
                         enabled = current != null
                     )
@@ -202,13 +219,14 @@ fun ReadingScreen(
             verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
             item {
-                HeaderCard(article, translated, progress, host)
+                HeaderCard(article, translated, progress, host, bilingualOn)
             }
             itemsIndexed(article.paragraphs, key = { index, _ -> index }) { index, paragraph ->
                 ParagraphBlock(
                     paragraph = paragraph,
                     index = index,
                     fontSize = store.settings.fontSize,
+                    showTranslation = bilingualOn,
                     onSave = {
                         saveParagraph = paragraph
                         meaning = ""
@@ -265,7 +283,8 @@ private fun HeaderCard(
     article: studio.lumen.reader.data.BilingualArticle,
     translated: Int,
     progress: Float,
-    host: String
+    host: String,
+    bilingualOn: Boolean
 ) {
     GlassCard(contentPadding = 22.dp) {
             Text(
@@ -287,22 +306,31 @@ private fun HeaderCard(
             Spacer(Modifier.height(14.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 MetaChip("${article.paragraphs.size} 段", MaterialTheme.colorScheme.surface)
-                MetaChip(article.provider, MaterialTheme.colorScheme.surface)
-                if (translated == article.paragraphs.size) {
-                    MetaChip("翻译完成", MaterialTheme.colorScheme.tertiaryContainer)
+                if (bilingualOn) {
+                    MetaChip(article.provider, MaterialTheme.colorScheme.surface)
+                    if (translated == article.paragraphs.size) {
+                        MetaChip("翻译完成", MaterialTheme.colorScheme.tertiaryContainer)
+                    }
+                } else {
+                    MetaChip("原文", MaterialTheme.colorScheme.surface)
                 }
             }
-            Spacer(Modifier.height(16.dp))
-            LinearProgressIndicator(
-                progress = { progress },
-                modifier = Modifier.fillMaxWidth().height(5.dp),
-                strokeCap = androidx.compose.ui.graphics.StrokeCap.Round,
-                trackColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
-            )
+            if (bilingualOn) {
+                Spacer(Modifier.height(16.dp))
+                LinearProgressIndicator(
+                    progress = { progress },
+                    modifier = Modifier.fillMaxWidth().height(5.dp),
+                    strokeCap = androidx.compose.ui.graphics.StrokeCap.Round,
+                    trackColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
+                )
+            }
             Spacer(Modifier.height(8.dp))
             Text(
-                if (translated < article.paragraphs.size) "正在翻译 $translated / ${article.paragraphs.size} 段 · 原文与译文依次对照"
-                else "已翻译 ${article.paragraphs.size} 段 · 机器译文仅供参考，原文完整保留",
+                when {
+                    !bilingualOn -> "当前只显示原文；点顶栏「双语」可逐段翻译。"
+                    translated < article.paragraphs.size -> "正在翻译 $translated / ${article.paragraphs.size} 段 · 原文与译文依次对照"
+                    else -> "已翻译 ${article.paragraphs.size} 段 · 机器译文仅供参考，原文完整保留"
+                },
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -370,6 +398,7 @@ private fun ParagraphBlock(
     paragraph: BilingualParagraph,
     index: Int,
     fontSize: Int,
+    showTranslation: Boolean,
     onSave: () -> Unit,
     onAsk: () -> Unit,
     onRetry: () -> Unit
@@ -415,8 +444,10 @@ private fun ParagraphBlock(
                 color = MaterialTheme.colorScheme.onBackground
             )
         }
-        Spacer(Modifier.height(if (isHeading) 8.dp else 12.dp))
-        TranslationBlock(paragraph, isHeading, onRetry)
+        if (showTranslation) {
+            Spacer(Modifier.height(if (isHeading) 8.dp else 12.dp))
+            TranslationBlock(paragraph, isHeading, onRetry)
+        }
         if (!isHeading) {
             Row(
                 modifier = Modifier.fillMaxWidth(),

@@ -1,24 +1,26 @@
 /*
- * 悬浮液态玻璃底栏。选中气泡的按压/拖拽形变与折射参数改编自
- * legado-with-MD3（https://github.com/HapeLee/legado-with-MD3，GNU GPLv3）的
- * ui/widget/components/FloatingBottomBar.kt 与 topbar/TopBarLiquidGlass.kt。
+ * 底栏风格沿用 legado-with-MD3（https://github.com/HapeLee/legado-with-MD3，GNU GPLv3）
+ * 的 AppNavigationBar：图标居中、常显文字标签，选中项在图标下方铺一枚圆角胶囊。
+ * 这里的实现按 Lumen 的主题与玻璃设置重写。
  */
 package studio.lumen.reader.ui.components
 
-import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,25 +30,21 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Public
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.ViewList
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.kyant.backdrop.backdrops.LayerBackdrop
-import kotlin.math.abs
 
 data class LiquidNavItem(val label: String, val icon: ImageVector)
 
@@ -60,102 +58,116 @@ object NavIcons {
 }
 
 /**
- * 悬浮玻璃底栏：选中项由一颗气泡标出，切换时按动画速度横向拉伸、纵向压扁，
- * 气泡经过的背景内容被真实折射；只有选中项显示文字标签。
+ * 阅读 app 风格的底栏：五项等宽，图标在上、名称在下且始终显示；
+ * 选中项在图标位置铺一枚 secondaryContainer 胶囊。玻璃开启时整条底栏半透明折射内容。
  */
+@Composable
+fun AppBottomBar(
+    items: List<LiquidNavItem>,
+    selectedIndex: Int,
+    onSelected: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    glass: Boolean = false,
+    backdrop: LayerBackdrop? = null
+) {
+    val scheme = MaterialTheme.colorScheme
+    val barModifier = if (glass) {
+        modifier.liquidGlass(
+            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+            blurRadius = 18.dp,
+            lensRadius = 0.dp,
+            surfaceColor = scheme.surface.copy(alpha = 0.62f),
+            interactive = false
+        )
+    } else {
+        modifier.background(scheme.surface)
+    }
+    Column(barModifier.fillMaxWidth().navigationBarsPadding()) {
+        HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.7f))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(66.dp)
+                .padding(horizontal = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            items.forEachIndexed { index, item ->
+                BottomBarItem(
+                    item = item,
+                    selected = index == selectedIndex,
+                    onClick = { onSelected(index) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun BottomBarItem(
+    item: LiquidNavItem,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val scheme = MaterialTheme.colorScheme
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+    val pillAlpha by animateFloatAsState(if (selected) 1f else 0f, tween(180), label = "pill")
+    val iconTint by animateColorAsState(
+        if (selected) scheme.onSecondaryContainer else scheme.onSurfaceVariant,
+        label = "icon"
+    )
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(interactionSource = interaction, indication = null, onClick = onClick)
+            .padding(vertical = 6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .width(56.dp)
+                .height(30.dp)
+                .clip(RoundedCornerShape(15.dp))
+                .background(scheme.secondaryContainer.copy(alpha = pillAlpha * (if (pressed) 1f else 0.9f))),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                item.icon,
+                contentDescription = item.label,
+                tint = iconTint,
+                modifier = Modifier.size(21.dp)
+            )
+        }
+        Spacer(Modifier.height(2.dp))
+        Text(
+            item.label,
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+            color = if (selected) scheme.onSurface else scheme.onSurfaceVariant,
+            maxLines = 1
+        )
+    }
+}
+
+/** 兼容旧调用的入口：按是否提供背景层决定玻璃开关。 */
 @Composable
 fun LiquidBottomBar(
     items: List<LiquidNavItem>,
     selectedIndex: Int,
     onSelected: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    height: Dp = 74.dp,
     backdrop: LayerBackdrop? = LocalGlassBackdrop.current
 ) {
-    val scheme = MaterialTheme.colorScheme
-    val shape = RoundedCornerShape(percent = 50)
-    val density = LocalDensity.current
-
-    BoxWithConstraints(modifier.fillMaxWidth().height(height)) {
-        val cellWidthPx = with(density) { maxWidth.toPx() } / items.size.coerceAtLeast(1)
-        val blobWidth = with(density) { (cellWidthPx - 12.dp.toPx()).coerceAtLeast(44.dp.toPx()).toDp() }
-        val travel = remember { Animatable(selectedIndex.toFloat()) }
-        val position by remember { derivedStateOf { travel.value } }
-        val stretch by remember {
-            derivedStateOf { (travel.velocity / (cellWidthPx * 5f)).coerceIn(-0.36f, 0.36f) }
-        }
-
-        LaunchedEffect(selectedIndex) {
-            if (selectedIndex in items.indices && travel.value != selectedIndex.toFloat()) {
-                travel.animateTo(selectedIndex.toFloat(), spring(dampingRatio = 0.5f, stiffness = 300f))
-            }
-        }
-
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .height(height)
-                .liquidGlass(
-                    shape = shape,
-                    blurRadius = 16.dp,
-                    lensRadius = 22.dp,
-                    surfaceColor = scheme.surface.copy(alpha = 0.5f),
-                    interactive = false,
-                    backdrop = backdrop
-                )
-        )
-
-        Box(
-            Modifier
-                .align(Alignment.CenterStart)
-                .offset(x = with(density) { (position * cellWidthPx + 6.dp.toPx()).toDp() })
-                .width(blobWidth)
-                .height(height - 16.dp)
-                .graphicsLayer {
-                    val amount = abs(stretch)
-                    scaleX = 1f + amount
-                    scaleY = 1f - amount * 0.5f
-                    transformOrigin = TransformOrigin.Center
-                }
-                .liquidGlass(
-                    shape = shape,
-                    blurRadius = 5.dp,
-                    lensRadius = 34.dp,
-                    surfaceColor = scheme.primary.copy(alpha = 0.12f),
-                    shadow = false,
-                    interactive = false,
-                    backdrop = backdrop
-                )
-        )
-
-        Row(Modifier.height(height)) {
-            items.forEachIndexed { index, item ->
-                val active = index == selectedIndex
-                val labelAlpha by animateFloatAsState(if (active) 1f else 0f, tween(220), label = "label")
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(height)
-                        .clickable { onSelected(index) },
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        item.icon,
-                        contentDescription = item.label,
-                        tint = if (active) scheme.onSurface else scheme.onSurfaceVariant,
-                        modifier = Modifier.size(23.dp)
-                    )
-                    Spacer(Modifier.height(3.dp))
-                    Text(
-                        item.label,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = scheme.primary,
-                        maxLines = 1,
-                        modifier = Modifier.alpha(labelAlpha)
-                    )
-                }
-            }
-        }
-    }
+    AppBottomBar(
+        items = items,
+        selectedIndex = selectedIndex,
+        onSelected = onSelected,
+        modifier = modifier,
+        glass = backdrop != null,
+        backdrop = backdrop
+    )
 }

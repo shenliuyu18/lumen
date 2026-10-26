@@ -17,7 +17,9 @@ data class TranslationSettings(
     val provider: String = "microsoft-web",
     val region: String = "",
     val deeplPlan: String = "free",
-    val useContext: Boolean = true
+    val useContext: Boolean = true,
+    val aiBaseUrl: String = "https://api.openai.com/v1",
+    val aiModel: String = "gpt-4o-mini"
 )
 
 @Serializable
@@ -32,7 +34,7 @@ data class Settings(
     val recordHistory: Boolean = true,
     val lowStorage: Boolean = false,
     val glassEffect: String = "liquid",
-    val floatingNav: Boolean = true,
+    val dailyGoal: Int = 10,
     val disabledPlugins: List<String> = emptyList(),
     val translation: TranslationSettings = TranslationSettings()
 )

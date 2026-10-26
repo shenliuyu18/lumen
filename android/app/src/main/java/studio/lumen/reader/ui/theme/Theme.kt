@@ -17,59 +17,79 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.sp
 
-// 深色优先的取色：近黑底 + 墨绿卡片描边 + 柔蓝强调色。
-private val NightBackground = Color(0xFF0A0A0C)
-private val NightSurface = Color(0xFF121215)
-private val NightCard = Color(0xFF17171B)
-private val NightVariant = Color(0xFF222229)
-private val NightInk = Color(0xFFECECEF)
-private val NightMuted = Color(0xFF9C9EA9)
-private val NightAccent = Color(0xFF9DBEFF)
-private val NightAccentInk = Color(0xFF10203C)
-private val NightClay = Color(0xFFE0BE9F)
-
-private val DayBackground = Color(0xFFF5F5F8)
-private val DaySurface = Color(0xFFFFFFFF)
-private val DayCard = Color(0xFFFFFFFF)
-private val DayVariant = Color(0xFFE9EAF0)
-private val DayInk = Color(0xFF15161B)
-private val DayMuted = Color(0xFF5B5E6B)
-private val DayAccent = Color(0xFF3D5C9C)
-private val DayAccentInk = Color(0xFFFFFFFF)
-private val DayClay = Color(0xFF8A6242)
-
-private val NightColors = darkColorScheme(
-    primary = NightAccent,
-    onPrimary = NightAccentInk,
-    primaryContainer = NightVariant,
-    onPrimaryContainer = NightInk,
-    secondary = NightClay,
-    onSecondary = NightAccentInk,
-    background = NightBackground,
-    onBackground = NightInk,
-    surface = NightSurface,
-    onSurface = NightInk,
-    surfaceVariant = NightCard,
-    onSurfaceVariant = NightMuted,
-    outline = Color(0xFF3A3B44),
-    outlineVariant = Color(0xFF26272E)
+// 取色取自阅读 app（legado-with-MD3 的 GR 配色）：浅色偏米绿纸面，深色为墨绿黑。
+private val LightColors = lightColorScheme(
+    primary = Color(0xFF4C662B),
+    onPrimary = Color(0xFFFFFFFF),
+    primaryContainer = Color(0xFFCDEDA3),
+    onPrimaryContainer = Color(0xFF354E16),
+    secondary = Color(0xFF586249),
+    onSecondary = Color(0xFFFFFFFF),
+    secondaryContainer = Color(0xFFDCE7C8),
+    onSecondaryContainer = Color(0xFF404A33),
+    tertiary = Color(0xFF386663),
+    onTertiary = Color(0xFFFFFFFF),
+    tertiaryContainer = Color(0xFFBCECE7),
+    onTertiaryContainer = Color(0xFF1F4E4B),
+    error = Color(0xFFBA1A1A),
+    onError = Color(0xFFFFFFFF),
+    errorContainer = Color(0xFFFFDAD6),
+    onErrorContainer = Color(0xFF93000A),
+    background = Color(0xFFF9FAEF),
+    onBackground = Color(0xFF1A1C16),
+    surface = Color(0xFFF9FAEF),
+    onSurface = Color(0xFF1A1C16),
+    surfaceVariant = Color(0xFFE1E4D5),
+    onSurfaceVariant = Color(0xFF44483D),
+    outline = Color(0xFF75796C),
+    outlineVariant = Color(0xFFC5C8BA),
+    inverseSurface = Color(0xFF2F312A),
+    inverseOnSurface = Color(0xFFF1F2E6),
+    inversePrimary = Color(0xFFB1D18A),
+    surfaceDim = Color(0xFFDADBD0),
+    surfaceBright = Color(0xFFF9FAEF),
+    surfaceContainerLowest = Color(0xFFFFFFFF),
+    surfaceContainerLow = Color(0xFFF3F4E9),
+    surfaceContainer = Color(0xFFEEEFE3),
+    surfaceContainerHigh = Color(0xFFE8E9DE),
+    surfaceContainerHighest = Color(0xFFE2E3D8)
 )
 
-private val DayColors = lightColorScheme(
-    primary = DayAccent,
-    onPrimary = DayAccentInk,
-    primaryContainer = DayVariant,
-    onPrimaryContainer = DayInk,
-    secondary = DayClay,
-    onSecondary = Color.White,
-    background = DayBackground,
-    onBackground = DayInk,
-    surface = DaySurface,
-    onSurface = DayInk,
-    surfaceVariant = DayCard,
-    onSurfaceVariant = DayMuted,
-    outline = Color(0xFFB9BBC6),
-    outlineVariant = Color(0xFFDFE0E7)
+private val DarkColors = darkColorScheme(
+    primary = Color(0xFFB1D18A),
+    onPrimary = Color(0xFF1F3701),
+    primaryContainer = Color(0xFF354E16),
+    onPrimaryContainer = Color(0xFFCDEDA3),
+    secondary = Color(0xFFBFCBAD),
+    onSecondary = Color(0xFF2A331E),
+    secondaryContainer = Color(0xFF404A33),
+    onSecondaryContainer = Color(0xFFDCE7C8),
+    tertiary = Color(0xFFA0D0CB),
+    onTertiary = Color(0xFF003735),
+    tertiaryContainer = Color(0xFF1F4E4B),
+    onTertiaryContainer = Color(0xFFBCECE7),
+    error = Color(0xFFFFB4AB),
+    onError = Color(0xFF690005),
+    errorContainer = Color(0xFF93000A),
+    onErrorContainer = Color(0xFFFFDAD6),
+    background = Color(0xFF12140E),
+    onBackground = Color(0xFFE2E3D8),
+    surface = Color(0xFF12140E),
+    onSurface = Color(0xFFE2E3D8),
+    surfaceVariant = Color(0xFF44483D),
+    onSurfaceVariant = Color(0xFFC5C8BA),
+    outline = Color(0xFF8F9285),
+    outlineVariant = Color(0xFF44483D),
+    inverseSurface = Color(0xFFE2E3D8),
+    inverseOnSurface = Color(0xFF2F312A),
+    inversePrimary = Color(0xFF4C662B),
+    surfaceDim = Color(0xFF12140E),
+    surfaceBright = Color(0xFF383A32),
+    surfaceContainerLowest = Color(0xFF0C0F09),
+    surfaceContainerLow = Color(0xFF1A1C16),
+    surfaceContainer = Color(0xFF1E201A),
+    surfaceContainerHigh = Color(0xFF282B24),
+    surfaceContainerHighest = Color(0xFF33362E)
 )
 
 /** 标题与卡片名使用衬线，正文与标签保持无衬线，贴近参考应用的排版。 */
@@ -104,8 +124,8 @@ fun LumenTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-        darkTheme -> NightColors
-        else -> DayColors
+        darkTheme -> DarkColors
+        else -> LightColors
     }
     MaterialTheme(colorScheme = colors, typography = LumenTypography, content = content)
 }

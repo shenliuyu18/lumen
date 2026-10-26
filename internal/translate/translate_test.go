@@ -2,6 +2,7 @@ package translate
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 
 	"lumen/internal/model"
@@ -88,5 +89,47 @@ func TestValidationAndCacheKey(t *testing.T) {
 	}
 	if CacheKey("deepl", "bank", "river") == CacheKey("deepl", "bank", "finance") {
 		t.Fatal("cache key ignores context")
+	}
+}
+
+func TestAITranslationRequestIsOpenAICompatible(t *testing.T) {
+	settings := model.TranslationSettings{
+		Provider:  "ai",
+		AIBaseURL: "https://api.example.com/v1/",
+		AIModel:   "qwen-plus",
+	}
+	request, err := BuildRequest(settings, "sk-test", "Hello world.", "Previous sentence.")
+	if err != nil {
+		t.Fatalf("BuildRequest: %v", err)
+	}
+	if request.URL != "https://api.example.com/v1/chat/completions" {
+		t.Fatalf("unexpected URL %q", request.URL)
+	}
+	if got := request.Headers["Authorization"]; got != "Bearer sk-test" {
+		t.Fatalf("unexpected authorization %q", got)
+	}
+	var payload struct {
+		Model    string `json:"model"`
+		Messages []struct {
+			Role    string `json:"role"`
+			Content string `json:"content"`
+		} `json:"messages"`
+	}
+	if err := json.Unmarshal(request.Body, &payload); err != nil {
+		t.Fatalf("body: %v", err)
+	}
+	if payload.Model != "qwen-plus" || len(payload.Messages) != 2 {
+		t.Fatalf("unexpected payload %+v", payload)
+	}
+	if !strings.Contains(payload.Messages[1].Content, "Previous sentence.") {
+		t.Fatalf("context missing from user message: %q", payload.Messages[1].Content)
+	}
+
+	translation, err := ParseResponse("ai", []byte(`{"choices":[{"message":{"content":" 你好，世界。 "}}]}`))
+	if err != nil || translation.Text != "你好，世界。" || translation.Provider != "大模型翻译" {
+		t.Fatalf("unexpected translation %+v err=%v", translation, err)
+	}
+	if _, err := BuildRequest(model.TranslationSettings{Provider: "ai", AIBaseURL: "https://x/v1"}, "", "hi", ""); err == nil {
+		t.Fatal("expected missing key error")
 	}
 }

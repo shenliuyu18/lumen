@@ -25,6 +25,10 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
+// 多数站点会拒绝非浏览器 UA，用桌面 Edge 的标识抓 RSS 才不会被 403。
+private const val UserAgent =
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0"
+
 class LumenRepository(private val context: Context) {
     val json = Json {
         ignoreUnknownKeys = true
@@ -36,9 +40,10 @@ class LumenRepository(private val context: Context) {
     private val storeFile = File(context.filesDir, "library.json")
     private val refreshMutex = Mutex()
     private val http = OkHttpClient.Builder()
-        .connectTimeout(15, TimeUnit.SECONDS)
-        .readTimeout(20, TimeUnit.SECONDS)
+        .connectTimeout(8, TimeUnit.SECONDS)
+        .readTimeout(16, TimeUnit.SECONDS)
         .followRedirects(true)
+        .retryOnConnectionFailure(true)
         .build()
 
     @Volatile
@@ -257,7 +262,7 @@ class LumenRepository(private val context: Context) {
                 updateNewsroom(desk, base.newsroom, feedItems, ::report)
             }
             coroutineScope {
-                repeat(6) {
+                repeat(12) {
                     launch(Dispatchers.IO) {
                         while (true) {
                             val source = queueMutex.withLock { queue.pollFirst() } ?: break
@@ -367,14 +372,57 @@ class LumenRepository(private val context: Context) {
         )
     }
 
-    private fun fetch(url: String, timeoutSeconds: Long): String {
-        val request = Request.Builder().url(url).header("User-Agent", "LumenReader/1.0 (Android)").build()
-        http.newCall(request).execute().use { response ->
+    private fun fetch(url: String, timeoutSeconds: Long): String = try {
+        fetchOnce(url, timeoutSeconds)
+    } catch (error: Exception) {
+        // 超时或连接被重置时换一条连接再试一次；403 之类的拒绝不重试。
+        if (!retryable(error)) throw friendly(error)
+        Thread.sleep(300)
+        try {
+            fetchOnce(url, timeoutSeconds)
+        } catch (retryError: Exception) {
+            throw friendly(retryError)
+        }
+    }
+
+    private fun fetchOnce(url: String, timeoutSeconds: Long): String {
+        val request = Request.Builder()
+            .url(url)
+            .header("User-Agent", UserAgent)
+            .header("Accept", "application/rss+xml, application/atom+xml, application/xml;q=0.9, text/xml;q=0.8, text/html;q=0.7, */*;q=0.5")
+            .header("Accept-Language", "en-US,en;q=0.9,zh-CN;q=0.8")
+            .build()
+        val client = http.newBuilder()
+            .callTimeout(timeoutSeconds, TimeUnit.SECONDS)
+            .build()
+        client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) error("HTTP ${response.code}")
             val body = response.body?.string() ?: error("空响应")
             if (body.length > 6_000_000) error("内容过大")
             return body
         }
+    }
+
+    private fun retryable(error: Exception): Boolean {
+        val text = error.message ?: return false
+        return error is java.net.SocketTimeoutException ||
+            text.contains("timeout", ignoreCase = true) ||
+            text.contains("reset", ignoreCase = true) ||
+            text.contains("EOF", ignoreCase = true)
+    }
+
+    private fun friendly(error: Exception): IllegalStateException {
+        val text = error.message ?: "抓取失败"
+        val message = when {
+            error is java.net.SocketTimeoutException || text.contains("timeout", ignoreCase = true) ->
+                "网络超时：该站点当前不可达，稍后会自动重试"
+            text.contains("HTTP 403") -> "HTTP 403：站点拒绝抓取，可能需要更换网络或代理"
+            text.contains("HTTP 429") -> "HTTP 429：请求过于频繁，请稍后再试"
+            text.contains("HTTP 5") -> "$text：站点暂时故障"
+            text.contains("Unable to resolve host") -> "域名解析失败：检查网络或 DNS"
+            else -> text
+        }
+        return IllegalStateException(message)
     }
 
     private fun parseFeed(xml: String, source: Source): List<Article> {

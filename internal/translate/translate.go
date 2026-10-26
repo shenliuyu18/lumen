@@ -9,12 +9,13 @@ import (
 	"html"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"lumen/internal/model"
 )
 
-var Providers = []string{"microsoft-web", "microsoft", "deepl", "mymemory"}
+var Providers = []string{"microsoft-web", "microsoft", "deepl", "ai", "mymemory"}
 
 // Edge 浏览器内置翻译使用的公开接口：无需密钥，但需要浏览器风格的请求头。
 const (
@@ -95,6 +96,40 @@ func BuildRequest(settings model.TranslationSettings, key, text, context string)
 			},
 			Body: body,
 		}, nil
+	case "ai":
+		if key == "" {
+			return Request{}, fmt.Errorf("请在偏好设置中填写大模型服务的 API 密钥。")
+		}
+		base := strings.TrimSpace(settings.AIBaseURL)
+		if base == "" {
+			base = "https://api.openai.com/v1"
+		}
+		modelName := strings.TrimSpace(settings.AIModel)
+		if modelName == "" {
+			modelName = "gpt-4o-mini"
+		}
+		system := "你是严谨的英译中译者。只输出中文译文，不要解释、不要加引号或列表符号；保留专有名词、数字与代码原样。"
+		user := text
+		if context != "" {
+			user = "上下文（仅供参考，不要翻译它）：\n" + context + "\n\n需要翻译的段落：\n" + text
+		}
+		body, _ := json.Marshal(map[string]any{
+			"model":       modelName,
+			"temperature": 0.2,
+			"messages": []map[string]string{
+				{"role": "system", "content": system},
+				{"role": "user", "content": user},
+			},
+		})
+		return Request{
+			URL:    strings.TrimSuffix(base, "/") + "/chat/completions",
+			Method: http.MethodPost,
+			Headers: map[string]string{
+				"Content-Type":  "application/json",
+				"Authorization": "Bearer " + key,
+			},
+			Body: body,
+		}, nil
 	case "mymemory":
 		if len([]byte(text)) > 500 {
 			return Request{}, fmt.Errorf("备用免费服务每次最多 500 字节。请缩短选文或切换 Microsoft / DeepL。")
@@ -129,6 +164,25 @@ func ParseResponse(provider string, data []byte) (model.Translation, error) {
 		if err := json.Unmarshal(data, &payload); err == nil && len(payload.Translations) > 0 {
 			text = payload.Translations[0].Text
 		}
+	case "ai":
+		var payload struct {
+			Choices []struct {
+				Message struct {
+					Content string `json:"content"`
+				} `json:"message"`
+			} `json:"choices"`
+			Error *struct {
+				Message string `json:"message"`
+			} `json:"error"`
+		}
+		if err := json.Unmarshal(data, &payload); err == nil {
+			if payload.Error != nil && payload.Error.Message != "" {
+				return model.Translation{}, fmt.Errorf("大模型服务：%s", payload.Error.Message)
+			}
+			if len(payload.Choices) > 0 {
+				text = strings.TrimSpace(payload.Choices[0].Message.Content)
+			}
+		}
 	case "mymemory":
 		var payload struct {
 			ResponseStatus int  `json:"responseStatus"`
@@ -148,7 +202,7 @@ func ParseResponse(provider string, data []byte) (model.Translation, error) {
 	if text == "" {
 		return model.Translation{}, fmt.Errorf("翻译服务未返回有效译文")
 	}
-	names := map[string]string{"microsoft-web": "Microsoft Translator 官方网页", "microsoft": "Microsoft Translator", "deepl": "DeepL", "mymemory": "MyMemory · 备用"}
+	names := map[string]string{"microsoft-web": "Microsoft Translator 官方网页", "microsoft": "Microsoft Translator", "deepl": "DeepL", "ai": "大模型翻译", "mymemory": "MyMemory · 备用"}
 	return model.Translation{Text: html.UnescapeString(text), Provider: names[provider], At: time.Now().UnixMilli()}, nil
 }
 

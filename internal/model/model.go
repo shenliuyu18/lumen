@@ -15,6 +15,8 @@ type TranslationSettings struct {
 	Region     string `json:"region"`
 	DeeplPlan  string `json:"deeplPlan"`
 	UseContext bool   `json:"useContext"`
+	AIBaseURL  string `json:"aiBaseUrl"`
+	AIModel    string `json:"aiModel"`
 }
 
 type Settings struct {
@@ -41,7 +43,7 @@ func DefaultSettings() Settings {
 		AutoRefresh:     true,
 		RecordHistory:   true,
 		Glass:           true,
-		Translation:     TranslationSettings{Provider: "microsoft-web", DeeplPlan: "free", UseContext: true},
+		Translation:     TranslationSettings{Provider: "microsoft-web", DeeplPlan: "free", UseContext: true, AIBaseURL: "https://api.openai.com/v1", AIModel: "gpt-4o-mini"},
 	}
 }
 

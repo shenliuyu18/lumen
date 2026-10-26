@@ -75,7 +75,11 @@ fun Modifier.liquidGlass(
     backdrop: LayerBackdrop? = LocalGlassBackdrop.current
 ): Modifier {
     if (backdrop == null || !interactiveHighlightSupported()) {
-        return this.clip(shape).background(surfaceColor.copy(alpha = if (shadow) 0.92f else 1f))
+        // 没有背景层（玻璃关闭或系统不支持折射）时铺不透明底色，保证深色模式下的文字对比度。
+        return this
+            .clip(shape)
+            .background(MaterialTheme.colorScheme.surface)
+            .background(surfaceColor)
     }
     val scope = rememberCoroutineScope()
     val highlight = remember(scope) { if (interactive) InteractiveHighlight(scope) else null }
@@ -177,7 +181,8 @@ fun GlassChip(
     label: String,
     selected: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    dense: Boolean = false
 ) {
     val scheme = MaterialTheme.colorScheme
     Box(
@@ -190,11 +195,11 @@ fun GlassChip(
                 shadow = selected
             )
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 9.dp)
+            .padding(horizontal = if (dense) 12.dp else 16.dp, vertical = if (dense) 6.dp else 9.dp)
     ) {
         Text(
             label,
-            style = MaterialTheme.typography.titleSmall,
+            style = if (dense) MaterialTheme.typography.labelLarge else MaterialTheme.typography.titleSmall,
             color = if (selected) scheme.primary else scheme.onSurfaceVariant
         )
     }

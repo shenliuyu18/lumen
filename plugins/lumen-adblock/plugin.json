@@ -2,11 +2,11 @@
   "format": 1,
   "id": "lumen-adblock",
   "name": "Lumen 去广告",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "adblock",
-  "description": "针对 Lumen 官方来源优化的广告识别与清理规则，保守移除广告位、赞助模块和广告标签。",
+  "description": "针对 Lumen 官方来源优化的广告识别与清理规则；通用选择器合并自 adblock_auto（lingeringsound/adblock_auto，GPL-3.0）的外观过滤子集。",
   "author": "Lumen",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "rules": {
     "global": {
       "selectors": [
@@ -35,7 +35,581 @@
         "[data-taboola]",
         "[data-outbrain]",
         "[class*=\"promoted-content\"]",
-        "[class*=\"paid-content\"]"
+        "[class*=\"paid-content\"]",
+        "#SOHU_MAIN > .module-cmt-float-bar",
+        "#SearchForm_search_input_wapper + #cps-wrap",
+        "#acm-ad-tag-lawrence_dfp_mobile_arkadium",
+        "#ad--article--home-mobile-paramount-wrapper",
+        "#ad1[onclick=\"window.open(this.url)\"]",
+        "#adv-gpt-masthead-skin-container1",
+        "#alert_windows > .q-dialog__backdrop",
+        "#app > .publicAllContentBg > .bigBannerBg",
+        "#app > script + div[class][data-version]",
+        "#archive > article[itemscope][itemtype]:is(.no-mask)",
+        "#atvcap + #tvcap > .mnr-c > .commercial-unit-mobile-top",
+        "#billboard-container.bg-gray-100.py-3",
+        "#block-adsense-banner-article-bottom",
+        "#block-adsense-banner-channel-bottom",
+        "#body > #body-bottom + div#fix-app-wrapper",
+        "#body > .container > .row > [role=\"main\"] > #bannerContainer.banner-container",
+        "#breadCrumb + .c + .t[style=\"margin-top:8px\"]",
+        "#breadCrumb + .t[style=\"margin-top:8px\"]",
+        "#chapter-content > center > #wap-tip",
+        "#chapter-content > p[class][data-line] + p:not([class]):not([data-line])",
+        "#chapter-content > p[style*=\"important\"]:not([class])",
+        "#chaptername.chaptername ~ center:not([class]):not([id]):not([style]) > a",
+        "#component-taboola-below-article-feed",
+        "#component-taboola-below-article-feed-2",
+        "#component-taboola-below-homepage-feed",
+        "#contentad-lower-medium-rectangle-1",
+        "#ctl00_ContentPlaceHolder1_ucAdHomeRightFO_divAdvertisement",
+        "#ctl00_ContentPlaceHolder1_ucAdHomeRight_divAdvertisement",
+        "#ctl00_leaderboardAdvertContainer",
+        "#ctl00_ucFooter_ucFooterBanner_divAdvertisement",
+        "#detail-ad-recommend-panel.border-radius",
+        "#detail-ad-recommend-panel.detail-panel",
+        "#detail-ad-recommend-panel.no-border-radius",
+        "#detail.selector-zero > div:not([class]):not([id]):not([style]) > div.pannel > div.grid",
+        "#eazy_ad_unblocker_dialog-message",
+        "#eazy_ad_unblocker_dialog-overlay",
+        "#fallbackTerms.fallback-term-holder",
+        "#floating_ads_bottom_textcss_container",
+        "#gam-ad-mpuLeaderboard-leaderboard-1",
+        "#gam-ad-mpuLeaderboard-leaderboard-2",
+        "#gam-ad-mpuLeaderboard-leaderboard-3",
+        "#hv3TopBannerMount.hv3-top-banner-slot",
+        "#img-txt-wrapper > #title_desc_div",
+        "#inPlayerGGzone + [data-content-type=\"result\"]",
+        "#index_banner[src*=\".meituan.net\"]",
+        "#interstitial_fade[style^=\"display: block\"]",
+        "#jsid-ad-container-post_above_comment",
+        "#jsid-ad-container-post_below_comment",
+        "#main-side-container.bg-gray-100.space-y-2",
+        "#mainPlaceHolder_coreContentPlaceHolder_rightColumnAdvert_divControl",
+        "#mm-player-placeholder-large-screen",
+        "#mobile-adhesion:not(#style_important)",
+        "#mrec-leaderboard-298545-container",
+        "#novel_mark_template + #popup_box",
+        "#nr + script:not([src]) ~ div[id]:not([class])",
+        "#photo--content-title-bottomx--foot",
+        "#player_pause > .tip + a[target=\"_blank\"]",
+        "#player_pause[style^=\"position\"] > a[target=\"_blank\"]",
+        "#projectpostbody > a[target=\"_blank\"]",
+        "#recommend-float + .footer + .popup",
+        "#site-banner-top.site-banner-slot",
+        "#story-side-1-container.min-w-mrec",
+        "#story-side-2-container.min-w-mrec",
+        "#story3-container.py-2.bg-gray-100",
+        "#story4-container.py-2.bg-gray-100",
+        "#story5-container.py-2.bg-gray-100",
+        "#table1[width=\"468\"][height=\"50\"]",
+        "#table1[width=\"794\"][height=\"60\"]",
+        "#table1[width=\"812\"][height=\"50\"]",
+        "#table1[width=\"812\"][height=\"60\"]",
+        "#taboola-above-homepage-thumbnails",
+        "#taboola-below-article-thumbnails",
+        "#taboola-below-article-thumbnails-2",
+        "#taboola-below-article-thumbnails-express",
+        "#taboola-below-article-thumbnails-mg",
+        "#taboola-below-article-thumbnails-new",
+        "#taboola-below-article-thumbnails-photo",
+        "#taboola-below-article-thumbnails-v2",
+        "#taboola-below-homepage-thumbnails-2",
+        "#taboola-below-homepage-thumbnails-3",
+        "#taboola-homepage-thumbnails-desktop",
+        "#taboola-mid-article-thumbnails-ii",
+        "#taboola-mid-main-column-thumbnails",
+        "#taboola-mobile-article-thumbnails",
+        "#taboola-native-right-rail-thumbnails",
+        "#taboola-right-rail-thumbnails-2nd",
+        "#taw > .med + div > #tvcap > .mnr-c:not(.qs-ic) > .commercial-unit-mobile-top",
+        "#test1.mobileIframe > div[carousel-item=\"\"]:not([class]):not([id])",
+        "#top_box > a[onclick^=\"javascript\"]",
+        "#video_playr_side.video_playr_sider.videoplayerside",
+        "#wpgtr_stickyads_textcss_container",
+        ".DisplayAd_PremiumPlacement__gAXXB",
+        ".Introduct > div[style*=\"00\"][style*=\"50\"]:not([class]):not([id])",
+        ".MPUstyled__MPUWrapper-sc-100o0l7-0",
+        ".MPUstyled__MPUWrapper-sc-1cdmm4p-0",
+        ".OUTBRAIN[data-widget-id^=\"FMS_REELD_\"]",
+        ".PrimisMidArticleAdUnit_desktop__dq_iB",
+        ".RightRailPanelAd_noPanelSmall__7yQ1M",
+        ".RightRailTrendingAd_nativeAdWrapper__dxc78",
+        ".SideBarstyled__SideBarMpuWrapper-sc-g4r51i-2",
+        ".StoryPage_storyTopAdContainer__6udZ0",
+        ".TaboolaMoreToExplore_taboolaContainerWrapper__Ccf_j",
+        ".TopBannerstyled__Wrapper-sc-x2ypns-0",
+        "._ccw-wrapper[data-role=\"content\"]",
+        "._popIn_recommend_article_ad_reserved",
+        ".ad-area:not(.text-ad):not([data-group])",
+        ".ad-box:not(#ad-banner):not(:empty)",
+        ".ad-mobile-mpu-plus-outstream-inc",
+        ".ad-placeholder:not(#filter_ads_by_classname):not(#detect_ad_empire):not(#detect):not(.adsbox)",
+        ".ad-wrap:not(#google_ads_iframe_checktag)",
+        ".adContainer[style=\"margin-top: -5px\"]",
+        ".ad_sd > .container > a > img[src*=\".qhimg.com\"]",
+        ".ad_showthread_firstpost_start_placeholder",
+        ".adblock-warning-partial-component",
+        ".adhesion.orange.horizontal.sporcle-promo",
+        ".ads-title + .article-bottom-apps",
+        ".ads__hyperleaderboard--hyperleaderboard",
+        ".adsninja-ad-zone-container-with-set-height",
+        ".adthrive-placeholder-static-sidebar",
+        ".alert_windows > .q-card__actions > a",
+        ".appguide-wrap[onclick*=\"bcebos.com\"]",
+        ".article > .static-container-4 > .media",
+        ".article > .static-container-4 > .media + .recommendation_widget",
+        ".article-content__widget-group--newsletter-slot",
+        ".banner-container-h5 > .banner_all_wrap",
+        ".bannerliststyle[style^=\"min-height\"]",
+        ".block-advertisement-banner-block",
+        ".bottom_fixed > a > img[src$=\".gif\"]",
+        ".bottom_fixed > a[rel=\"nofollow\"][target=\"_blank\"]",
+        ".bottom_fixed > a[rel='nofollow'][target='_blank']",
+        ".bottommob.swiper-container-horizontal",
+        ".box-bannerads-leaderboard-fallback",
+        ".btn-outline-primary[href*=\".com:\"]",
+        ".btn.btn-success.text-white[href*=\".com:\"]",
+        ".california-sticky-footer-ad-container",
+        ".callApp_fl_btn[onclick^=\"open_app\"]",
+        ".category-ad:not(html):not(body):not(.post)",
+        ".category-ads:not(html):not(body):not(.post)",
+        ".cell-lr[onclick^=\"window.open(\"]",
+        ".chapter-page-btn > style + div[id]:not([class]):not([style])",
+        ".click-track.shop-window-affiliate",
+        ".container + .container > .warp > .cate",
+        ".container .t-img-box:first-child",
+        ".container > .t-img-box:first-child",
+        ".container > .warp > [data-nosnippet]:not(div) > a[rel=\"nofollow\"][target=\"_blank\"]",
+        ".container > a > img[border=\"0\"][style=\"border: 1px inset #00FF00\"]",
+        ".container > a[href^=\"http\"] > .ads",
+        ".container > iframe[src*=\"123.html\"][width][height]",
+        ".container-content__container-relatedlinks",
+        ".container:not([id]):not([style]) > header ~ div.module",
+        ".content > .module > .small-icon-container > a.small-icon-div[target=\"_blank\"]",
+        ".content > .small-icon-container > a.small-icon-div[target=\"_blank\"]",
+        ".content > .top > div[class^=\"ad-\"]",
+        ".content > div[style] > div[class=\"photo-two\"]",
+        ".custom_link-wrapper.banner-grid-container",
+        ".d-flex.justify-content-center.my-1",
+        ".d-flex.justify-content-center.my-2",
+        ".d-flex.justify-content-center.my-3",
+        ".detail-list-title > a.text_span.gotoclick",
+        ".dfm-featured-bottom-flex-container",
+        ".div-gpt-ad-adhesion-leaderboard-wrap",
+        ".div-search-box.col-lg-offset-2.col-lg-8 > a[href^=\"http\"][target=\"_blank\"]",
+        ".diysdk_webServices_banners1und1MainContent",
+        ".elementor-widget-wp-widget-advads_ad_widget",
+        ".empire-prefill-container-injected",
+        ".entry-inner > div[style]:not([class]):not([id])",
+        ".exo-native-widget-outer-container",
+        ".float-app > a[href=\"#\"][onclick]",
+        ".googleAds_article_page_above_comments",
+        ".grid > .container > #aside-promotion",
+        ".grid > .m0auto > div > .grid + div:not([class]):not([id])",
+        ".header-background + style + .index-banner:not([id]):not([style]) > div[class^=\"swiper\"]",
+        ".hl-hidden-md.hl-hidden-lg[style$=\"5px\"]",
+        ".homepage-page__video-ad-container",
+        ".horizontal-banner + .post-content",
+        ".i-amphtml-element.live-updates.render-embed",
+        ".image-container > a[href*=\".yangkeduo.com\"]",
+        ".index-center-tc-index2.index-center-tc > a",
+        ".index-module_adAfterContent__RcW1",
+        ".index-module_adBeforeContent__AMXn",
+        ".index-module_adBeforeContent__UYZT",
+        ".index-module_rightrailBottom__IJEl",
+        ".index-module_sd_background__Um4w",
+        ".infomation + #notice_container > .event-notice",
+        ".js-push-notifications-modal-dialog",
+        ".jsv-layer > .image > a[href^=\"http\"]",
+        ".justify-center + div.grid.text-center",
+        ".list-view > div.summary ~ article.item:not([data-key]):not([id])",
+        ".list_box > li[id$=\"1\"][class=\"iframe\"]",
+        ".list_box > li[id$=\"2\"][class=\"iframe\"]",
+        ".listok > a > img[src*=\".alicdn.com\"][width=\"980\"][height=\"80\"]",
+        ".look_more_a[onclick^=\"open_app\"]",
+        ".m0auto > div:not([class]):not([id]) > div > .swiper-initialized",
+        ".main-container > .banner-list:not([style])",
+        ".main-container > .is-mobile + .banner",
+        ".main-container > .van-grid:not([style])",
+        ".main-container div[id^=\"core-zone-\"]",
+        ".main-container div[id^=\"z-extra-\"]",
+        ".main-container ~ div.z-gate-mask",
+        ".main-container ~ div[class^=\"z\"][class$=\"-root\"]",
+        ".main.warp > .app-list > a.app-item[target=\"_blank\"]",
+        ".mainholder + div[id][class*=\" \"] > div[id][class*=\" \"]",
+        ".maomi-content > #main-container > .row.mob40 + .row",
+        ".maomi-content > .section-menu > .row > a[target=\"_blank\"]",
+        ".maomi-content > .top-af-container",
+        ".maomi-content > a[target=\"_blank\"]",
+        ".maomi-content > script:not([src]) + div:not([class])",
+        ".mask + .footer-fixed-nav.clearfix",
+        ".mntl-jwplayer-broad.article__broad-video--jw",
+        ".mntl-jwplayer-broad.article__broad-video-jw",
+        ".mobile-instream-ad-holder-single",
+        ".module-player-handle-items + #custom_wrapper",
+        ".mylist > a > img[width^=\"9\"][height=\"80\"]",
+        ".nav-link[name=\"temp_ad_adcontrol\"]",
+        ".newsletter-widget__new-story-page",
+        ".newstyle > .container > a[target=\"_blank\"]",
+        ".notice-ad-wrapper + .app-abk + .app-text",
+        ".nv_blist_cell[onclick^=\"window.open(\"]",
+        ".ob_container .item-container-obpd",
+        ".ob_dual_right > .ob_ads_header ~ .odb_div",
+        ".only-app > #background-container",
+        ".only-app > #second-background-container",
+        ".opt > a[target=\"_blank\"] > img[src*=\".360buyimg.com\"]",
+        ".page-content > p[style=\"color:blue\"]",
+        ".page-content > p[style=\"color:red\"]",
+        ".panel-body > .list-unstyled > li > a[target=\"_blank\"]",
+        ".partner-loading-shown.partner-label",
+        ".pb-0:not(.section) > div.container:not([id]) > div:not([id])",
+        ".pgx-slot[data-pos*=\"ads\"]:not([data-pos*=\"read\"])",
+        ".player-box > .rm-two > a[target=\"_blank\"]",
+        ".player-box-main > .rm-one > a[start-time]",
+        ".player-info > .recommend-two.recommend-list",
+        ".polaris__below-header-ad-wrapper",
+        ".popup + .shortcuts-mobile-overlay",
+        ".post-card > img[src$=\".gif\"][data-action=\"zoom\"][class=\"blog-background\"]",
+        ".post-card-image-container.ratio-banner",
+        ".post-content + .article-bottom-apps",
+        ".ppr_priv_footer_banner_ad_billboard",
+        ".prism-time-display > a[target=\"blank\"][style*=\"color:pink\"]",
+        ".push-bottom-container[clickmode=\"cpt\"]",
+        ".push-bottom-container[key] > .push-bottom",
+        ".push-top-container > .push-top[key]",
+        ".rec-row > a[target=\"_blank\"][rel*=\"sponsored\"]",
+        ".rm-twoa > a[href*=\".umtrack.com\"]",
+        ".row > [class$=\"_b\"][data-group][data-show=\"ok\"]",
+        ".row > [class^=\"col\"] > [class$=\"_b\"][data-group][data-show=\"ok\"]",
+        ".row.no-gutter > .horizontal-row > span[class*=\"hidden-\"]",
+        ".row.no-gutters > div[id^=\"inside-video-boxes-mobile\"]",
+        ".scroll-fixable.rail-right > .deals-rail",
+        ".search-result-list-item--sidebar-ad",
+        ".section > div > div[class][data-version]",
+        ".section-subheader > .section-hotel-prices-header",
+        ".slide-ad ~ div[id]:not([style]):not([class])",
+        ".slider-right-advertisement-banner",
+        ".smcms-wrap > .group-box > a[target=\"_blank\"] > img",
+        ".smcms-wrap > a[target=\"_blank\"] > img",
+        ".source_container.swiper-wrapper[id=\"bannerCtrl\"]",
+        ".strawberry-ads__pretty-container",
+        ".streamer-container2 > .streamer-box2",
+        ".stripper > a[href*=\"istripper\"] > img",
+        ".stui-vodlist__thumb.lazyload[href^=\"http\"][target=\"_blank\"]",
+        ".stui-vodlist__thumb.lazyload[href^=\"http\"][target=\"_blank\"] + .stui-vodlist__detail",
+        ".taboola-above-article-thumbnails",
+        ".teaserList-module_nativeAdWrapper__uBhF",
+        ".top-ad-container ~ div[id^=\"remove\"][style]",
+        ".top-banner > .top-and-banners > .top-and-banners-cols",
+        ".top-wrap > script + a[href][target=\"_blank\"]",
+        ".trc-spotlight-first-recommendation",
+        ".txp_ad[data-role=\"txpad-interact-pause\"]",
+        ".under_player > div[class*=\"lg:hidden\"]",
+        ".van-tab__panel > .noTop.main-content > .group-content",
+        ".video-holder > a[target=\"_blank\"] > img[src*=\".360buyimg.com\"]",
+        ".video-holder > div.player + marquee + center",
+        ".video-img-box[class*=\"mb-\"] > .img-box > a[href^=\"http\"][target=\"_blank\"]",
+        ".video-page__wrapper > div[class*=\"jg\"]:not([id]):not([style])",
+        ".video-page__wrapper > section[style]:not([class]):not([id])",
+        ".videoPlayContainer > div#video-play + div[data-nosnippet]",
+        ".w-full[_nk] > a[_nk][target=\"_blank\"][rel=\"noopener noreferrer\"]",
+        ".widget_abn_admanager_sidestealer",
+        ".widget_awaken_pro_medium_rectangle_ad",
+        ".widget_sidebar_adrotate_tedo_single_widget",
+        ".wp-block-xwp-newsletter-subscription",
+        ".wpforms-location-save_recipe_wprm",
+        ".wrap.mt10.clearfix > .box.top_box",
+        ".wrapper > a[target=\"_blank\"] > .ads",
+        ".wrapper-player > div.before-player",
+        ".wrapper-player div.before-player",
+        "[class$=\"_b\"][data-group*=\"photo\"][data-show=\"ok\"]",
+        "[class$=\"b\"][data-group][style*=\"50px\"][style*=\"00px\"]",
+        "[class*=\"ads_\"]:not([class*=\"reads_\"]):not(.main_and_ads_block)",
+        "[class*=\"advertises\"] > .popup-form > *",
+        "[class*=\"advertises\"] > .van-overlay",
+        "[class*=\"chp_ads_blocker_detector-show\"]",
+        "[class=\"bottommob\"][id=\"bottommob\"]",
+        "[class][data-sitename][data-header-version] > div[id^=\"detection-block\"]",
+        "[class][onclick*=\".ununxsxs.top\"]",
+        "[class][onclick^=\"window.location.href\"][onclick*=\".bcebos.\"]",
+        "[class][onclick^=\"window.location.href\"][onclick*=\".pypyj.com\"]",
+        "[class][onclick^=\"window.location.href\"][onclick*=\".yueshuapp.com\"]",
+        "[class^=\"ads\"][style] > a[target=\"_blank\"]",
+        "[class^=\"app\"] > ul > li > a[rel=\"external nofollow noopener\"][target=\"_blank\"][href]",
+        "[class^=\"banner-grid-item\"] > a[target=\"_blank\"][rel=\"nofollow\"][href][style=\"height:80px\"]",
+        "[class^=\"navi\"] > [class^=\"appico\"]",
+        "[class^=\"player-rm\"][class*=\"rm-two\"][class*=\"rm-list\"] > a",
+        "[class^=\"tile-picker__CitrusBannerContainer-sc-\"]",
+        "[class^=\"van-tab\"] > .main-content > .group-content > [class^=\"area-\"]",
+        "[data*=\"advertising\"][data*=\"banner\"]",
+        "[data-element=\"empty\"][data-izone=\"uc-area\"]",
+        "[data-name=\"adaptiveConstructorAd\"]",
+        "[data-rc-widget=\"data-rc-widget\"]",
+        "[data-testid=\"commercial-label-taboola\"]",
+        "[data-testid^=\"section-AdRowBillboard\"]",
+        "[data-width=\"300\"][data-height=\"100\"][data-show=\"ok\"]",
+        "[id]:not([class]):not([style]) > .b300",
+        "[id^=\"adDisabledBtn\"][onclick][href]",
+        "[id^=\"post-card\"] > .blog-background[style^=\"background-image:\"][style*=\".gif\"]",
+        "[id^=\"post-card\"] > .blog-background[style^=\"background-image:\"][style*=\".png\"]",
+        "[onclick=\"window.open(this.url)\"][src]",
+        "[onclick^=\"toinfo('\"][onclick$=\")\"]",
+        "[onclick^=\"window.location.href\"][onclick*=\".biqu\"]",
+        "[src*=\"advertising\"][src*=\"banner\"]",
+        "[style*=\"mi-img.com\"][style*=\"calc\"]",
+        "a#wrapper_left_bg[target=\"_blank\"]",
+        "a#wrapper_right_bg[target=\"_blank\"]",
+        "a.checkNum[target=\"_blank\"] > img[data-src]",
+        "a.downurl[target=\"_blank\"][referrerpolicy=\"no-referrer\"]",
+        "a.poster[onclick=\"return false\"][target=\"_blank\"]",
+        "a[clickmode=\"cpt\"][target=\"_blank\"][rel=\"nofollow noopener\"] > img[src*=\"xchina\"]",
+        "a[data-track-content][data-content-name][target=\"_blank\"]",
+        "a[href$=\".php\"] > img[src*=\".bcebos.com\"]",
+        "a[href$=\".vip\"][target=\"_blank\"][class] > span",
+        "a[href*=\".cc:\"][target=\"_blank\"][class] > span",
+        "a[href*=\".com:\"][target=\"_blank\"][class] > span",
+        "a[href*=\".taobao.com\"] > img[src*=\".tucao.\"]",
+        "a[href*=\".top:\"][target=\"_blank\"][class] > span",
+        "a[href*=\".xyz\"][target=\"_blank\"][class] > span",
+        "a[href*=\".xyz:\"] > img[src*=\".qlogo.cn\"]",
+        "a[href*=\"AdCode_\"][target=\"_blank\"]",
+        "a[href*=\"AdsCode_\"][target=\"_blank\"]",
+        "a[href*=\"aHR0cHM6Ly9xc2Z2bDExLmFsYXp2LmNvbS8zNzA4Lmh0bWw=\"]",
+        "a[href*=\"bjty\"] > img[src*=\"imgsrc.baidu.com\"]",
+        "a[href*=\"kdocs.cn\"] > img[src*=\"sstv.\"]",
+        "a[href*=\"xn--dpq21dn8asxam8v16q0j5c.com\"]",
+        "a[href*=\"xn--gnr806avi6ad2dt3f2np.com\"][target=\"_blank\"]",
+        "a[href=\"javascript:void(0)\"][onclick*=\"clickHandler\"][onclick*=\"undefined\"]",
+        "a[href=\"javascript:void(0)\"][rel=\"nofollow\"][target=\"_new\"] > img[src]",
+        "a[href]:not([target=\"_blank\"]) + a[href][rel*=\"sponsored\"][target=\"_blank\"]",
+        "a[href][data-ad-slot-name][data-ad-type]",
+        "a[href][rel=\"nofollow\"] > img.nature",
+        "a[href][rel=\"noreferrer\"] > img[src$=\".gif.js\"]",
+        "a[href][target=\"_blank\"] > img[alt=\"Game Tip\"]",
+        "a[href][target=\"_blank\"] > img[alt=\"ad\"]",
+        "a[href][target=\"_blank\"] > img[id*=\"GGADIMG\"]",
+        "a[href][target=\"_blank\"] > img[src*=\"img.souche.com\"][src$=\".gif\"]",
+        "a[href][target=\"_blank\"] > img[src][alt=\"xxx\"]",
+        "a[href][target=\"_blank\"] > img[src][class=\"topline\"]",
+        "a[href][target=\"_blank\"][rel*=\"sponsored\"] > img[alt^=\"PG\"]",
+        "a[href][target=\"_blank\"][rel=\"external nofollow\"] > img[src]",
+        "a[href][target=\"_blank\"][rel=\"nofollow noopener\"] > img[alt=\"\"][src*=\".gif\"]",
+        "a[href][target=\"_blank\"][rel=\"nofollow noopenner\"][class=\"text-ad-link\" ]",
+        "a[href][target=\"_blank\"][rel=\"noopener noreferrer\"] > img[src][alt][class=\"h5\"]",
+        "a[href][target=\"_blank\"][rel=\"noopener noreferrer\"] > img[src][alt][class=\"pc\"]",
+        "a[href][title*=\"sponsor\"][target=\"_blank\"] > img[src$=\".gif\"]",
+        "a[href][title*=\"sponsor\"][target=\"_blank\"] > img[src$=\".png\"]",
+        "a[href^=\"http\"] > img[height=\"60px\"][src*=\"imgsrc.baidu.com\"]",
+        "a[href^=\"java\"][onclick^=\"gogogoto\"]",
+        "a[href^=\"javascript:gl012\"] + img",
+        "a[href^=\"javascript:linkto\"][href*=\"_blank\"] > img",
+        "a[href^=\"javascript:window.open(atob\"][style*=\"red\"]",
+        "a[id][target=\"_blank\"] > img[src*=\"help-ol.bj.bcebos.com\"]",
+        "a[onclick] > img[class^=\"index-center-tc\"]",
+        "a[onclick^=\"diensfeifwejwdsfwemio\"]",
+        "a[onclick^=\"javascript:pc_\"] > img[src*=\".alicdn.com\"]",
+        "a[onclick^=\"visitReport(\"][target=\"_blank\"]",
+        "a[onclick^=\"window\"] > img[id][width=\"1\"]",
+        "a[rel=\"nofollow\"][href][target=\"_blank\"] > div[class^=\"q-responsive\"]",
+        "a[rel=\"nofollow\"][href][target=\"_blank\"] > img[rel=\"nofollow\"][height][width][style]",
+        "a[target=\"_blank\"] > img[alt=\"AD\"]",
+        "a[target=\"_blank\"] > img[height=\"120px\"][src*=\".c-ctrip.com\"][src$=\".gif\"]",
+        "a[target=\"_blank\"] > img[height=\"120px\"][src*=\".meituan.net\"][src$=\".gif\"]",
+        "a[target=\"_blank\"] > img[height=\"120px\"][src*=\".tripcdn.com\"][src$=\".gif\"]",
+        "a[target=\"_blank\"] > img[height=\"120px\"][src*=\"qlogo.cn\"][src$=\".png\"]",
+        "a[target=\"_blank\"] > img[height=\"60px\"][src*=\".126.net\"][src$=\".gif\"]",
+        "a[target=\"_blank\"] > img[height=\"60px\"][src*=\".360buyimg.com\"][src$=\".gif\"]",
+        "a[target=\"_blank\"] > img[height=\"60px\"][src*=\".alicdn.com\"][src$=\".gif\"]",
+        "a[target=\"_blank\"] > img[height=\"60px\"][src*=\".c-ctrip.com\"][src$=\".gif\"]",
+        "a[target=\"_blank\"] > img[height=\"60px\"][src*=\".lenovo.com\"][src$=\".png\"]",
+        "a[target=\"_blank\"] > img[height=\"60px\"][src*=\".meituan.net\"][src$=\".gif\"]",
+        "a[target=\"_blank\"] > img[height=\"60px\"][src*=\".tripcdn.com\"][src$=\".gif\"]",
+        "a[target=\"_blank\"] > img[height=\"60px\"][src*=\"qlogo.cn\"][src$=\".png\"]",
+        "a[target=\"_blank\"] > img[src$=\"-150-300.gif\"]",
+        "a[target=\"_blank\"] > img[src$=\"-150x300.gif\"]",
+        "a[target=\"_blank\"][data-ad-slot-name]",
+        "a[target=\"_blank\"][onclick^=\"trackAdvertClick(\"]",
+        "article > div > div ~ div.auto-link.hover-action[data-link]",
+        "article > div.auto-link.hover-action[data-link]",
+        "aside[aria-label=\"retailmedia.complimentarySponsored\"]",
+        "aside[data-aqa=\"widget-breaking-banner\"]",
+        "body > #__nuxt:first-child > div > .container > .top-menu + div[class]",
+        "body > #__nuxt:first-child > div > .container > div[class^=\"pg-\"] > div[style*=\"important\"]",
+        "body > #__nuxt:first-child > div > .container > div[data-topmenu] + div + div[data-pg-wrap]",
+        "body > #__nuxt:first-child > div > .footer > .floatWindow + div[data-tag]",
+        "body > #__nuxt:first-child ~ div[class] > div > div > button[aria-label] + div[class]",
+        "body > #__nuxt:first-child ~ div[data-tag] > div > div > button[aria-label] + div[class]",
+        "body > div > div > div:not(article) > div.auto-link.hover-action[data-link]",
+        "body > div#inplayer[align=\"center\"]",
+        "body > div.addbox > div:not([id]):not([class]):not([style])",
+        "body > div.page[data-kochava-app-guid^=\"kotegna-web-prod-\"] > .page__top > .universal-ad",
+        "body > div[class=\"swiper swiper-initialized swiper-horizontal swiper-ios swiper-backface-hidden\"]",
+        "body > div[id][style^=\"--rdata:\"][style*=\"opacity:\"][style*=\"21474\"][style*=\"407px\"]",
+        "body > div[id^=\"a17\"] > div[id^=\"u17\"]",
+        "body > noscript + #root > div > div > .grid + div[role] + div",
+        "body > noscript + #root > div > div > .grid + div[role] + div + div",
+        "body > noscript + #root > div > div > .grid + div[role] + div + div[class]",
+        "body > noscript + #root > div > div > .grid > .m0auto > div > div:last-child",
+        "body > script + *[id][class][classname]",
+        "body > script + .app + #htmlContenthtml",
+        "body > script:not([src]) ~ #layui-layer-shade1",
+        "body > script:not([src]) ~ #layui-layer1",
+        "body > span[style*=\"bottom:\"][style*=\"30vh\"][style*=\"position\"][style*=\"fixed\"]",
+        "body#read > h5[id][style]:not([class])",
+        "body#read > h5[id][style]:not([class]) ~ h5[id][style]",
+        "body.desktop[style^=\"-\"] span[class*=\" \"] > a[href^=\"http\"][rel=\"nofollow\"][target=\"_blank\"]",
+        "body.wp-embed-responsive > div#actionbar",
+        "body[class*=\"adthrive-device-\"] .block-ebook",
+        "body[class*=\"adthrive-device-\"] .block-subscribe",
+        "body[class*=\"adthrive-device-\"] .enews-widget",
+        "body[class*=\"adthrive-device-\"] .sidebar-newsletter",
+        "body[class*=\"adthrive-device-\"] > .site-container .block-email",
+        "body[data-publication] aside[class^=\"RHRBlock_right-aside-wrapper\"]",
+        "body[data-publication] div.commercial-label-style",
+        "body[data-publication] div[data-testid^=\"ncu-within-group-\"]",
+        "body[data-publication] div[data-tmdatatrack-type=\"commercial\"]",
+        "center > p > a[target=\"_blank\"] > img[width=\"728px\"][height=\"90px\"]",
+        "div + .slide > a[href*=\".hanguomanhua.me\"]",
+        "div > a[href][target=\"_blank\"][rel=\"nofollow\"] > img[src$=\".gif\"]",
+        "div > div[class=\"swiper-c swiper-initialized swiper-horizontal swiper-autoheight swiper-ios swiper-backface-hidden\"]",
+        "div > span[style*=\"bottom:\"][style*=\"30vh\"][style*=\"position\"][style*=\"fixed\"]",
+        "div.adv-layer[id*=\"playerAdvLayer\"]",
+        "div.fadeInDown[id$=\"____equal\"][class$=\"____equal\"]",
+        "div.m-video-play.js-play>a.m-video-bannerTitle.js-video-bannerTitle",
+        "div:not([id]):not([class]):not([style]) > .ad-area-close",
+        "div:not([id]):not([class]):not([style]) > .ad-area-close + div[style*=\"background-color:\"]:not([class]):not([id])",
+        "div[class$=\"d\"] > span[class^=\"closebox\"]",
+        "div[class$=\"pic\"] > span[class^=\"closebox\"]",
+        "div[class$=\"top-banner\"] > div[class$=\"top-and-banners\"] > [class$=\"top-and-banners-cols\"]",
+        "div[class*=\"-grid\"] > a[rel=\"nofollow\"][target=\"_blank\"][class*=\"track-click\"]",
+        "div[class*=\"-spot\"][style*=\"250\"]",
+        "div[class*=\"-spot\"][style*=\"300\"]",
+        "div[class*=\"_\"][data-height=\"250\"][data-show=\"ok\"]:not([id])",
+        "div[class*=\"_\"][data-width=\"250\"][data-show=\"ok\"]:not([id])",
+        "div[class*=\"_\"][data-width=\"300\"][data-show=\"ok\"]:not([id])",
+        "div[class*=\"app\"] > [class=\"photo-two\"]",
+        "div[class*=\"b\"][data-slots] > a[href][target=\"_self\"]",
+        "div[class*=\"col\"] > a[rel=\"nofollow noopener noreferrer\"][href][target=\"_blank\"]",
+        "div[class*=\"col\"][clearfix] > a[target=\"_blank\"][onclick][href]",
+        "div[class*=\"col-\"] > div[class*=\"_\"][class*=\"-\"][data-show=\"ok\"]",
+        "div[class*=\"invideo-native-adv_\"]",
+        "div[class*=\"lg:hidden\"] > .mx-auto",
+        "div[class*=\"md\"] > a.block[target=\"_blank\"][rel=\"sponsored nofollow\"]",
+        "div[class*=\"md\"] > a.track-click[target=\"_blank\"][rel=\"sponsored nofollow\"]",
+        "div[class*=\"swiper\"] > a.block[target=\"_blank\"][rel=\"sponsored nofollow\"]",
+        "div[class*=\"swiper\"] > a.track-click[target=\"_blank\"][rel=\"sponsored nofollow\"]",
+        "div[class=\"bf_btn\"] > [class=\"copy_div_btn\"]",
+        "div[class=\"dmcenter\"] > a[href][target=\"_blank\"] > img[src$=\".gif\"]",
+        "div[class=\"list-block\"] > div[data-content-name][data-track-content]",
+        "div[class=\"main_column\"] > div[class=\"VIP\"] > a[class=\"hot\"][href]",
+        "div[class=\"need_grid_text\"] > ul > li",
+        "div[class=\"overfloat\"][id=\"gui_kai\"]",
+        "div[class=\"photo-two\"] > a[target=\"_blank\"]",
+        "div[class=\"swiper-container swiper-initialized swiper-horizontal swiper-ios swiper-backface-hidden\"]",
+        "div[class][id][style] > .pic_container",
+        "div[class][style*=\"100vw\"][style*=\"no-repeat\"][style*=\"background:\"][style*=\"0px\"]",
+        "div[class][style*=\"131px\"][style*=\"bottom\"]",
+        "div[class^=\"Adstyled__AdWrapper-\"]",
+        "div[class^=\"MidArticleAdUnit_mobile_\"]",
+        "div[class^=\"PrimisMidArticleAdUnit_mobile_\"]",
+        "div[class^=\"_\"] > [data-element=\"empty\"][data-izone]",
+        "div[class^=\"ant-\"][data-show-prefix=\"true\"] > div",
+        "div[class^=\"col-sm\"] > div[class^=\"alert\"][class*=\"text-\"][role=\"alert\"]",
+        "div[class^=\"container-\"] > .row > [class*=\"col-sm\"] > [class^=\"video-elem\"] >a[rel=\"noopener nofollow\"]",
+        "div[class^=\"container-\"] > .row > [class*=\"col-sm\"] > a[rel=\"noopener nofollow\"]",
+        "div[class^=\"container-\"] > [class*=\"need_grid\"] > ul > li > a[rel=\"noopener nofollow\"]",
+        "div[class^=\"fdanilieiu eiowligds\"][id][style]",
+        "div[class^=\"hengfu\"] > a[href][target=\"_blank\"]",
+        "div[class^=\"is_\"] > a > img[referrerpolicy=\"no-referrer\"]",
+        "div[class^=\"main-content\"] > div[class^=\"ad-\"][class$=\"wrap\"]",
+        "div[class^=\"mobile-jsv\"] > div[class^=\"mobile-jsv-content\"]",
+        "div[class^=\"module\"] ~ .module-ddslist.dds_w > a[rel=\"nofollow\"][target=\"_blank\"]",
+        "div[class^=\"popup-t\"][class*=\"open\"][class*=\"-icon\"]",
+        "div[class^=\"popup-t\"][style^=\"display:\"]",
+        "div[class^=\"shortcuts-\"][class$=\"-overlay\"]",
+        "div[class^=\"smartbanner\"][class*=\"-android\"]",
+        "div[class^=\"swiper-\"] > ul > li > a[target=\"_blank\"]",
+        "div[class^=\"z-index-\"] > div.down-app",
+        "div[class^=\"z-index-\"] > div.down-app ~ a[href] > img",
+        "div[class^=\"z-index-\"] > div.down-app ~ div:not([style]) > center",
+        "div[data-cypress=\"soft-push-notification-modal\"]",
+        "div[data-element=\"empty\"][data-izone=\"main\"]",
+        "div[data-testid=\"google-news-widget\"]",
+        "div[id*=\"_\"][classname$=\"_f\"][class$=\"_f\"]",
+        "div[id*=\"clb-spot\"] > iframe[id*=\"spot\"]",
+        "div[id*=\"po-s0\"] > div > div[class^=\"jsv\"] > div[class^=\"container-\"] > .row > [class*=\"col-sm\"] > a[rel=\"noopener nofollow\"]",
+        "div[id=\"alert_windows\"][class*=\"q-dialog fullscreen\"]",
+        "div[id^=\"em\"] > a[onclick^=\"em\"][max-width]",
+        "div[id^=\"hengfu_\"] > a[id^=\"hengfu_\"]",
+        "div[id^=\"pa_sticky_ad_box_middle_\"]",
+        "div[id^=\"photo-header-title-content-text-dall\"]",
+        "div[id^=\"test\"][style*=\"fixed\"][style*=\"position:\"]",
+        "div[onclick*=\".open\"][onclick*=\"leyu\"]",
+        "div[onclick*=\"window.location.href\"][onclick*=\".biqu\"][onclick*=\"app\"]",
+        "div[onclick^=\"window.location.href\"][onclick*=\".bcebos.\"]",
+        "div[onclick^=\"window.location.href\"][onclick*=\".haoyundm.com\"]",
+        "div[role=\"listitem\"] .bannerliststyle",
+        "div[role=\"listitem\"] > div > div > .bannerliststyle",
+        "div[style^=\"position\"][onclick^=\"window.open\"]",
+        "form[aria-label=\"Sign up for newsletter: Daily Briefing\"]",
+        "h3.title > .qq > a[target=\"_blank\"]",
+        "head[prefix~=\"medium-com:\"] ~ body .js-openInAppButton",
+        "head[prefix~=\"medium-com:\"] ~ body .js-postActionsBarContent > .js-readNextInteractions",
+        "header + #main > div[class][id^=\"rd\"][data-v-app]",
+        "header + #main:nth-child(n+3) > .container-fluid.mb-0.p-0",
+        "header + #main:nth-child(n+3) > .container-fluid.mb-0.p-0 + .jsv-g1",
+        "header + #main:nth-child(n+3) > .jsv.jsv-g1.mb-0 + .container-fluid.mb-3.p-0",
+        "header + #main:nth-child(n+3) > .jsv.jsv-g1.mb-0 > .container-fluid.mb-3.p-0",
+        "header + #main:nth-child(n+4) .container-fluid.mb-0.p-0",
+        "header + #main:nth-child(n+4) .container-fluid.mb-3.p-0",
+        "header + #main:nth-child(n+4) > div[id^=\"po-s\"]:not(#po-shd)",
+        "html[lang=\"zh-cn\"] > body  > header.Mobile-Header + main > div[id][class]",
+        "html[lang=\"zh-cn\"] > body  > header.Mobile-Header + main#main > div[id][class]:not(#videoListPage):not([class*=\"-\"]):not([class*=\" \"])",
+        "iframe[id=\"google-one-tap-iframe\"][allow=\"identity-credentials-get\"]",
+        "iframe[src*=\"-ads\"][data-mb-pe=\"auto\"]",
+        "iframe[src*=\"deliver.ptgncdn.com\"]",
+        "iframe[width=\"104\"][height=\"464\"]",
+        "iframe[width=\"200\"][height=\"240\"]",
+        "iframe[width=\"200\"][height=\"300\"]",
+        "iframe[width=\"210\"][height=\"237\"]",
+        "iframe[width=\"240\"][height=\"350\"]",
+        "iframe[width=\"240\"][height=\"400\"]",
+        "iframe[width=\"300\"][height=\"250\"]",
+        "iframe[width=\"780\"][height=\"120\"]",
+        "img[class*=\"cctv\"][alt=\"null\"][src]",
+        "img[class=\"half-img\"][src$=\".gif\"]",
+        "img[onclick=\"window.open(this.url)\"][src*=\"qq.com\"]",
+        "img[onclick^=\"golh\"][onclick$=\")\"][src$=\".gif\"]",
+        "img[onclick^=\"window.open\"][src*=\".360buyimg.com\"]",
+        "img[onclick^=\"window.open\"][src*=\"pc.qq.com\"]",
+        "img[src$=\"_b\"][style$=\"z-index:1\"]",
+        "img[src*=\".qpic.cn\"][width=\"980\"][height=\"80\"]",
+        "img[src*=\"120\"][src*=\"960\"][src$=\".gif\"]",
+        "img[src*=\"zhanlangimg.dingjiancdn.com\"][src$=\".gif\"]",
+        "img[width=\"240px\"][height=\"400px\"]",
+        "link[href*=\"Adv.css\"] ~ .specialCoverBox",
+        "link[href*=\"advPop.css\"] ~ .overlay",
+        "link[href*=\"advPop.css\"] ~ .popup",
+        "main.main ~ #overlay.overlay.active",
+        "main.main-content > div.promo-row",
+        "photo_center_div > div[class$=\"_b\"][data-group][data-show=\"ok\"]",
+        "script + .web_phone > .web_nav_menu > a > #banner-image",
+        "script + a[href] > img[src*=\"lbsugc.cdn.bcebos.com\"]",
+        "script + div[class] > div[class][data-version]",
+        "script + script + style + div[id] + a[onclick][target=\"_self\"]",
+        "section.horizontal-block > a[href][target=\"_blank\"][rel*=\"sponsored\"]",
+        "section[class^=\"container\"][class*=\"section section-relate-\"] > [class^=\"content\"][class*=\"relate\"]",
+        "span > video[poster*=\"-1316632262.cos.ap-\"]",
+        "span > video[poster*=\"cos.ap-\"][poster*=\"myqcloud.com\"][poster*=\"13\"]",
+        "span[id^=\"ezoic-pub-ad-placeholder-\"]",
+        "span[style*=\"393px\"][style*=\"0px 0px\"][style*=\"border-image-source:url\"]",
+        "style + .footer-fixed-nav.clearfix",
+        "table[border=\"1\"] > tbody > tr > td > a[href][onclick*=\"Novel\"][title]",
+        "textarea[style*=\"-1325890192.cos.ap\"]",
+        "txpdiv[data-role=\"hd-ad-adapter-interactivelayer\"]",
+        "ul > li > a[href][data-id][data-type][data-position][target=\"_self\"]",
+        "ul.grid > .post-list-item > a[rel*=\"nofollow\"]"
       ],
       "textPatterns": [
         "Advertisement",
@@ -48,99 +622,260 @@
       ]
     },
     "domains": {
-      "bbc.com": {
+      "abcnews.go.com": {
         "selectors": [
-          "[data-component=\"ad-slot\"]",
-          "[data-component=\"advertisement\"]",
-          ".bbccom_advert",
-          ".dotcom-ad"
+          "[data-testid=\"prism-sticky-ad\"]",
+          ".leaderboard-970",
+          ".taboola"
         ]
       },
-      "theguardian.com": {
+      "africanews.com": {
         "selectors": [
-          ".ad-slot",
-          "[data-gu-name=\"ad\"]",
-          "[data-testid=\"ad-slot\"]",
-          ".top-banner-ad-container",
-          ".fc-container--ad"
-        ]
-      },
-      "reuters.com": {
-        "selectors": [
-          "[data-testid*=\"Advertisement\"]",
-          "[data-testid*=\"ad-\"]",
-          ".ad-container"
-        ]
-      },
-      "apnews.com": {
-        "selectors": [
-          "[data-key=\"ad\"]"
-        ]
-      },
-      "nytimes.com": {
-        "selectors": [
-          "[data-testid=\"StandardAd\"]",
-          "[data-testid=\"Ad\"]",
-          "[id^=\"Ad\"]"
-        ]
-      },
-      "washingtonpost.com": {
-        "selectors": [
-          "[data-qa=\"ad\"]",
-          ".wp-block-ad"
-        ]
-      },
-      "npr.org": {
-        "selectors": [
-          ".ad-wrap",
-          "[data-ad]"
+          ".right-legend"
         ]
       },
       "aljazeera.com": {
         "selectors": [
           ".advertising",
-          ".ad-container"
+          ".ad-container",
+          ".ads"
+        ]
+      },
+      "apnews.com": {
+        "selectors": [
+          "[data-key=\"ad\"]",
+          "div[class^=\"Component-rectanglePlaceholderWrapper-\"]",
+          "div[class^=\"Component-placeholderWrapper-\"]",
+          "div[class^=\"Component-adTitle-\"]",
+          ".Page-header-leaderboardAd",
+          ".leaderboard-container",
+          ".LeaderBoardAd-Mobile",
+          "#mobile-entitlements",
+          ".Advertisement",
+          ".Leaderboard"
+        ]
+      },
+      "arstechnica.com": {
+        "selectors": [
+          ".ars-interlude-container",
+          ".ars-component-buy-box",
+          "#outbrain-recs-wrap",
+          ".instream-wrap",
+          ".ad_fullwidth",
+          ".ad_crown",
+          ".ad"
+        ]
+      },
+      "asia.nikkei.com": {
+        "selectors": [
+          "div[class*=\"Advertorial_advertorial\"]"
+        ]
+      },
+      "bangkokpost.com": {
+        "selectors": [
+          ".ads-related",
+          ".ads"
+        ]
+      },
+      "bbc.com": {
+        "selectors": [
+          "[data-component=\"ad-slot\"]",
+          "[data-component=\"advertisement\"]",
+          ".bbccom_advert",
+          ".dotcom-ad",
+          "[data-component=\"advertisement-block\"]",
+          "section[data-e2e=\"advertisement\"]",
+          "section[class*=\"AdContainer\"]",
+          "#leaderboard-aside-content",
+          "#mpu-side-aside-content",
+          "#sticky-leaderboard"
+        ]
+      },
+      "bloomberg.com": {
+        "selectors": [
+          "[data-testid=\"ad\"]",
+          ".fence-body > div[data-position=\"mobile-box\"]",
+          "div[class^=\"media-ui-FullWidthAd\"]",
+          "[data-component=\"in-body-ad\"]",
+          "div[class^=\"media-ui-BaseAd\"]",
+          ".content-cliff__ad-container",
+          ".BaseAd_baseAd-dXBqvbLRJy0-",
+          "div[data-ad-placeholder]",
+          "[class^=\"FullWidthAd_\"]",
+          ".leaderboard-container",
+          "div[class^=\"BaseAd_\"]",
+          "div[class*=\"-ad-top\"]",
+          ".leaderboard-wrapper",
+          ".content-cliff__ad",
+          "#leaderboard",
+          ".amp-taboola",
+          ".dvz-v0-ad",
+          ".adWrapper"
+        ]
+      },
+      "bmj.com": {
+        "selectors": [
+          "#trendmd-suggestions",
+          "#mdgxWidgetiFrame",
+          ".section-header"
+        ]
+      },
+      "cbc.ca": {
+        "selectors": [
+          ".ad-risingstar-container",
+          ".adContainer-F11hw",
+          ".bigBoxContainer",
+          ".ad-load-more",
+          ".ad-landing",
+          ".ad"
+        ]
+      },
+      "cbsnews.com": {
+        "selectors": [
+          ".container > carousel[slug=\"taboola-around-the-web-video-door\"]",
+          "#taboola-around-the-web-video-door",
+          "div[data-ad]"
+        ]
+      },
+      "channelnewsasia.com": {
+        "selectors": [
+          ".fast-ads-wrapper",
+          ".programtic-ads"
+        ]
+      },
+      "dailymaverick.co.za": {
+        "selectors": [
+          ".dm_add_wrapper",
+          ".sponsored"
+        ]
+      },
+      "dawn.com": {
+        "selectors": [
+          ".radWrapper",
+          ".ad"
         ]
       },
       "dw.com": {
         "selectors": [
-          "[data-ad]"
+          "[data-ad]",
+          ".advertisement"
+        ]
+      },
+      "economist.com": {
+        "selectors": [
+          "[data-testid=\"ad\"]",
+          "div[class^=\"adComponent_advert\"]",
+          ".adComponent_advert__kPVUI",
+          ".adComponent",
+          ".advert"
+        ]
+      },
+      "euronews.com": {
+        "selectors": [
+          "div[class*=\"u-show-for\"]",
+          ".m-object--is-branded",
+          ".b-sponsored-content",
+          "#connatix-container",
+          ".qa-dfpLeaderBoard",
+          ".base-leaderboard",
+          ".c-card-sponsor",
+          ".tp-outbrain",
+          ".enw-MPU",
+          ".c-ad"
+        ]
+      },
+      "france24.com": {
+        "selectors": [
+          "div[data-tms-ad-container]",
+          ".o-ad-container__label"
         ]
       },
       "ft.com": {
         "selectors": [
           ".o-ads",
-          "[data-testid=\"ad\"]"
+          "[data-testid=\"ad\"]",
+          "pg-slot.pg-slot[id]",
+          ".slot-wrapper",
+          ".advert",
+          ".bn-ph"
         ]
       },
-      "economist.com": {
+      "go.com": {
         "selectors": [
-          "[data-testid=\"ad\"]"
-        ]
-      },
-      "bloomberg.com": {
-        "selectors": [
-          "[data-testid=\"ad\"]"
-        ]
-      },
-      "wsj.com": {
-        "selectors": [
-          "[data-testid=\"ad\"]"
+          ".ad"
         ]
       },
       "hbr.org": {
         "selectors": [
-          "[data-testid=\"ad\"]"
+          "[data-testid=\"ad\"]",
+          ".PartnerCenter-module_container__w6Ige",
+          ".AdSlotZone_ad-container__eXYUj",
+          "section[class^=\"PartnerCenter\"]",
+          "div[data-testid=\"ad-container\"]",
+          ".PrimaryAd_ad-container__YHDwJ",
+          ".partner-center",
+          "#partnerCenter",
+          ".ad-container",
+          ".sponsored"
         ]
       },
-      "technologyreview.com": {
+      "independent.co.uk": {
         "selectors": [
-          "[data-testid=\"ad\"]"
+          "#taboola-mid-article-thumbnails-iii",
+          "#taboola-mid-article-thumbnails-ii",
+          "amp-embed[type=\"taboola\"]",
+          ".taboola-below-article",
+          "div[data-mpu1=\"true\"]",
+          "#top-banner-wrapper",
+          "#billboard-wrapper",
+          ".indy100-trending",
+          "#stickyFooterRoot",
+          ".bXYFQI.dAHemH",
+          "div[data-mpu1]",
+          ".vf-share-menu",
+          ".sc-estpub-1",
+          "[data-mpu1]",
+          ".sc-hYYkYm",
+          "#partners",
+          ".taboola",
+          ".lfyduH"
         ]
       },
-      "wired.com": {
+      "irishtimes.com": {
         "selectors": [
-          "[data-testid=\"ad\"]"
+          ".arcad-feature",
+          ".sponsored",
+          ".cs-teaser",
+          ".banner"
+        ]
+      },
+      "japantimes.co.jp": {
+        "selectors": [
+          ".supplements-binder",
+          ".banner"
+        ]
+      },
+      "koreaherald.com": {
+        "selectors": [
+          ".mythiell-mid-container",
+          "#mbpAd022303",
+          ".header_bnn",
+          ".banner",
+          ".khadv1",
+          ".kh_ad"
+        ]
+      },
+      "lemonde.fr": {
+        "selectors": [
+          ".friend.ops--inline",
+          ".dfp__container"
+        ]
+      },
+      "lithub.com": {
+        "selectors": [
+          ".insert-post-ads",
+          ".code-block",
+          ".Custom_Ads"
         ]
       },
       "nature.com": {
@@ -149,14 +884,110 @@
           ".c-ad"
         ]
       },
-      "science.org": {
+      "nbcnews.com": {
         "selectors": [
-          ".ads"
+          ".ad-container"
         ]
       },
-      "scientificamerican.com": {
+      "news.sky.com": {
         "selectors": [
-          "[data-testid=\"ad\"]"
+          ".sdc-article-body > .sdc-site-layout-sticky-region[data-format=\"floated-mpu\"]",
+          ".sdc-site-layout-sticky-region__ghost[data-format=\"leaderboard\"]",
+          "div[data-ad-format=\"leaderboard\"]",
+          "[data-format=\"leaderboard\"]",
+          "[data-role=\"ad-label\"]",
+          "#leaderboard",
+          ".ui-advert",
+          "#mpu-1",
+          ".mpu-1",
+          ".ad"
+        ]
+      },
+      "newscientist.com": {
+        "selectors": [
+          ".leaderboard-container",
+          ".Outbrain",
+          ".mpu"
+        ]
+      },
+      "newyorker.com": {
+        "selectors": [
+          "[data-testid=\"ad\"]",
+          "div[class^=\"StickyHeroAdWrapper-\"]"
+        ]
+      },
+      "nikkei.com": {
+        "selectors": [
+          ".k-ad__container--mobile",
+          "[class*=\"adForSmall_\"]",
+          ".prBox"
+        ]
+      },
+      "npr.org": {
+        "selectors": [
+          ".ad-wrap",
+          "[data-ad]",
+          "aside[aria-label=\"advertisement\"]",
+          ".ad-config"
+        ]
+      },
+      "nytimes.com": {
+        "selectors": [
+          "[data-testid=\"StandardAd\"]",
+          "[data-testid=\"Ad\"]",
+          "[id^=\"Ad\"]",
+          "#site-content > div[class] > div[class^=\"css-\"][class*=\" e1\"][class*=\"pa\"]",
+          "#stream-panel ol > div[id^=\"mid\"][type=\"supplemental\"]",
+          "[data-ad-element=\"outer_ad_container\"]",
+          ".e1xxpj0j1.css-4vtjtj",
+          "div[id^=\"story-ad-\"]",
+          "div[data-ad-element]",
+          "#app > div.e1xxpj0j0",
+          ".in_rhq_adSpacer",
+          "#bottom-wrapper",
+          ".css-1yvwzdo",
+          ".css-142l3g4",
+          "#top-wrapper",
+          ".css-oeful5",
+          ".css-p3qvdn",
+          ".css-bs95eu",
+          ".pz-ad-box",
+          ".e12j3pa50",
+          ".css-wmyc1",
+          "body .ad",
+          ".g-paid",
+          ".ad"
+        ]
+      },
+      "pbs.org": {
+        "selectors": [
+          ".production-and-funding",
+          ".sidebar__logo-pond",
+          ".home__logo-pond",
+          ".footer__sub",
+          ".home__ad"
+        ]
+      },
+      "politico.eu": {
+        "selectors": [
+          ".ad__mobile",
+          "body .ad",
+          ".ad"
+        ]
+      },
+      "popsci.com": {
+        "selectors": [
+          ".empire-below_content__desktop__articles-prefill-container",
+          ".empire-content__desktop__articles-prefill-container",
+          ".empire-header__desktop__article-prefill-container",
+          ".mtc-unit-prefill-container",
+          "#pw-top-right-sidebar-aib",
+          "#pw-iab-leaderboard"
+        ]
+      },
+      "publicbooks.org": {
+        "selectors": [
+          ".pb_ads_widget"
         ]
       },
       "quantamagazine.org": {
@@ -164,14 +995,243 @@
           "[data-testid=\"ad\"]"
         ]
       },
-      "theatlantic.com": {
+      "reuters.com": {
         "selectors": [
-          "[data-testid=\"ad\"]"
+          "[data-testid*=\"Advertisement\"]",
+          "[data-testid*=\"ad-\"]",
+          ".ad-container",
+          "div[class^=\"article-body_\"] > div[class*=\"cnx-player__in-article_\"]",
+          ".leaderboard-space-module__leaderboard-space__VFflk",
+          ".workspace-article-banner-module__image__F14iP",
+          "div[class^=\"RightRail-sticky-container\"]",
+          "div[data-variant-id=\"workspace-banner\"]",
+          "div[data-testid=\"HomepageSponsorLogo\"]",
+          "div[class^=\"homepage-sponsor-logo__\"]",
+          "div[class^=\"ArticlePage-mobile-mpu-\"]",
+          "[class^=\"primary-video__container_\"]",
+          ".in-article-desktop-connatix-player",
+          "[data-testid=\"ResponsiveAdSlot\"]",
+          "[data-testid=\"Leaderboard\"]",
+          "#in-article-connatix-player",
+          "div[class^=\"leaderboard\"]",
+          "[data-testid=\"CnxPlayer\"]",
+          "div[class^=\"ad-slot__\"]"
         ]
       },
-      "newyorker.com": {
+      "science.org": {
         "selectors": [
-          "[data-testid=\"ad\"]"
+          ".ads",
+          "body .adplaceholder"
+        ]
+      },
+      "scientificamerican.com": {
+        "selectors": [
+          "[data-testid=\"ad\"]",
+          ".footer-banner",
+          ".banner"
+        ]
+      },
+      "scmp.com": {
+        "selectors": [
+          "div[data-qa=\"GenericArticle-MobileContentHeaderAdSlot\"]",
+          "div[data-qa=\"AuthorPage-HeaderAdSlotContainer\"]",
+          "[data-qa=\"AppBar-renderLayout-AdSlotContainer\"]",
+          "div[class^=\"wrapper__mobile-wide-ad-container\"]",
+          "div[data-qa=\"ArticleHeaderAdSlot-Placeholder\"]",
+          "[data-qa=\"ArticleContentRightSection-AdSlot\"]",
+          "div[data-qa=\"GenericArticle-TopPicksAdSlot\"]",
+          ".page-container__left-native-ad-container",
+          "[data-qa=\"OutstreamAdSlot-Container\"]",
+          "div[data-qa=\"InlineAdSlot-Container\"]",
+          "div[data-qa=\"AppBar-AdSlotContainer\"]",
+          ".section-content-bottom__ad-container",
+          "div[data-qa=\"AdSlot-Container\"]",
+          "#after-page-layout-container",
+          ".article-list__inline-ad",
+          ".details__topics-ad",
+          "div[data-qa$=\"Ads\"]",
+          ".article--sponsor",
+          "[id^=\"div-ad-\"]",
+          ".header-ad-slot",
+          ".advertisers",
+          ".advert"
+        ]
+      },
+      "smithsonianmag.com": {
+        "selectors": [
+          ".advertisement",
+          ".ad-wrapper"
+        ]
+      },
+      "spectrum.ieee.org": {
+        "selectors": [
+          "#sSS_Default_Post_0_0_20_0_0_1_4_2",
+          ".top-leader-container",
+          "div[class^=\"rblad-\"]",
+          ".tag-type-whitepaper"
+        ]
+      },
+      "statnews.com": {
+        "selectors": [
+          ".ad-in-article",
+          ".sponsored"
+        ]
+      },
+      "straitstimes.com": {
+        "selectors": [
+          "#below-article-thumbnails-0",
+          ".article-ads-wrapper",
+          "#MyPageOverlay",
+          ".leaderboard",
+          "#am-widget",
+          ".ads"
+        ]
+      },
+      "techcrunch.com": {
+        "selectors": [
+          ".marfeel-experience-event-cta",
+          ".wp-block-group--ads-footer",
+          "div[class*=\"ad-unit\"]"
+        ]
+      },
+      "technologyreview.com": {
+        "selectors": [
+          "[data-testid=\"ad\"]",
+          "div[class^=\"headerTemplate__leaderboardRow-\"]"
+        ]
+      },
+      "techxplore.com": {
+        "selectors": [
+          ".ads-container",
+          ".ads"
+        ]
+      },
+      "theatlantic.com": {
+        "selectors": [
+          "[data-testid=\"ad\"]",
+          "div[class^=\"ArticleInjector_clsAvoider\"]",
+          ".native-promo-slider",
+          ".ad-wrapper",
+          ".ad-loaded"
+        ]
+      },
+      "theguardian.com": {
+        "selectors": [
+          ".ad-slot",
+          "[data-gu-name=\"ad\"]",
+          "[data-testid=\"ad-slot\"]",
+          ".top-banner-ad-container",
+          ".fc-container--ad",
+          ".top-fronts-banner-ad-container",
+          ".js-top-banner",
+          ".dcr-1aq0rzi"
+        ]
+      },
+      "thehindu.com": {
+        "selectors": [
+          "amp-fx-flying-carpet[height=\"300px\"]",
+          ".amp-flying-carpet-text-border",
+          "#articledivrec",
+          ".advt-wrapper",
+          ".flooting-ad",
+          "body .dfp-ad",
+          ".article-ad",
+          ".artShrEnd",
+          ".dfp-ad",
+          ".add"
+        ]
+      },
+      "thejakartapost.com": {
+        "selectors": [
+          ".expandable-bottom-sticky",
+          ".tjp-placeholder-ads",
+          ".the-brief",
+          ".tjp-ads",
+          ".ads"
+        ]
+      },
+      "thelancet.com": {
+        "selectors": [
+          ".verticalAdContainer"
+        ]
+      },
+      "theverge.com": {
+        "selectors": [
+          "div[class^=\"adblock-allowlist-messaging\"]",
+          ".m-ad__btf_leaderboard_variable",
+          ".connatix-feature-desktop",
+          "div[data-concert]",
+          ".m-ad"
+        ]
+      },
+      "washingtonpost.com": {
+        "selectors": [
+          "[data-qa=\"ad\"]",
+          ".wp-block-ad",
+          "[data-testid=\"fixed-bottom-ad\"]",
+          "[data-testid=\"placeholder-box\"]",
+          ".right-rail > div > .db-ns.dn",
+          "[data-qa=\"article-body-ad\"]",
+          ".border-box.dn-hp-sm-to-mx",
+          "[data-qa=\"right-rail-ad\"]",
+          "#mobile-footer-ad-wrapper",
+          "[data-testid=\"outbrain\"]",
+          ".border-box.dn-hp-xs",
+          "[data-sc-c=\"adslot\"]",
+          "#leaderboard-wrapper",
+          "#slug_leaderboard",
+          ".ad--enterprise",
+          ".dn-hp-sm-to-mx",
+          ".bb.b-ns.b-none",
+          ".pt-0.dn-hp-xs",
+          ".pb-sm.pt-sm.b",
+          ".bb.dn-hp-xs",
+          ".adMainImg",
+          ".adslot-c",
+          ".tableAd1",
+          ".pb-lgmod"
+        ]
+      },
+      "wired.com": {
+        "selectors": [
+          "[data-testid=\"ad\"]",
+          "div[data-testid=\"ContentFooterBottom\"] > div[class^=\"RowWrapper-\"]",
+          "[data-testid=\"cne-interlude-container\"]",
+          "div[class^=\"StickyHeroAdWrapper\"]",
+          ".MobileProductCardOuter-kMqsSf",
+          ".ad-stickyhero-enable-mobile",
+          ".should-hold-space",
+          ".amp-wp-inline-ad",
+          ".amp-wp-banner-ad",
+          ".amp-wp-footer-ad",
+          ".ad-height-hold",
+          ".ad-stickyhero",
+          ".full-bleed-ad",
+          ".ad-container",
+          ".ad--footer",
+          ".outbrain"
+        ]
+      },
+      "wsj.com": {
+        "selectors": [
+          "[data-testid=\"ad\"]",
+          "p > #deloitte_column > [data-module-zone=\"deloitte_insights\"] > .deloitte-insights",
+          "[data-parsely-slot] > p[style=\"text-align:center\"]",
+          "div[class*=\"WSJTheme--adWrapper\"]",
+          "[aria-label=\"Sponsored Offers\"]",
+          "div[data-testid=\"ad-container\"]",
+          "#saving-united-coupon-list",
+          ".e4jtj9920.css-ma9lnu",
+          ".ez6zued3.css-sw5cyu",
+          "#cx-deloitte-insight",
+          ".uds-ad-container",
+          "#dianomi-module",
+          ".wsj-ad-label",
+          "#coupon-links",
+          "#in_ad_col_b",
+          ".ez6zued6",
+          ".wsj-ad",
+          ".w27771"
         ]
       }
     }
