@@ -31,8 +31,8 @@ data class Settings(
     val autoRefresh: Boolean = false,
     val recordHistory: Boolean = true,
     val lowStorage: Boolean = false,
-    val glassEffect: String = "none",
-    val floatingNav: Boolean = false,
+    val glassEffect: String = "liquid",
+    val floatingNav: Boolean = true,
     val disabledPlugins: List<String> = emptyList(),
     val translation: TranslationSettings = TranslationSettings()
 )

@@ -59,6 +59,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import studio.lumen.reader.MainViewModel
 import studio.lumen.reader.data.PluginInfo
+import studio.lumen.reader.ui.components.CircleIconButton
+import studio.lumen.reader.ui.components.PageHeader
 
 @Composable
 fun PluginsScreen(viewModel: MainViewModel, onBack: () -> Unit) {
@@ -86,14 +88,12 @@ fun PluginsScreen(viewModel: MainViewModel, onBack: () -> Unit) {
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("插件中心", fontFamily = FontFamily.Serif) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Outlined.ArrowBack, contentDescription = "返回")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
+            PageHeader(
+                title = "插件中心",
+                subtitle = "来源与去广告规则由插件提供",
+                actions = {
+                    CircleIconButton(Icons.Outlined.ArrowBack, "返回", onClick = onBack)
+                }
             )
         }
     ) { padding ->

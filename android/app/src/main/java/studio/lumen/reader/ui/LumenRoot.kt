@@ -46,6 +46,8 @@ import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import studio.lumen.reader.MainViewModel
 import studio.lumen.reader.ui.components.GlassMode
 import studio.lumen.reader.ui.components.GlassSurface
+import studio.lumen.reader.ui.components.LiquidBottomBar
+import studio.lumen.reader.ui.components.LiquidNavItem
 import studio.lumen.reader.ui.components.LocalFloatingNavPadding
 import studio.lumen.reader.ui.components.glassNavShape
 import studio.lumen.reader.ui.screens.BilingualScreen
@@ -265,28 +267,17 @@ private fun FloatingNavigationBar(
     backdrop: LayerBackdrop,
     onNavigate: (String) -> Unit
 ) {
-    val shape = glassNavShape(true, mode)
     Box(
         Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
-        GlassSurface(
-            mode = mode,
-            shape = shape,
-            modifier = Modifier.fillMaxWidth(),
+        LiquidBottomBar(
+            items = destinations.map { LiquidNavItem(it.label, it.icon) },
+            selectedIndex = destinations.indexOfFirst { it.route == route }.coerceAtLeast(0),
             backdrop = if (mode == GlassMode.Off) null else backdrop,
-            floating = true
-        ) {
-            NavigationBar(
-                modifier = Modifier.fillMaxWidth().height(72.dp),
-                containerColor = Color.Transparent,
-                tonalElevation = 0.dp,
-                windowInsets = WindowInsets(0)
-            ) {
-                LumenNavItems(route, onNavigate)
-            }
-        }
+            onSelected = { onNavigate(destinations[it].route) }
+        )
     }
 }

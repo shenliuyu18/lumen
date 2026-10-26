@@ -61,6 +61,7 @@ import studio.lumen.reader.data.Settings
 import studio.lumen.reader.data.Weights
 import studio.lumen.reader.ui.components.GlassMode
 import studio.lumen.reader.ui.components.LocalFloatingNavPadding
+import studio.lumen.reader.ui.components.PageHeader
 import java.time.LocalDate
 
 @Composable
@@ -111,9 +112,9 @@ fun SettingsScreen(viewModel: MainViewModel, onOpenPlugins: () -> Unit) {
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("偏好设置", fontFamily = FontFamily.Serif) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
+            PageHeader(
+                title = "偏好设置",
+                subtitle = "配色、翻译与学习数据都在本机"
             )
         }
     ) { padding ->
@@ -163,11 +164,11 @@ fun SettingsScreen(viewModel: MainViewModel, onOpenPlugins: () -> Unit) {
                         }
                     }
                     Spacer(Modifier.height(8.dp))
-                    SettingSwitch("悬浮底栏", settings.floatingNav, "底栏浮在内容之上；默认关闭") {
+                    SettingSwitch("悬浮底栏", settings.floatingNav, "底栏浮在内容之上；当前版本默认开启") {
                         viewModel.updateSettings(settings.copy(floatingNav = it))
                     }
                     Text(
-                        "液态玻璃会实时折射底栏下方的内容，因此开启后正文会从底栏滚过。Android 13+ 有完整折射效果，Android 12 只有背景模糊，更低版本回退为半透明面板。",
+                        "液态玻璃会实时折射底栏下方的内容。Android 13+ 有完整折射效果，Android 12 只有背景模糊，更低版本回退为半透明面板；关闭这两项可回到贴底的普通底栏。",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

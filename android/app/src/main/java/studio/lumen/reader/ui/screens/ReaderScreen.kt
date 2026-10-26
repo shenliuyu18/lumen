@@ -72,6 +72,18 @@ import kotlinx.serialization.json.jsonPrimitive
 import studio.lumen.reader.MainViewModel
 import studio.lumen.reader.data.ExtractionEnvelope
 import studio.lumen.reader.data.SelectionInfo
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.material.icons.outlined.FormatSize
+import androidx.compose.material.icons.outlined.Search
+import com.kyant.backdrop.backdrops.LayerBackdrop
+import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import studio.lumen.reader.ui.components.GlassCircleButton
+import studio.lumen.reader.ui.components.LiquidSlider
+import studio.lumen.reader.ui.components.liquidSurface
 
 private class SelectionBridge(private val handler: Handler, private val onSelection: (SelectionInfo) -> Unit) {
     @JavascriptInterface
@@ -122,6 +134,7 @@ fun ReaderScreen(
     var webView by remember { mutableStateOf<WebView?>(null) }
     var autoStarted by remember(current.url) { mutableStateOf(false) }
     val saved = store.saved.any { it.article.url == current.url }
+    val readerBackdrop = rememberLayerBackdrop()
 
     fun runExtraction(auto: Boolean) {
         if (extracting) return
@@ -172,28 +185,31 @@ fun ReaderScreen(
             )
         },
         bottomBar = {
-            BottomAppBar {
-                Button(onClick = { runExtraction(false) }, enabled = !extracting) {
-                    if (extracting) {
-                        CircularProgressIndicator(modifier = Modifier.width(18.dp).height(18.dp), strokeWidth = 2.dp)
-                        Spacer(Modifier.width(8.dp))
-                    }
-                    Text(if (extracting) "提取中" else "双语精读")
-                }
-                IconButton(onClick = { viewModel.toggleSaved(current) }) {
-                    Icon(
-                        if (saved) Icons.Outlined.Bookmark else Icons.Outlined.BookmarkBorder,
-                        contentDescription = if (saved) "取消收藏" else "收藏"
-                    )
-                }
-                TextButton(onClick = { askDialog = true }) { Text("提问") }
-            }
+            ReaderGlassPanel(
+                backdrop = readerBackdrop,
+                extracting = extracting,
+                saved = saved,
+                fontSize = store.settings.fontSize,
+                onFontSize = { viewModel.updateSettings(store.settings.copy(fontSize = it.toInt().coerceIn(13, 30))) },
+                onBilingual = { runExtraction(false) },
+                onSave = { viewModel.toggleSaved(current) },
+                onAsk = { askDialog = true },
+                onReload = { webView?.reload() },
+                onOpen = { openExternal(context, current.url) }
+            )
         }
     ) { padding ->
+        Box(
+            Modifier
+                .fillMaxSize()
+                .padding(top = padding.calculateTopPadding())
+                .layerBackdrop(readerBackdrop)
+        ) {
         AndroidView(
-            modifier = Modifier.fillMaxSize().padding(padding),
+            modifier = Modifier.fillMaxSize(),
             factory = { ctx ->
                 WebView(ctx).apply {
+                    setPadding(0, 0, 0, (148 * resources.displayMetrics.density).toInt())
                     settings.javaScriptEnabled = true
                     settings.domStorageEnabled = true
                     settings.databaseEnabled = true
@@ -241,6 +257,7 @@ fun ReaderScreen(
                 if (view.url != current.url) view.loadUrl(current.url)
             }
         )
+        }
     }
 
     DisposableEffect(Unit) {
@@ -352,6 +369,67 @@ private fun SelectionSheet(selection: SelectionInfo, viewModel: MainViewModel, o
             )
         }
         Spacer(Modifier.height(20.dp))
+    }
+}
+
+@Composable
+private fun ReaderGlassPanel(
+    backdrop: LayerBackdrop,
+    extracting: Boolean,
+    saved: Boolean,
+    fontSize: Int,
+    onFontSize: (Float) -> Unit,
+    onBilingual: () -> Unit,
+    onSave: () -> Unit,
+    onAsk: () -> Unit,
+    onReload: () -> Unit,
+    onOpen: () -> Unit
+) {
+    val scheme = MaterialTheme.colorScheme
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
+            .padding(horizontal = 14.dp, vertical = 10.dp)
+            .liquidSurface(
+                backdrop = backdrop,
+                shape = RoundedCornerShape(30.dp),
+                blurRadius = 16.dp,
+                refraction = 22.dp,
+                tint = scheme.surface.copy(alpha = 0.55f)
+            )
+            .padding(horizontal = 16.dp, vertical = 16.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Outlined.FormatSize, contentDescription = null, tint = scheme.onSurfaceVariant)
+            Spacer(Modifier.width(14.dp))
+            LiquidSlider(
+                value = fontSize.toFloat(),
+                valueRange = 13f..30f,
+                onValueChange = onFontSize,
+                backdrop = backdrop,
+                modifier = Modifier.weight(1f)
+            )
+        }
+        Spacer(Modifier.height(16.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            GlassCircleButton(
+                icon = Icons.Outlined.AutoAwesome,
+                label = if (extracting) "提取中" else "双语精读",
+                backdrop = backdrop,
+                onClick = onBilingual,
+                enabled = !extracting
+            )
+            GlassCircleButton(
+                icon = if (saved) Icons.Outlined.Bookmark else Icons.Outlined.BookmarkBorder,
+                label = "收藏",
+                backdrop = backdrop,
+                onClick = onSave
+            )
+            GlassCircleButton(Icons.Outlined.Search, "提问", backdrop, onAsk)
+            GlassCircleButton(Icons.Outlined.Refresh, "刷新", backdrop, onReload)
+            GlassCircleButton(Icons.Outlined.OpenInBrowser, "原站", backdrop, onOpen)
+        }
     }
 }
 

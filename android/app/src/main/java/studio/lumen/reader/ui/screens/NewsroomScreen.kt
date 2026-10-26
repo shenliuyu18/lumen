@@ -40,6 +40,8 @@ import studio.lumen.reader.ui.components.LocalFloatingNavPadding
 import studio.lumen.reader.ui.components.PluginRequiredCard
 import studio.lumen.reader.ui.components.SectionHeader
 import studio.lumen.reader.ui.components.relativeTime
+import studio.lumen.reader.ui.components.CircleIconButton
+import studio.lumen.reader.ui.components.PageHeader
 
 @Composable
 fun NewsroomScreen(viewModel: MainViewModel, onOpenArticle: (Article) -> Unit, onOpenPlugins: () -> Unit) {
@@ -49,14 +51,12 @@ fun NewsroomScreen(viewModel: MainViewModel, onOpenArticle: (Article) -> Unit, o
     Scaffold(
         topBar = {
             Column {
-                TopAppBar(
-                    title = { Text("各站前三", fontFamily = FontFamily.Serif) },
+                PageHeader(
+                    title = "各站前三",
+                    subtitle = "123 个来源的首页候选与订阅顺序",
                     actions = {
-                        IconButton(onClick = { viewModel.refresh() }, enabled = !progress.running) {
-                            Icon(Icons.Outlined.Refresh, contentDescription = "更新各站前三")
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
+                        CircleIconButton(Icons.Outlined.Refresh, "更新各站前三") { if (!progress.running) viewModel.refresh() }
+                    }
                 )
                 if (progress.running) {
                     LinearProgressIndicator(modifier = Modifier.fillMaxWidth())

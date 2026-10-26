@@ -15,7 +15,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.DeleteSweep
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.DeleteSweep
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
@@ -51,6 +53,9 @@ import studio.lumen.reader.data.SavedItem
 import studio.lumen.reader.data.Vocab
 import studio.lumen.reader.ui.components.LocalFloatingNavPadding
 import studio.lumen.reader.ui.components.relativeTime
+import studio.lumen.reader.ui.components.CircleIconButton
+import studio.lumen.reader.ui.components.PageHeader
+import studio.lumen.reader.ui.components.UnderlineTabs
 
 private val studyTabs = listOf("词句本", "复习", "收藏", "足迹")
 
@@ -61,20 +66,21 @@ fun StudyScreen(viewModel: MainViewModel, onOpenArticle: (Article) -> Unit) {
     Scaffold(
         topBar = {
             Column {
-                TopAppBar(
-                    title = { Text("学习空间", fontFamily = FontFamily.Serif) },
+                PageHeader(
+                    title = "学习空间",
+                    subtitle = "词句、收藏、足迹与复习",
                     actions = {
                         if (tab == 3) {
-                            TextButton(onClick = { viewModel.clearHistory() }) { Text("清空足迹") }
+                            CircleIconButton(Icons.Outlined.DeleteSweep, "清空足迹", onClick = { viewModel.clearHistory() })
                         }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
-                )
-                TabRow(selectedTabIndex = tab) {
-                    studyTabs.forEachIndexed { index, label ->
-                        Tab(selected = tab == index, onClick = { tab = index }, text = { Text(label) })
                     }
-                }
+                )
+                UnderlineTabs(
+                    titles = studyTabs,
+                    selected = tab,
+                    onSelect = { tab = it },
+                    modifier = Modifier.padding(horizontal = 14.dp)
+                )
             }
         }
     ) { padding ->

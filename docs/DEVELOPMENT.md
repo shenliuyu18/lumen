@@ -74,6 +74,19 @@ Windows 集成验收需手动运行应用，检查真实原站、划词、精读
 - 应用不内置插件；插件 ZIP 只接受根目录或一级目录内的 `plugin.json`，JS 只解析 `module.exports` / `export default` / `window.__LUMEN_PLUGIN__` 中的 JSON 对象，不执行脚本。ID 限制为安全字符，ZIP 解压总体积上限 32 MB（Android 20 MB），插件可移除。
 - 网站权限与下载默认拒绝；新窗口按 http(s) 规则处理，外部协议交给系统。
 
+## 版本号规则
+
+日常开发一律使用测试版本号（`X.Y.Z-beta.N`，同一 beta 内多次自测可再加 `-beta.N+1`），只在正式发布时把它改成正式版本号并打标签：
+
+| 位置 | 字段 |
+| --- | --- |
+| `wails.json` | `info.productVersion` |
+| `android/app/build.gradle.kts` | `defaultConfig.versionName`、`versionCode`（每次出包递增） |
+| `ui/app.js` | 关于面板的兜底版本（正常从 Wails runtime 读取） |
+| `CHANGELOG.md` | 发布时把 beta 段落归并到正式版本标题 |
+
+发布顺序：改这三处版本号 → `go test ./...` + `gradle assembleRelease` → 提交 → `git tag -a vX.Y.Z` → 推送 → 建 Release 并上传安装包、APK 与 `dist/plugins/*.zip`。
+
 ## 构建安装包
 
 ```sh
@@ -81,7 +94,7 @@ go run ./cmd/package-plugins
 wails build -platform windows/amd64 -nsis -installscope user -webview2 download
 ```
 
-Wails 生成 `build/bin/Lumen-amd64-installer.exe`。发布时可重命名为 `Lumen-Setup-2.0.0.exe`。安装包未签名，不自动发布。
+Wails 生成 `build/bin/Lumen-amd64-installer.exe`。发布时按当前版本号重命名为 `Lumen-Setup-<version>.exe`。安装包未签名，不自动发布。
 
 ## 当前限制
 

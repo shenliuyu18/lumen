@@ -42,6 +42,7 @@ import studio.lumen.reader.data.Article
 import studio.lumen.reader.data.Source
 import studio.lumen.reader.ui.components.CategoryChips
 import studio.lumen.reader.ui.components.LocalFloatingNavPadding
+import studio.lumen.reader.ui.components.PageHeader
 
 @Composable
 fun SourcesScreen(viewModel: MainViewModel, onOpenSource: (Article) -> Unit, onOpenPlugins: () -> Unit) {
@@ -59,9 +60,9 @@ fun SourcesScreen(viewModel: MainViewModel, onOpenSource: (Article) -> Unit, onO
     Scaffold(
         topBar = {
             Column {
-                TopAppBar(
-                    title = { Text("媒体与机构", fontFamily = androidx.compose.ui.text.font.FontFamily.Serif) },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
+                PageHeader(
+                    title = "媒体与机构",
+                    subtitle = "订阅文章与原站入口，清晰区分"
                 )
                 OutlinedTextField(
                     value = query,
