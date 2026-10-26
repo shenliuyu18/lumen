@@ -8,14 +8,14 @@ Kotlin + Jetpack Compose Material 3 的 Lumen Android 版。
 - 各站前三、媒体与机构目录、来源开关（由导入的爬虫插件提供）
 - 原站 WebView 阅读、划词、词典/翻译、收藏、阅读足迹
 - 插件中心：应用不内置插件；与桌面共用官方 ZIP，支持 ZIP/声明式 JS 导入、启停与移除
-- 打开文章后自动进入双语精读；Readability 逐段翻译（微软官方网页 / Microsoft API / DeepL / MyMemory）
+- 点击文章直接进入阅读模式：后台加载原站、Readability 抽取正文、逐段翻译（微软官方网页 / Microsoft API / DeepL / MyMemory），原站排版按需打开
 - 针对重点来源优化的去广告插件，在原文与精读中清理广告
 - 词句本、间隔复习、收藏、足迹
 - 内置 ChatGPT / DeepSeek 网页（WebView，需登录）
 - 桌面版学习备份导入、JSON/CSV 导出
 - Material 3 动态取色、深浅色、字号与推荐权重设置
 - 深色优先的衬线版式：大号页面标题、圆形图标按钮、近黑分组卡片、蓝色衬线小节标题、环形阅读目标仪表、封面横滚
-- 悬浮液态玻璃底栏（`io.github.kyant0:backdrop`）：选中项是一颗会横向拉伸、纵向压扁的折射气泡；阅读页底部是液态玻璃面板，含折射字号滑块与圆形玻璃按钮。两者默认开启，可在 设置 → 界面质感 关闭。开启后正文从底栏/面板下方滚过：Android 13+ 完整折射，Android 12 仅背景模糊，更低版本回退为半透明面板。
+- 液态玻璃（`io.github.kyant0:backdrop`）覆盖全部界面：卡片、按钮、页签、开关、滑块与悬浮底栏共用同一套玻璃表面，选中气泡会横向拉伸、纵向压扁。玻璃采样的是内容下方的壁纸层，底栏采样内容层——玻璃若采样自己所在的渲染层会形成循环引用并崩溃。默认开启，可在 设置 → 界面质感 关闭：Android 13+ 完整折射，Android 12 仅背景模糊，更低版本回退为半透明面板。
 - 启动时自动更新（可选）
 
 ## 构建
@@ -41,19 +41,23 @@ adb shell am start -n studio.lumen.reader/.MainActivity
 
 > release 与 debug 签名不同，二者不能互相覆盖安装；从 debug 换到 release 需要先卸载。
 
+## 许可
+
+本目录以 **GNU GPLv3** 发布（见 `LICENSE` 与 `NOTICE`），因为其中的界面组件改编自 GPLv3 的 [legado-with-MD3](https://github.com/HapeLee/legado-with-MD3)。仓库其余部分仍为 MIT。
+
 ## 界面截图
 
-| 精选 | 阅读器 | 双语精读 |
+| 精选 | 阅读模式 | 学习页概览 |
 | --- | --- | --- |
-| ![精选](screenshots/home.png) | ![阅读](screenshots/reader.png) | ![双语](screenshots/bilingual.png) |
+| ![精选](screenshots/home.png) | ![阅读模式](screenshots/reader.png) | ![概览](screenshots/study.png) |
 
 | 各站前三 | 设置 | DeepSeek |
 | --- | --- | --- |
 | ![前三](screenshots/newsroom.png) | ![设置](screenshots/settings.png) | ![DeepSeek](screenshots/deepseek.png) |
 
-| 插件中心 | 自动双语 |
+| 插件中心 | 设置 |
 | --- | --- |
-| ![插件中心](screenshots/plugins.png) | ![自动双语](screenshots/bilingual.png) |
+| ![插件中心](screenshots/plugins.png) | ![设置](screenshots/settings.png) |
 
 ## 测试
 

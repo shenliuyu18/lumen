@@ -34,6 +34,7 @@
     'deepseek-copy-context': 'ChatCopyContext',
     'open-edge': 'OpenEdge',
     'reader-extract': 'ReaderExtract',
+    'article-extract': 'ExtractArticle',
     'reader-show': 'ReaderShow',
     'reader-restore-view': 'ReaderRestoreView',
     'auto-translation-authorize': 'AutoTranslationAuthorize',

@@ -27,6 +27,7 @@ type Settings struct {
 	RecordHistory   bool                `json:"recordHistory"`
 	LowStorage      bool                `json:"lowStorage"`
 	DisabledPlugins []string            `json:"disabledPlugins"`
+	Glass           bool                `json:"glass"`
 	Translation     TranslationSettings `json:"translation"`
 }
 
@@ -39,6 +40,7 @@ func DefaultSettings() Settings {
 		FontSize:        18,
 		AutoRefresh:     true,
 		RecordHistory:   true,
+		Glass:           true,
 		Translation:     TranslationSettings{Provider: "microsoft-web", DeeplPlan: "free", UseContext: true},
 	}
 }

@@ -34,6 +34,8 @@ type App struct {
 	readerURL        string
 	translator       *webhost.Host
 	translatorMu     sync.Mutex
+	extractor        *webhost.Host
+	extractorMu      sync.Mutex
 	translateMu      sync.Mutex
 	readMu           sync.Mutex
 	readStart        time.Time
@@ -133,6 +135,12 @@ func (a *App) beforeClose(ctx context.Context) bool {
 	a.chatMu.Unlock()
 	if chat != nil {
 		chat.Close()
+	}
+	a.extractorMu.Lock()
+	extractor := a.extractor
+	a.extractorMu.Unlock()
+	if extractor != nil {
+		extractor.Close()
 	}
 	a.translatorMu.Lock()
 	translator := a.translator
@@ -266,6 +274,78 @@ func (a *App) ReaderExtract() any {
 	if err != nil {
 		return map[string]any{"error": err.Error()}
 	}
+	a.host.Show(false)
+	return a.decodeExtraction(raw)
+}
+
+// ExtractArticle 在隐藏视图里加载文章并抽取正文：阅读模式不必先打开原站页面。
+func (a *App) ExtractArticle(article map[string]any) any {
+	url, _ := article["url"].(string)
+	safe, ok := rank.SafeURL(url)
+	if !ok {
+		return map[string]any{"error": "请输入有效的 HTTP(S) 网址"}
+	}
+	host, err := a.ensureExtractor()
+	if err != nil {
+		return map[string]any{"error": err.Error()}
+	}
+	a.access.Reset()
+	a.setReaderURL(safe)
+	a.finishRead()
+	a.hideChat()
+	a.hideDeepSeek()
+	if a.host != nil {
+		a.host.Show(false)
+	}
+	host.Navigate(safe)
+	if a.svc != nil && a.svc.RecordHistoryEnabled() {
+		a.svc.AddHistory(articleFromUI(article))
+		a.readMu.Lock()
+		a.readStart = time.Now()
+		a.readMu.Unlock()
+	}
+	waitForPageLoad(host, 30*time.Second)
+	if ad := a.svc.AdScript(); ad != "" {
+		host.Eval(ad)
+		time.Sleep(400 * time.Millisecond)
+	}
+	raw, err := host.Extract(25 * time.Second)
+	if err != nil {
+		return map[string]any{"error": err.Error()}
+	}
+	return a.decodeExtraction(raw)
+}
+
+func (a *App) ensureExtractor() (*webhost.Host, error) {
+	a.extractorMu.Lock()
+	defer a.extractorMu.Unlock()
+	if a.extractor != nil {
+		return a.extractor, nil
+	}
+	host := webhost.New(webhost.Options{
+		DataPath:      a.webDataPath("extractor"),
+		ExtractScript: extractor.MustScript(),
+	})
+	if err := host.Start(15 * time.Second); err != nil {
+		return nil, err
+	}
+	a.extractor = host
+	return host, nil
+}
+
+// waitForPageLoad 轮询 readyState：隐藏视图没有可见性事件，只能主动等待。
+func waitForPageLoad(host *webhost.Host, timeout time.Duration) {
+	deadline := time.Now().Add(timeout)
+	for time.Now().Before(deadline) {
+		time.Sleep(500 * time.Millisecond)
+		raw, err := host.EvalResult("return document.readyState", 3*time.Second)
+		if err == nil && strings.Trim(raw, `"`) == "complete" {
+			return
+		}
+	}
+}
+
+func (a *App) decodeExtraction(raw string) any {
 	var envelope struct {
 		OK    bool            `json:"ok"`
 		Data  json.RawMessage `json:"data"`
@@ -292,7 +372,6 @@ func (a *App) ReaderExtract() any {
 	if _, ok := rank.SafeURL(article.URL); !ok {
 		return map[string]any{"error": "无法确认文章地址"}
 	}
-	a.host.Show(false)
 	a.access.Verify(article)
 	data["publicVerified"] = false
 	data["verificationPending"] = true

@@ -10,6 +10,10 @@ Lumen 应用自有源码采用 [MIT](LICENSE)。下列第三方组件保留其�
 
 `internal/extractor/readability.js` 来自 Mozilla Readability，版权归 Arc90 Inc 及贡献者所有，采用 Apache License 2.0。许可证全文保存在 [internal/extractor/LICENSE-Readability.md](internal/extractor/LICENSE-Readability.md)。该脚本在阅读视图的页面内执行，仅用于构造精读段落。
 
+## legado-with-MD3（Android 界面组件）
+
+`android/` 中的拖拽手势观察、可交互高光（AGSL 径向高光与按压形变）与玻璃配方参数改编自 **legado-with-MD3**（`https://github.com/HapeLee/legado-with-MD3`，GNU GPLv3，`gedoor/legado` 的 Material 3 / Compose 分支）。受影响的文件在头部标注了来源与改动范围；该模块整体以 GPLv3 发布，见 [android/NOTICE](android/NOTICE) 与 [android/LICENSE](android/LICENSE)。仓库其余部分仍为 MIT。
+
 ## Android 依赖
 
 - Backdrop / Liquid Glass（`io.github.kyant0:backdrop`，含传递依赖 `io.github.kyant0:shapes`）：Apache License 2.0，用于 Android 端液态玻璃的背景采样、模糊与 AGSL 折射。版权归 Kyant0 及贡献者所有。

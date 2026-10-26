@@ -89,3 +89,18 @@ button,input,select,textarea{font:inherit}button,a,input,select,textarea{outline
 .plugin-prompt .btn{flex-shrink:0}
 code{font:11px/1.4 Consolas,'SFMono-Regular',monospace;background:var(--tint);color:var(--accent);padding:2px 5px;border-radius:4px}
 @media(max-width:900px){.plugin-prompt{align-items:flex-start;flex-direction:column}.plugin-prompt .btn{width:100%}}
+
+/* ── 液态玻璃质感（设置 → 界面质感，与安卓版一致） ───────────────────────── */
+body[data-glass=on]{--glass-surface:color-mix(in srgb, var(--surface) 46%, transparent);--glass-tinted:color-mix(in srgb, var(--tint) 52%, transparent);--glass-edge:color-mix(in srgb, #fff 72%, var(--line));--glass-shadow:0 16px 38px color-mix(in srgb, var(--ink) 14%, transparent);background-image:radial-gradient(760px 460px at 8% 4%, color-mix(in srgb, var(--accent) 62%, transparent), transparent 66%),radial-gradient(680px 420px at 94% 12%, color-mix(in srgb, var(--warm) 92%, transparent), transparent 66%),radial-gradient(820px 520px at 52% 104%, color-mix(in srgb, var(--accent) 40%, transparent), transparent 68%),radial-gradient(620px 420px at 78% 62%, color-mix(in srgb, var(--tint) 96%, transparent), transparent 70%);background-attachment:fixed}
+body[data-glass=on] .layout,body[data-glass=on] .main,body[data-glass=on] .reader-layout{background:transparent}
+body[data-glass=on] .sidebar,body[data-glass=on] .topbar,body[data-glass=on] .hero,body[data-glass=on] .newsroom-intro,body[data-glass=on] .newsroom-source,body[data-glass=on] .source-card,body[data-glass=on] .setting-panel,body[data-glass=on] .side-panel,body[data-glass=on] .study-panel,body[data-glass=on] .reader-sidebar,body[data-glass=on] .review-card,body[data-glass=on] .plugin-card,body[data-glass=on] .article,body[data-glass=on] .empty,body[data-glass=on] .table,body[data-glass=on] .extraction-summary,body[data-glass=on] .bilingual-reader,body[data-glass=on] .search,body[data-glass=on] .chip,body[data-glass=on] .btn:not(.primary),body[data-glass=on] .selection-text,body[data-glass=on] .paragraph-translation,body[data-glass=on] .deepseek-answer,body[data-glass=on] .tag,body[data-glass=on] .reader-topbar{background:var(--glass-surface);border-color:var(--glass-edge);border-radius:16px;backdrop-filter:blur(26px) saturate(165%);-webkit-backdrop-filter:blur(26px) saturate(165%);box-shadow:var(--glass-shadow),inset 0 1px 0 rgba(255,255,255,.62)}
+body[data-glass=on] .selection-text,body[data-glass=on] .paragraph-translation,body[data-glass=on] .tag,body[data-glass=on] .hero,body[data-glass=on] .newsroom-intro{background:var(--glass-tinted)}
+body[data-glass=on] .sidebar{border-right:1px solid var(--glass-edge)}
+body[data-glass=on] .topbar{border-bottom:1px solid var(--glass-edge);position:sticky;top:0;z-index:3}
+body[data-glass=on] .reader-topbar{border-bottom:1px solid var(--glass-edge)}
+body[data-glass=on] .btn.primary{border-radius:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 10px 22px color-mix(in srgb, var(--accent) 32%, transparent)}
+body[data-glass=on] .search input,body[data-glass=on] .lookup-box input,body[data-glass=on] #reader-url,body[data-glass=on] textarea,body[data-glass=on] #manual-meaning{background:color-mix(in srgb, #fff 46%, transparent);border:1px solid var(--glass-edge);border-radius:11px;backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%)}
+body[data-glass=on] .nav-item.active{background:color-mix(in srgb, var(--accent) 16%, transparent);border-radius:12px}
+body[data-glass=on] .chip.active{background:color-mix(in srgb, var(--ink) 86%, transparent);color:var(--surface)}
+body[data-glass=on] .bilingual-hero h1{letter-spacing:-.4px}
+body[data-glass=on] .divider{background:var(--glass-edge)}

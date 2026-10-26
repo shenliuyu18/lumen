@@ -292,6 +292,9 @@ func (s *Service) Settings(values map[string]any) model.PublicState {
 	if value, ok := values["lowStorage"].(bool); ok {
 		settings.LowStorage = value
 	}
+	if value, ok := values["glass"].(bool); ok {
+		settings.Glass = value
+	}
 	if raw, ok := values["disabledPlugins"].([]any); ok {
 		disabled := make([]string, 0, len(raw))
 		for _, value := range raw {

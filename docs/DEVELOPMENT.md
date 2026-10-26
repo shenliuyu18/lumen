@@ -80,7 +80,7 @@ Windows 集成验收需手动运行应用，检查真实原站、划词、精读
 
 | 位置 | 字段 |
 | --- | --- |
-| `wails.json` | `info.productVersion` |
+| `wails.json` | `info.productVersion`（必须是 `X.Y.Z` 三段数字：NSIS 会补 `.0` 写成 `VIFileVersion`，带 `-beta.N` 会让安装包构建失败） |
 | `android/app/build.gradle.kts` | `defaultConfig.versionName`、`versionCode`（每次出包递增） |
 | `ui/app.js` | 关于面板的兜底版本（正常从 Wails runtime 读取） |
 | `CHANGELOG.md` | 发布时把 beta 段落归并到正式版本标题 |
@@ -95,6 +95,19 @@ wails build -platform windows/amd64 -nsis -installscope user -webview2 download
 ```
 
 Wails 生成 `build/bin/Lumen-amd64-installer.exe`。发布时按当前版本号重命名为 `Lumen-Setup-<version>.exe`。安装包未签名，不自动发布。
+
+界面里显示的版本取 `ui/app.js` 的 `displayVersion` 常量，因此 beta 标签照常展示，不受安装包版本号只能是数字的限制影响。发版时两处一起改。
+
+## 液态玻璃的采样层约束
+
+`io.github.kyant0:backdrop` 的 `drawBackdrop(backdrop)` 会把被采样的图层再画一遍。若某个玻璃表面采样的正是它自己所在的那个图层，渲染节点会互相引用，`RenderNode::prepareTreeImpl` 递归到栈溢出、进程直接崩溃（logcat 里是几百层 `libhwui.so` 帧）。
+
+因此 Android 端固定为两层：
+
+- `GlassWallpaper` 在全部内容之下，页面里的卡片、按钮、页签都采样它；
+- 内容层只交给悬浮/标准底栏采样，底栏必须是内容 Box 的兄弟节点，不能放在被采样的 Box 里。
+
+WebView 路由（`site`）不采样内容层：Chromium 画进别的 RenderNode 在部分机型会闪烁，玻璃退化为半透明面板。
 
 ## 当前限制
 
