@@ -52,13 +52,15 @@ type App struct {
 	deepseekMu       sync.Mutex
 	deepseekBounds   map[string]float64
 	deepseekPopup    *webhost.Host
+	ready            chan struct{}
 }
 
 func NewApp() *App {
-	return &App{access: access.New()}
+	return &App{access: access.New(), ready: make(chan struct{})}
 }
 
 func (a *App) startup(ctx context.Context) {
+	defer close(a.ready)
 	a.ctx = ctx
 	svc, err := service.New()
 	if err != nil {
@@ -179,18 +181,30 @@ func (a *App) beforeClose(ctx context.Context) bool {
 	return false
 }
 
+// waitService 等 startup 里的 service.New 完成。Wails 在 goroutine 里执行 OnStartup，
+// 前端可能在资料库加载完之前就调用 State，早退会返回 {error} 让首屏渲染失败。
+func (a *App) waitService() *service.Service {
+	select {
+	case <-a.ready:
+	case <-time.After(15 * time.Second):
+	}
+	return a.svc
+}
+
 func (a *App) State() any {
-	if a.svc == nil {
+	svc := a.waitService()
+	if svc == nil {
 		return map[string]any{"error": "资料库尚未就绪"}
 	}
-	return a.svc.State()
+	return svc.State()
 }
 
 func (a *App) Settings(values map[string]any) any {
-	if a.svc == nil {
+	svc := a.waitService()
+	if svc == nil {
 		return map[string]any{"error": "资料库尚未就绪"}
 	}
-	return a.svc.Settings(values)
+	return svc.Settings(values)
 }
 
 func (a *App) Refresh() any {
