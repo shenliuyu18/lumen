@@ -196,6 +196,7 @@ fun ReaderScreen(
                     CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
                     addJavascriptInterface(SelectionBridge(mainHandler) { viewModel.setSelection(it) }, "LumenAndroid")
                     val blocked = viewModel.blockedHosts()
+                    android.util.Log.d("LumenAdblock", "rules=" + blocked.size)
                     webViewClient = object : WebViewClient() {
                         override fun shouldInterceptRequest(
                             view: WebView?,
@@ -208,6 +209,7 @@ fun ReaderScreen(
                             var current = host
                             while (true) {
                                 if (current in blocked) {
+                                    android.util.Log.d("LumenAdblock", "blocked $current")
                                     return android.webkit.WebResourceResponse(
                                         "text/plain", "utf-8",
                                         java.io.ByteArrayInputStream(ByteArray(0))

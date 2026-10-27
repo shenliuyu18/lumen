@@ -178,6 +178,7 @@ func (h *Host) run() {
 			if err != nil || !block(target) {
 				return
 			}
+			fmt.Println("[adblock] blocked", target)
 			response, err := chromium.Environment().CreateWebResourceResponse([]byte{}, 403, "Blocked", "Content-Type: text/plain")
 			if err != nil {
 				return
@@ -189,7 +190,6 @@ func (h *Host) run() {
 	chromium.SetErrorCallback(func(err error) {
 		fmt.Println("[webhost] error:", err)
 	})
-	chromium.AddWebResourceRequestedFilter("*", edge.COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL)
 	chromium.MessageCallback = func(message string, _ *edge.ICoreWebView2, _ *edge.ICoreWebView2WebMessageReceivedEventArgs) {
 		if strings.Contains(message, `"type":"extract-result"`) {
 			select {
@@ -229,6 +229,10 @@ func (h *Host) run() {
 		return
 	}
 	h.chrome = chromium
+	if h.blockFunc != nil {
+		// 过滤器必须在 WebView 创建之后注册，否则 AddWebResourceRequestedFilter 会空指针。
+		chromium.AddWebResourceRequestedFilter("*", edge.COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL)
+	}
 	fmt.Println("[webhost] embedded, dpi=", dpiForWindow(h.main))
 	chromium.SetGlobalPermission(edge.CoreWebView2PermissionStateDeny)
 	if h.selection {

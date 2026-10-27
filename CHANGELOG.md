@@ -4,6 +4,17 @@
 
 上游 Electron 版（`sadinoel0106/Lumen`）的最后版本号为 1.0.6；本仓库的 Wails + Android 重写从 1.0.0 起算，两条版本号线索互相独立。
 
+## 1.1.0-beta.5 — 开发中
+
+### 变更
+
+- 请求拦截加上可诊断日志（`LumenAdblock`），并修复 WebView2 过滤器注册时机——`AddWebResourceRequestedFilter` 必须在 WebView 创建之后调用，否则桌面端启动即空指针崩溃。
+
+### 验证
+
+- 桌面：打开 France 24 文章的原站排版，日志命中 `[adblock] blocked https://tms.fmm.io/f24/en.js`。
+- 安卓：控制变量测试——临时加一条 `static.arxiv.org` 屏蔽规则，日志出现 `blocked static.arxiv.org`，且 arXiv 页面样式表被拦掉（可见页面样式丢失），删除测试规则后恢复正常。
+
 ## 1.1.0-beta.4 — 开发中
 
 ### 新增
