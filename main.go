@@ -16,6 +16,7 @@ import (
 var uiAssets embed.FS
 
 func main() {
+	waitForRestart()
 	app := NewApp()
 
 	ui, err := fs.Sub(uiAssets, "ui")

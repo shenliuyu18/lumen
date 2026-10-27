@@ -1,12 +1,15 @@
 /*
- * 底栏风格沿用 legado-with-MD3（https://github.com/HapeLee/legado-with-MD3，GNU GPLv3）
- * 的 AppNavigationBar：图标居中、常显文字标签，选中项在图标下方铺一枚圆角胶囊。
- * 这里的实现按 Lumen 的主题与玻璃设置重写。
+ * 悬浮玻璃胶囊底栏。布局与动效参照 legado-with-MD3
+ * （https://github.com/HapeLee/legado-with-MD3，GNU GPLv3）的
+ * ui/widget/components/FloatingBottomBar.kt：选中项展开成「图标 + 文字」的宽胶囊，
+ * 其余项收缩为纯图标；胶囊本身是折射背后的玻璃表面。按 Lumen 的五页签精简重写。
  */
 package studio.lumen.reader.ui.components
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,7 +17,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,7 +32,6 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Public
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.ViewList
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -58,8 +59,8 @@ object NavIcons {
 }
 
 /**
- * 阅读 app 风格的底栏：五项等宽，图标在上、名称在下且始终显示；
- * 选中项在图标位置铺一枚 secondaryContainer 胶囊。玻璃开启时整条底栏半透明折射内容。
+ * 阅读 app 式的玻璃悬浮底栏：整条是悬浮胶囊，选中项展开成带文字的宽胶囊，
+ * 其余项只留图标；胶囊半透明并折射下方的页面内容。
  */
 @Composable
 fun AppBottomBar(
@@ -67,17 +68,32 @@ fun AppBottomBar(
     selectedIndex: Int,
     onSelected: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    glass: Boolean = false,
+    glass: Boolean = true,
     backdrop: LayerBackdrop? = null
 ) {
     val scheme = MaterialTheme.colorScheme
-    val pill = RoundedCornerShape(percent = 50)
-    val content = @Composable { rowModifier: Modifier ->
+    val shape = RoundedCornerShape(percent = 50)
+    val barModifier = if (glass) {
+        modifier.liquidGlass(
+            shape = shape,
+            blurRadius = 20.dp,
+            lensRadius = 26.dp,
+            surfaceColor = scheme.surfaceContainer.copy(alpha = 0.55f)
+        )
+    } else {
+        modifier.clip(shape).background(scheme.surfaceContainer)
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
+            .padding(horizontal = 14.dp, vertical = 10.dp)
+    ) {
         Row(
-            modifier = rowModifier
+            modifier = barModifier
                 .fillMaxWidth()
-                .height(64.dp)
-                .padding(horizontal = 4.dp),
+                .height(62.dp)
+                .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
@@ -85,32 +101,9 @@ fun AppBottomBar(
                 BottomBarItem(
                     item = item,
                     selected = index == selectedIndex,
-                    onClick = { onSelected(index) },
-                    modifier = Modifier.weight(1f)
+                    onClick = { onSelected(index) }
                 )
             }
-        }
-    }
-    if (glass) {
-        Box(
-            modifier = modifier
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .padding(horizontal = 16.dp, vertical = 10.dp)
-        ) {
-            content(
-                Modifier.liquidGlass(
-                    shape = pill,
-                    blurRadius = 20.dp,
-                    lensRadius = 24.dp,
-                    surfaceColor = scheme.surface.copy(alpha = 0.52f)
-                )
-            )
-        }
-    } else {
-        Column(modifier.fillMaxWidth().navigationBarsPadding().background(scheme.surface)) {
-            HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.7f))
-            content(Modifier)
         }
     }
 }
@@ -119,48 +112,49 @@ fun AppBottomBar(
 private fun BottomBarItem(
     item: LiquidNavItem,
     selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onClick: () -> Unit
 ) {
     val scheme = MaterialTheme.colorScheme
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
-    val pillAlpha by animateFloatAsState(if (selected) 1f else 0f, tween(180), label = "pill")
-    val iconTint by animateColorAsState(
-        if (selected) scheme.onSecondaryContainer else scheme.onSurfaceVariant,
-        label = "icon"
+    val pillWidth by animateDpAsState(
+        targetValue = if (selected) 124.dp else 46.dp,
+        animationSpec = spring(dampingRatio = 0.62f, stiffness = 420f),
+        label = "pill-width"
     )
-    Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
-            .clickable(interactionSource = interaction, indication = null, onClick = onClick)
-            .padding(vertical = 6.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+    val pillAlpha by animateFloatAsState(if (selected) 1f else 0f, tween(200), label = "pill")
+    val labelAlpha by animateFloatAsState(if (selected) 1f else 0f, tween(160), label = "label")
+    val tint by animateColorAsState(
+        if (selected) scheme.onSecondaryContainer else scheme.onSurfaceVariant,
+        label = "tint"
+    )
+    Box(
+        modifier = Modifier
+            .height(46.dp)
+            .width(pillWidth)
+            .clip(RoundedCornerShape(percent = 50))
+            .background(scheme.secondaryContainer.copy(alpha = pillAlpha * if (pressed) 1f else 0.92f))
+            .clickable(interactionSource = interaction, indication = null, onClick = onClick),
+        contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier
-                .width(56.dp)
-                .height(30.dp)
-                .clip(RoundedCornerShape(15.dp))
-                .background(scheme.secondaryContainer.copy(alpha = pillAlpha * (if (pressed) 1f else 0.9f))),
-            contentAlignment = Alignment.Center
-        ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 item.icon,
                 contentDescription = item.label,
-                tint = iconTint,
-                modifier = Modifier.size(21.dp)
+                tint = tint,
+                modifier = Modifier.size(22.dp)
             )
+            if (labelAlpha > 0.01f) {
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    item.label,
+                    style = MaterialTheme.typography.labelLarge.copy(fontSize = 13.sp),
+                    fontWeight = FontWeight.SemiBold,
+                    color = tint.copy(alpha = labelAlpha),
+                    maxLines = 1
+                )
+            }
         }
-        Spacer(Modifier.height(2.dp))
-        Text(
-            item.label,
-            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-            color = if (selected) scheme.onSurface else scheme.onSurfaceVariant,
-            maxLines = 1
-        )
     }
 }
 

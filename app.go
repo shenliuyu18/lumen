@@ -38,6 +38,8 @@ type App struct {
 	extractorMu      sync.Mutex
 	translateMu      sync.Mutex
 	readMu           sync.Mutex
+	restartMu        sync.Mutex
+	restarting       bool
 	readStart        time.Time
 	chat             *webhost.Host
 	chatMu           sync.Mutex

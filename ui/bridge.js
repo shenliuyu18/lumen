@@ -5,6 +5,7 @@
     refresh: 'Refresh',
     settings: 'Settings',
     'reader-open': 'ReaderOpen',
+    'app-restart': 'Restart',
     'reader-bounds': 'ReaderBounds',
     'reader-hide': 'ReaderHide',
     'reader-control': 'ReaderControl',

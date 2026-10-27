@@ -2,7 +2,7 @@
   "format": 1,
   "id": "lumen-crawler",
   "name": "Lumen 官方来源爬虫",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "crawler",
   "description": "123 个英文媒体与机构的 RSS 与首页头条解析规则。",
   "author": "Lumen",
@@ -64,7 +64,7 @@
       "category": "新闻",
       "region": "美国",
       "url": "https://www.washingtonpost.com",
-      "feed": "https://feeds.washingtonpost.com/rss/world",
+      "feed": "https://www.washingtonpost.com/arcio/rss/category/world/",
       "reach": 5,
       "description": "公共事务 · 部分订阅"
     },
@@ -234,7 +234,7 @@
       "category": "商业",
       "region": "美国",
       "url": "https://hbr.org",
-      "feed": "https://hbr.org/feed",
+      "feed": "",
       "reach": 4,
       "description": "管理与组织 · 部分订阅"
     },
@@ -414,7 +414,7 @@
       "category": "学术",
       "region": "英国",
       "url": "https://www.cam.ac.uk/research",
-      "feed": "https://www.cam.ac.uk/research/rss.xml",
+      "feed": "https://www.cam.ac.uk/news/feed",
       "reach": 5,
       "description": "大学研究与社会"
     },
@@ -484,7 +484,7 @@
       "category": "社会",
       "region": "美国",
       "url": "https://www.brookings.edu",
-      "feed": "https://www.brookings.edu/feed/",
+      "feed": "",
       "reach": 4,
       "description": "公共政策研究"
     },
@@ -654,7 +654,7 @@
       "category": "健康",
       "region": "美国",
       "url": "https://www.nih.gov/news-events",
-      "feed": "https://www.nih.gov/news-events/news-releases/rss.xml",
+      "feed": "https://www.nih.gov/news-releases/feed.xml",
       "reach": 5,
       "description": "医学研究与证据"
     },
@@ -782,7 +782,7 @@
       "category": "新闻",
       "region": "爱尔兰",
       "url": "https://www.irishtimes.com",
-      "feed": "",
+      "feed": "https://www.irishtimes.com/arc/outboundfeeds/rss/?outputType=xml",
       "reach": 4,
       "description": "新增来源 · 首页与公开订阅",
       "briefingOnly": true
@@ -946,8 +946,8 @@
       "name": "CERN",
       "category": "学术",
       "region": "欧洲",
-      "url": "https://home.cern",
-      "feed": "https://home.cern/api/news/news/feed.rss",
+      "url": "https://home.cern/news",
+      "feed": "",
       "reach": 4,
       "description": "新增来源 · 首页与公开订阅",
       "briefingOnly": true
@@ -1002,7 +1002,7 @@
       "category": "学术",
       "region": "瑞士",
       "url": "https://ethz.ch/en/news-and-events/eth-news.html",
-      "feed": "",
+      "feed": "https://www.ethz.ch/en/news-und-veranstaltungen/eth-news/news/_jcr_content.feed.html",
       "reach": 4,
       "description": "新增来源 · 首页与公开订阅",
       "briefingOnly": true
@@ -1012,8 +1012,8 @@
       "name": "Max Planck Society",
       "category": "学术",
       "region": "德国",
-      "url": "https://www.mpg.de/en/news",
-      "feed": "",
+      "url": "https://www.mpg.de/en/newsroom",
+      "feed": "https://www.mpg.de/en/research.rss",
       "reach": 4,
       "description": "新增来源 · 首页与公开订阅",
       "briefingOnly": true
@@ -1112,7 +1112,7 @@
       "category": "商业",
       "region": "国际机构",
       "url": "https://www.wto.org",
-      "feed": "",
+      "feed": "https://www.wto.org/library/rss/latest_news_e.xml",
       "reach": 4,
       "description": "新增来源 · 首页与公开订阅",
       "briefingOnly": true
@@ -1134,7 +1134,7 @@
       "category": "商业",
       "region": "欧洲",
       "url": "https://www.ecb.europa.eu/press/html/index.en.html",
-      "feed": "",
+      "feed": "https://www.ecb.europa.eu/rss/press.xml",
       "reach": 4,
       "description": "新增来源 · 首页与公开订阅",
       "briefingOnly": true
