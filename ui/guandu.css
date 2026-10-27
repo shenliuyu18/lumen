@@ -168,6 +168,12 @@
 .translation-display-editor .display-editor-footer .caption{font-size:10px;color:var(--muted)}
 @media(max-width:760px){.translation-display-editor .display-weight-size{grid-template-columns:1fr;gap:8px}.translation-display-editor .display-colors{grid-template-columns:1fr}.translation-display-editor .appearance-controls{grid-template-columns:1fr}}
 
+/* 提问小窗设置：字段之间留出呼吸，滑条不贴标签 */
+.chat-window-panel .appearance-controls{gap:18px 20px}
+.chat-window-panel .field{gap:8px}
+.chat-window-panel .field .switch{margin-top:2px}
+.chat-window-panel .study-tools{margin-top:4px}
+
 /* 阅读模式：让插件的 em 相对原文字号生效 */
 .bilingual-paragraph .paragraph-body{font-size:20px}
 .bilingual-paragraph .original-text{font-family:Georgia,'Times New Roman',serif;font-size:1em;line-height:1.85;color:var(--ink)}
