@@ -82,10 +82,11 @@ Windows 集成验收需手动运行应用，检查真实原站、划词、精读
 | --- | --- |
 | `wails.json` | `info.productVersion`（必须是 `X.Y.Z` 三段数字：NSIS 会补 `.0` 写成 `VIFileVersion`，带 `-beta.N` 会让安装包构建失败） |
 | `android/app/build.gradle.kts` | `defaultConfig.versionName`、`versionCode`（每次出包递增） |
-| `ui/app.js` | 关于面板的兜底版本（正常从 Wails runtime 读取） |
+| `ui/app.js` | 关于面板显示的 `displayVersion` |
+| `plugins/*/plugin.json` | `version`（随应用一起发布时统一到同一版本号，ZIP 文件名取自它） |
 | `CHANGELOG.md` | 发布时把 beta 段落归并到正式版本标题 |
 
-发布顺序：改这三处版本号 → `go test ./...` + `gradle assembleRelease` → 提交 → `git tag -a vX.Y.Z` → 推送 → 建 Release 并上传安装包、APK 与 `dist/plugins/*.zip`。
+发布顺序：改这几处版本号 → `go test ./...` + `gradle assembleRelease` → 提交 → `git tag -a vX.Y.Z` → 推送 → 建 Release 并上传安装包、APK 与 `dist/plugins/*.zip`。
 
 ## 构建安装包
 

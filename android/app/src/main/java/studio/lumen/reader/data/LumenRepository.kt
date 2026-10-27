@@ -31,7 +31,7 @@ private const val UserAgent =
 
 class LumenRepository(private val context: Context) {
     companion object {
-        // 同时抓取的来源数；1.1.0-beta.9 起与桌面端一起翻倍。
+        // 同时抓取的来源数；1.1.0 起与桌面端一起翻倍。
         const val feedWorkers = 24
         const val newsroomWorkers = 12
     }

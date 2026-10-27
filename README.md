@@ -2,7 +2,7 @@
 
 一款面向英语学习的阅读应用：Windows 桌面版 + 原生 Android 版。连接英文媒体、大学和研究机构，在原文阅读中积累词汇、理解句子。
 
-桌面版使用 **Wails v2 + 系统 WebView2** 重写，安装包不再携带 Chromium。当前版本 **1.0.0**。
+桌面版使用 **Wails v2 + 系统 WebView2** 重写，安装包不再携带 Chromium。当前版本 **1.1.0**。
 
 ## 来源与致谢
 
@@ -14,11 +14,11 @@
 
 | 文件 | 说明 |
 | --- | --- |
-| `Lumen-Setup-1.0.0.exe` | Windows x64 按用户安装（不需要管理员权限），未做代码签名 |
-| `Lumen-Android-1.0.0.apk` | Android 8.0+（minSdk 26），release 自签名（非 Google Play 上架签名） |
-| `lumen-crawler-1.0.0.zip`、`lumen-adblock-1.0.0.zip` | 官方插件，安装应用后在插件中心导入 |
+| `Lumen-Setup-1.1.0.exe` | Windows x64 按用户安装（不需要管理员权限），未做代码签名 |
+| `Lumen-Android-1.1.0.apk` | Android 8.0+（minSdk 26），release 自签名（非 Google Play 上架签名） |
+| `lumen-crawler-1.1.0.zip`、`lumen-adblock-1.1.0.zip`、`lumen-paywall-1.1.0.zip` | 官方插件，安装应用后在插件中心导入 |
 
-安装包未签名，Windows SmartScreen 会提示「未知发布者」，选择「仍要运行」即可。应用不内置插件，首次启动后请先导入上面两个插件 ZIP。
+安装包未签名，Windows SmartScreen 会提示「未知发布者」，选择「仍要运行」即可。应用不内置插件，首次启动后请先导入上面三个插件 ZIP。
 
 ## 可以做什么
 
@@ -42,10 +42,11 @@
 
 应用安装包不内置插件。官方插件作为独立 ZIP 放在 [`dist/plugins/`](dist/plugins/)：
 
-- `lumen-crawler-1.0.0.zip`：123 个来源的 RSS、目录与「各站前三」解析规则。
-- `lumen-adblock-1.0.0.zip`：通用广告选择器、广告标签文本规则，以及针对 BBC、Guardian、NYT、Nature 等 22 个重点站点的域名规则。
+- `lumen-crawler-1.1.0.zip`：123 个来源的 RSS、目录与「各站前三」解析规则。
+- `lumen-adblock-1.1.0.zip`：通用广告选择器、广告标签文本规则，以及约 18.5 万个广告域名的请求拦截规则（桌面 WebView2 与安卓 WebView 都直接拦截，主文档请求永远放行）。
+- `lumen-paywall-1.1.0.zip`：从 bypass-paywalls-chrome-clean 提取的付费墙脚本域名与遮挡层选择器，只清理页面元素，不抓取存档、不改正文。
 
-首次使用时在插件中心（桌面侧栏「插件中心」/ Android 设置 → 插件）导入这两个 ZIP。也可以导入自制插件：
+首次使用时在插件中心（桌面侧栏「插件中心」/ Android 设置 → 插件）导入这三个 ZIP。也可以导入自制插件：
 
 - **ZIP**：根目录或一级目录内包含 `plugin.json`，`type` 为 `crawler` 或 `adblock`。
 - **JS**：使用 `module.exports = {...}`、`export default {...}` 或 `window.__LUMEN_PLUGIN__ = {...}` 导出与 `plugin.json` 相同的 JSON 对象。Lumen 只解析对象，不执行脚本内容。
@@ -90,7 +91,7 @@ wails build -platform windows/amd64 -nsis -installscope user -webview2 download
 - Electron 使用系统能力加密的翻译 API 密钥无法跨运行时迁移，需要在偏好设置中重新录入；新密钥使用 Windows DPAPI 保存，不进入备份。
 - 轻量存储模式使用临时网站资料目录，关闭应用后丢弃；该设置重启后生效。
 - 启动时会清理各 WebView2 档案的组件、GPU 与 HTTP 缓存（保留 Cookie 与登录态），并限制子视图缓存上限。旧 Electron 版的 `%APPDATA%\lumen-reader` 缓存不会自动删除。
-- 阅读提问与翻译共用一套接口配置：在偏好设置里选「大模型 · OpenAI 兼容」，填接口地址、模型与密钥（DeepSeek 官方为 `https://api.deepseek.com/v1` + `deepseek-chat`），密钥使用 DPAPI 保存且不进入备份。1.1.0-beta.8 起不再有内嵌的 ChatGPT / DeepSeek 网页面板。
+- 阅读提问与翻译共用一套接口配置：在偏好设置里选「大模型 · OpenAI 兼容」，填接口地址、模型与密钥（DeepSeek 官方为 `https://api.deepseek.com/v1` + `deepseek-chat`），密钥使用 DPAPI 保存且不进入备份。1.1.0 起不再有内嵌的 ChatGPT / DeepSeek 网页面板。
 
 ## 结构
 

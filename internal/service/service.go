@@ -528,7 +528,7 @@ func (s *Service) emitEvent(event string, data any) {
 	}
 }
 
-// feedWorkers 是同时抓取的来源数；1.1.0-beta.9 起翻倍，来源清单有 120+ 个。
+// feedWorkers 是同时抓取的来源数；1.1.0 起翻倍，来源清单有 120+ 个。
 const feedWorkers = 24
 
 func clamp(value, low, high int) int {

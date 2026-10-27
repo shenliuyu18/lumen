@@ -47,6 +47,32 @@ func TestLowStorageDropsCaches(t *testing.T) {
 	}
 }
 
+func TestCornerRadiusBackfillOnlyForOldStores(t *testing.T) {
+	v1 := New(t.TempDir())
+	if err := os.WriteFile(v1.Path, []byte(`{"version":1,"settings":{"theme":"sky"}}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	loaded, err := v1.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if loaded.Settings.CornerRadius != model.DefaultCornerRadius || loaded.Version != 2 {
+		t.Fatalf("v1 store not backfilled: version=%d radius=%d", loaded.Version, loaded.Settings.CornerRadius)
+	}
+
+	v2 := New(t.TempDir())
+	if err := os.WriteFile(v2.Path, []byte(`{"version":2,"settings":{"cornerRadius":0}}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	kept, err := v2.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if kept.Settings.CornerRadius != 0 {
+		t.Fatalf("直角选择被覆盖: %d", kept.Settings.CornerRadius)
+	}
+}
+
 func TestCorruptLibraryKeepsRecoveryCopy(t *testing.T) {
 	dir := t.TempDir()
 	repo := New(dir)

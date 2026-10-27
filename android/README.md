@@ -75,6 +75,6 @@ gradle testDebugUnitTest
 
 - 应用不内置来源插件；首次使用需在插件中心导入 `dist/plugins/lumen-crawler-*.zip`，否则媒体目录与各站前三为空，可从空状态直接进入插件中心。
 - 默认翻译为「微软网页」（Edge 内置的免密钥接口，与桌面端同一条通道）；该接口非公开、可能限流，可改用微软 API / DeepL / MyMemory。
-- 1.1.0-beta.9 起不再内置 ChatGPT / DeepSeek 网页助手；阅读提问只在桌面端的观读轻译小窗里进行。
+- 1.1.0 起不再内置 ChatGPT / DeepSeek 网页助手；阅读提问只在桌面端的观读轻译小窗里进行。
 - 轻量存储仅停止持久化文章/译文/各站快照；WebView 登录数据不会切换临时档案。
 - 安装包为 release 自签名 APK（`CN=Lumen Reader`），不是 Google Play 的上架签名；未开启代码裁剪，因为 WebView 的 `@JavascriptInterface` 桥接还缺少经过验证的 R8 keep 规则。
