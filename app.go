@@ -489,6 +489,44 @@ func (a *App) PluginInstall() (any, error) {
 	return state, nil
 }
 
+func (a *App) PluginReload() any {
+	if a.svc == nil {
+		return map[string]any{"error": "服务尚未就绪"}
+	}
+	return a.svc.ReloadPlugins()
+}
+
+// PluginInstallFolder 批量导入一个文件夹里的 .zip / .js 插件，跳过其它文件。
+func (a *App) PluginInstallFolder() (any, error) {
+	if a.svc == nil {
+		return nil, fmt.Errorf("服务尚未就绪")
+	}
+	dir, err := wailsRuntime.OpenDirectoryDialog(a.ctx, wailsRuntime.OpenDialogOptions{Title: "选择插件文件夹"})
+	if err != nil || dir == "" {
+		return nil, err
+	}
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+	installed, failed := 0, 0
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		name := strings.ToLower(entry.Name())
+		if !strings.HasSuffix(name, ".zip") && !strings.HasSuffix(name, ".js") {
+			continue
+		}
+		if _, _, err := a.svc.InstallPlugin(filepath.Join(dir, entry.Name())); err != nil {
+			failed++
+			continue
+		}
+		installed++
+	}
+	return map[string]any{"installed": installed, "failed": failed, "state": a.svc.State()}, nil
+}
+
 func (a *App) PluginRemove(id string) any {
 	if a.svc == nil {
 		return map[string]any{"error": "资料库尚未就绪"}

@@ -24,6 +24,8 @@
     'plugin-toggle': 'PluginToggle',
     'plugin-install': 'PluginInstall',
     'plugin-remove': 'PluginRemove',
+    'plugin-reload': 'PluginReload',
+    'plugin-install-folder': 'PluginInstallFolder',
     'plugin-open-folder': 'PluginOpenFolder',
     'deepseek-config': 'DeepSeekConfig',
     'deepseek-ask': 'DeepSeekAsk',

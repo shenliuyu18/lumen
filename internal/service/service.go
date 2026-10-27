@@ -19,6 +19,7 @@ import (
 	"lumen/internal/catalog"
 	"lumen/internal/feed"
 	"lumen/internal/model"
+	"lumen/internal/netclient"
 	"lumen/internal/newsroom"
 	"lumen/internal/plugins"
 	"lumen/internal/rank"
@@ -653,7 +654,7 @@ func (s *Service) requestTranslation(settings model.TranslationSettings, text, c
 	if err != nil {
 		return model.Translation{}, err
 	}
-	client := &http.Client{Timeout: 25 * time.Second, Transport: &http.Transport{Proxy: http.ProxyFromEnvironment}}
+	client := netclient.New(25 * time.Second)
 	response, err := client.Do(httpRequest)
 	if err != nil {
 		return model.Translation{}, err
