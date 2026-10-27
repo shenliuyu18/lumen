@@ -143,25 +143,60 @@ fun ChatScreen(viewModel: MainViewModel, service: String, onBack: () -> Unit) {
 }
 
 /**
- * 真机上部分输入法在站点受控输入框里输入时，光标会被留在开头，导致数字倒序
- * （1 → 61 → 8761）。这里只在「新内容被插到最前面且光标停在 0」时把光标移回末尾，
- * 组词中和正常输入都不受影响。
+ * 站点在 WebView 里每次输入后会把光标重置到开头，连续输入就变成倒序
+ * （1 → 61 → 8761）。这里记录插入前的光标位置，输入后若光标被重置到 0，
+ * 就把它放回「插入位置 + 内容长度」；组词、粘贴改写、中间插入都按同一规则处理。
  */
 private val CARET_GUARD_SCRIPT = """
 (function () {
   if (window.__lumenCaretGuard) return;
   window.__lumenCaretGuard = true;
+  var pending = null;
+
+  function isField(el) {
+    return !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA');
+  }
+
+  function place(el, pos) {
+    if (pos <= 0) return;
+    if (document.activeElement !== el) return;
+    try { el.setSelectionRange(pos, pos); } catch (err) {}
+  }
+
+  document.addEventListener('beforeinput', function (event) {
+    if (!isField(event.target) || event.isComposing) return;
+    pending = {
+      el: event.target,
+      start: event.target.selectionStart,
+      end: event.target.selectionEnd,
+      data: event.data,
+      type: event.inputType || ''
+    };
+  }, true);
+
   document.addEventListener('input', function (event) {
     var el = event.target;
-    if (!el || (el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA')) return;
-    if (event.isComposing) return;
+    if (!isField(el) || event.isComposing) return;
     if (document.activeElement !== el) return;
-    var value = el.value || '';
-    var data = event.data;
-    if (!data || !value) return;
-    if (el.selectionStart !== 0 || el.selectionEnd !== 0) return;
-    if (value.indexOf(data) !== 0) return;
-    try { el.setSelectionRange(value.length, value.length); } catch (err) {}
+    if (!pending || pending.el !== el) return;
+    var p = pending;
+    pending = null;
+    var target = -1;
+    if (p.data) {
+      if (el.value.slice(p.start, p.start + p.data.length) !== p.data) return;
+      target = p.start + p.data.length;
+    } else if (p.type === 'deleteContentBackward' && p.start === p.end && p.start > 1) {
+      target = p.start - 1;
+    }
+    if (target <= 0) return;
+    // 只在光标被重置到开头时介入，正常输入不动。
+    if (el.selectionStart === 0 && el.selectionEnd === 0) place(el, target);
+    // 站点可能在 React 提交阶段稍后再重置一次，下一轮任务再校正。
+    setTimeout(function () {
+      if (el.selectionStart !== 0 || el.selectionEnd !== 0) return;
+      if (p.data && el.value.slice(p.start, p.start + p.data.length) !== p.data) return;
+      place(el, target);
+    }, 0);
   }, true);
 })();
 """.trimIndent()

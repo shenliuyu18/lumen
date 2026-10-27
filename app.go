@@ -32,11 +32,8 @@ type App struct {
 	access           *access.Service
 	urlMu            sync.Mutex
 	readerURL        string
-	translator       *webhost.Host
-	translatorMu     sync.Mutex
 	extractor        *webhost.Host
 	extractorMu      sync.Mutex
-	translateMu      sync.Mutex
 	readMu           sync.Mutex
 	restartMu        sync.Mutex
 	restarting       bool
@@ -46,7 +43,6 @@ type App struct {
 	chatBounds       map[string]float64
 	lowStorage       bool
 	tempWebRoot      string
-	translatorWindow *webhost.Host
 	chatPopup        *webhost.Host
 	deepseek         *webhost.Host
 	deepseekMu       sync.Mutex
@@ -71,6 +67,36 @@ func (a *App) startup(ctx context.Context) {
 		wailsRuntime.EventsEmit(ctx, event, data)
 	})
 	a.svc = svc
+	wailsRuntime.OnFileDrop(ctx, a.handlePluginDrop)
+}
+
+// handlePluginDrop installs a plugin dropped anywhere on the window, mirroring
+// the plugin center's import button. Only ZIP and declarative JS are accepted.
+func (a *App) handlePluginDrop(_ int, _ int, paths []string) {
+	if a.svc == nil {
+		return
+	}
+	for _, path := range paths {
+		base := filepath.Base(path)
+		ext := strings.ToLower(filepath.Ext(path))
+		if ext != ".zip" && ext != ".js" {
+			wailsRuntime.EventsEmit(a.ctx, "plugin-drop", map[string]any{
+				"ok": false, "file": base, "error": "只支持插件 ZIP 或声明式 JS",
+			})
+			continue
+		}
+		info, state, err := a.svc.InstallPlugin(path)
+		if err != nil {
+			wailsRuntime.EventsEmit(a.ctx, "plugin-drop", map[string]any{
+				"ok": false, "file": base, "error": err.Error(),
+			})
+			continue
+		}
+		wailsRuntime.EventsEmit(a.ctx, "plugin-drop", map[string]any{
+			"ok": true, "file": base, "name": info.Name,
+		})
+		wailsRuntime.EventsEmit(a.ctx, "library-updated", state)
+	}
 }
 
 func (a *App) domReady(ctx context.Context) {
@@ -148,16 +174,6 @@ func (a *App) beforeClose(ctx context.Context) bool {
 	a.extractorMu.Unlock()
 	if extractor != nil {
 		extractor.Close()
-	}
-	a.translatorMu.Lock()
-	translator := a.translator
-	translatorWindow := a.translatorWindow
-	a.translatorMu.Unlock()
-	if translator != nil {
-		translator.Close()
-	}
-	if translatorWindow != nil {
-		translatorWindow.Close()
 	}
 	a.chatMu.Lock()
 	chatPopup := a.chatPopup
@@ -453,7 +469,7 @@ func (a *App) Translate(payload map[string]any) (any, error) {
 			return nil, err
 		}
 	}
-	result, err := a.svc.Translate(payload, a.translateInline, a.openTranslatorWeb)
+	result, err := a.svc.Translate(payload)
 	if err != nil {
 		return nil, err
 	}
@@ -464,7 +480,7 @@ func (a *App) TranslationTest() (any, error) {
 	if a.svc == nil {
 		return nil, fmt.Errorf("资料库尚未就绪")
 	}
-	return a.svc.TranslationTest(a.translateInline, a.openTranslatorWeb)
+	return a.svc.TranslationTest()
 }
 
 func (a *App) Plugins() any {
@@ -611,85 +627,6 @@ func (a *App) Lookup(text string) any {
 		return map[string]any{"error": "词典暂时不可用或未收录这个词，可使用下方在线词典。"}
 	}
 	return map[string]any{"entries": entries}
-}
-
-func (a *App) ensureTranslator() (*webhost.Host, error) {
-	a.translatorMu.Lock()
-	defer a.translatorMu.Unlock()
-	if a.translator != nil {
-		return a.translator, nil
-	}
-	host := webhost.New(webhost.Options{
-		DataPath: a.webDataPath("translator"),
-	})
-	if err := host.Start(15 * time.Second); err != nil {
-		return nil, err
-	}
-	a.translator = host
-	return host, nil
-}
-
-func (a *App) translateInline(text string) (string, error) {
-	a.translateMu.Lock()
-	defer a.translateMu.Unlock()
-	host, err := a.ensureTranslator()
-	if err != nil {
-		return "", err
-	}
-	host.Navigate("https://www.bing.com/translator?from=en&to=zh-Hans&text=" + url.QueryEscape(text))
-	deadline := time.Now().Add(35 * time.Second)
-	script := `return JSON.stringify({input:(document.querySelector('#tta_input_ta')||{}).textContent||'',output:(document.querySelector('#tta_output_ta')||{}).textContent||''})`
-	for time.Now().Before(deadline) {
-		time.Sleep(500 * time.Millisecond)
-		raw, evalErr := host.EvalResult(script, 3*time.Second)
-		if evalErr != nil {
-			continue
-		}
-		var value struct {
-			Input  string `json:"input"`
-			Output string `json:"output"`
-		}
-		if json.Unmarshal([]byte(raw), &value) != nil {
-			continue
-		}
-		if strings.TrimSpace(value.Input) == strings.TrimSpace(text) && regexp.MustCompile(`[\p{Han}]`).MatchString(value.Output) {
-			return strings.TrimSpace(value.Output), nil
-		}
-	}
-	return "", fmt.Errorf("微软网页翻译超时，请重试或配置 Microsoft / DeepL 官方 API。")
-}
-
-func (a *App) openTranslatorWeb(text string) map[string]any {
-	target := "https://www.bing.com/translator?from=en&to=zh-Hans&text=" + url.QueryEscape(text)
-	a.translatorMu.Lock()
-	window := a.translatorWindow
-	if window == nil {
-		host := webhost.New(webhost.Options{
-			DataPath: a.webDataPath("translator-window"),
-			TopLevel: true,
-			Title:    "Microsoft Translator · Lumen",
-			Width:    1100,
-			Height:   780,
-		})
-		if err := host.Start(15 * time.Second); err == nil {
-			window = host
-			a.translatorWindow = host
-		}
-	}
-	a.translatorMu.Unlock()
-	if window == nil {
-		wailsRuntime.BrowserOpenURL(a.ctx, target)
-		return map[string]any{
-			"web": true, "provider": "Microsoft Translator 官方网页", "at": time.Now().UnixMilli(),
-			"text": "无法创建翻译窗口，已在系统浏览器打开微软官方翻译。",
-		}
-	}
-	window.Navigate(target)
-	window.Show(true)
-	return map[string]any{
-		"web": true, "provider": "Microsoft Translator 官方网页", "at": time.Now().UnixMilli(),
-		"text": "已在微软官方翻译窗口打开所选内容。网页译文由微软直接显示；可将译文复制到下方再保存。",
-	}
 }
 
 func (a *App) OpenEdge() any {

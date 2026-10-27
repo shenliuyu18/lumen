@@ -19,7 +19,7 @@ function pluginsPage(){
       ${[['all','全部 '+all.length],['crawler','爬虫 '+crawlers],['adblock','去广告 '+adblocks]].map(([v,n])=>`<button class="chip ${pluginType===v?'active':''}" data-plugin-type="${v}">${n}</button>`).join('')}
     </span>
   </div>
-  <p class="note">官方插件包随发行版提供，首次使用时在下方导入 <code>lumen-crawler-*.zip</code> 与 <code>lumen-adblock-*.zip</code>。停用爬虫插件后，刷新不会新增来源；已缓存文章仍保留。</p>
+  <p class="note">官方插件包随发行版提供，首次使用时在下方导入 <code>lumen-crawler-*.zip</code> 与 <code>lumen-adblock-*.zip</code>。也可以把插件 ZIP / JS 直接拖进窗口任意位置，松手即安装。停用爬虫插件后，刷新不会新增来源；已缓存文章仍保留。</p>
   <div class="plugin-grid">
   ${plugins.map(p=>`<div class="plugin-card">
     <div class="plugin-head"><span class="plugin-type">${p.type==='crawler'?'爬虫':'去广告'}</span><strong>${esc(p.name)}</strong><span class="subtle">v${esc(p.version)}</span></div>

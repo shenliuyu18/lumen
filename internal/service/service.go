@@ -601,7 +601,7 @@ func (s *Service) TranslationConfig(values map[string]any) (model.PublicState, e
 	return state, nil
 }
 
-func (s *Service) Translate(payload map[string]any, inline func(text string) (string, error), openWeb func(text string) map[string]any) (map[string]any, error) {
+func (s *Service) Translate(payload map[string]any) (map[string]any, error) {
 	text, _ := payload["text"].(string)
 	text = strings.TrimSpace(text)
 	contextText, _ := payload["context"].(string)
@@ -613,18 +613,9 @@ func (s *Service) Translate(payload map[string]any, inline func(text string) (st
 	if text == "" || len([]rune(text)) > 6000 {
 		return nil, fmt.Errorf("请选择不超过 6000 字符的句子或段落。")
 	}
-	useInline, _ := payload["inline"].(bool)
-
 	s.mu.RLock()
 	settings := s.store.Settings.Translation
 	s.mu.RUnlock()
-
-	if settings.Provider == "microsoft-web" && !useInline {
-		if openWeb == nil {
-			return nil, fmt.Errorf("翻译窗口不可用")
-		}
-		return openWeb(text), nil
-	}
 
 	key := translate.CacheKey(settings.Provider, text, ternary(settings.UseContext, contextText, ""))
 	s.mu.RLock()
@@ -636,14 +627,7 @@ func (s *Service) Translate(payload map[string]any, inline func(text string) (st
 	}
 
 	result, err := s.requestTranslation(settings, text, contextText)
-	if err != nil && settings.Provider == "microsoft-web" && inline != nil {
-		// 免密钥网页接口被限流或改版时，回退到网页视图抓取，避免自动精读整篇中断。
-		translated, webErr := inline(text)
-		if webErr != nil {
-			return nil, err
-		}
-		result = model.Translation{Text: translated, Provider: "Microsoft Translator 官方网页", At: time.Now().UnixMilli()}
-	} else if err != nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -702,11 +686,11 @@ func (s *Service) requestTranslation(settings model.TranslationSettings, text, c
 	return translate.ParseResponse(settings.Provider, body)
 }
 
-func (s *Service) TranslationTest(inline func(text string) (string, error), openWeb func(text string) map[string]any) (map[string]any, error) {
+func (s *Service) TranslationTest() (map[string]any, error) {
 	return s.Translate(map[string]any{
 		"text":    "The findings suggest an association, but do not establish a causal relationship.",
 		"context": "A scientific study discussing the limits of observational evidence.",
-	}, inline, openWeb)
+	})
 }
 
 func (s *Service) DeepSeekConfig(key string) (model.PublicState, error) {

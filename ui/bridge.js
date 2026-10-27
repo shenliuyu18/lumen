@@ -61,7 +61,8 @@
     'selection',
     'chat-status',
     'deepseek-status',
-    'translation-error'
+    'translation-error',
+    'plugin-drop'
   ]);
 
   function bindings() {

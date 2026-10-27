@@ -119,7 +119,7 @@ body[data-glass=on] .main{padding-right:12px}
 body[data-glass=on] .sidebar{border:1px solid var(--glass-edge)}
 
 /* 设置页两列瀑布：每列各自堆叠，卡片不会再被左右拉平留下空白 */
-.settings-columns{display:flex;gap:20px;align-items:flex-start}
+.settings-columns{display:flex;gap:20px;align-items:flex-start;margin-top:20px}
 .settings-col{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:20px}
 @media(max-width:1200px){.settings-columns{flex-direction:column}}
 @media(max-width:1200px){.settings-col{width:100%}}
@@ -129,3 +129,6 @@ body[data-glass=on] .sidebar{border:1px solid var(--glass-edge)}
 .network-notice strong{display:block;font-size:13px;font-weight:600;margin-bottom:4px}
 .network-notice span{font-size:11px;color:var(--muted);line-height:1.7}
 .network-notice .notice-actions{display:flex;gap:8px;flex-shrink:0}
+
+/* Wails 文件拖放：整个窗口都接受拖入的插件包 */
+body{--wails-drop-target:drop}
