@@ -7,6 +7,9 @@
 package studio.lumen.reader.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -25,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -246,5 +251,46 @@ fun GlassIconButton(
                 overflow = TextOverflow.Ellipsis
             )
         }
+    }
+}
+
+/** 玻璃开关：轨道是胶囊，滑块是一颗折射背景的玻璃珠。 */
+@Composable
+fun GlassSwitch(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
+) {
+    val scheme = MaterialTheme.colorScheme
+    val progress by animateFloatAsState(if (checked) 1f else 0f, tween(180), label = "switch")
+    val trackColor by animateColorAsState(
+        if (checked) scheme.primary else scheme.surfaceVariant,
+        label = "switch-track"
+    )
+    Box(
+        modifier = modifier
+            .width(50.dp)
+            .height(30.dp)
+            .clip(RoundedCornerShape(percent = 50))
+            .background(trackColor.copy(alpha = if (checked) 0.85f else 1f))
+            .clickable(enabled = enabled) { onCheckedChange(!checked) }
+            .padding(3.dp),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Box(
+            Modifier
+                .offset(x = (22.dp) * progress)
+                .size(24.dp)
+                .liquidGlass(
+                    shape = CircleShape,
+                    blurRadius = 2.dp,
+                    lensRadius = 16.dp,
+                    surfaceColor = if (checked) scheme.onPrimary.copy(alpha = 0.92f) else scheme.surface.copy(alpha = 0.9f),
+                    shadow = false,
+                    innerShadow = false,
+                    interactive = false
+                )
+        )
     }
 }

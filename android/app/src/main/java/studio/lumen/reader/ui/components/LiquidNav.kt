@@ -71,23 +71,12 @@ fun AppBottomBar(
     backdrop: LayerBackdrop? = null
 ) {
     val scheme = MaterialTheme.colorScheme
-    val barModifier = if (glass) {
-        modifier.liquidGlass(
-            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-            blurRadius = 18.dp,
-            lensRadius = 0.dp,
-            surfaceColor = scheme.surface.copy(alpha = 0.62f),
-            interactive = false
-        )
-    } else {
-        modifier.background(scheme.surface)
-    }
-    Column(barModifier.fillMaxWidth().navigationBarsPadding()) {
-        HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.7f))
+    val pill = RoundedCornerShape(percent = 50)
+    val content = @Composable { rowModifier: Modifier ->
         Row(
-            modifier = Modifier
+            modifier = rowModifier
                 .fillMaxWidth()
-                .height(66.dp)
+                .height(64.dp)
                 .padding(horizontal = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
@@ -100,6 +89,28 @@ fun AppBottomBar(
                     modifier = Modifier.weight(1f)
                 )
             }
+        }
+    }
+    if (glass) {
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 16.dp, vertical = 10.dp)
+        ) {
+            content(
+                Modifier.liquidGlass(
+                    shape = pill,
+                    blurRadius = 20.dp,
+                    lensRadius = 24.dp,
+                    surfaceColor = scheme.surface.copy(alpha = 0.52f)
+                )
+            )
+        }
+    } else {
+        Column(modifier.fillMaxWidth().navigationBarsPadding().background(scheme.surface)) {
+            HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.7f))
+            content(Modifier)
         }
     }
 }

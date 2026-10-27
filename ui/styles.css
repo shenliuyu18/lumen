@@ -104,3 +104,5 @@ body[data-glass=on] .nav-item.active{background:color-mix(in srgb, var(--accent)
 body[data-glass=on] .chip.active{background:color-mix(in srgb, var(--ink) 86%, transparent);color:var(--surface)}
 body[data-glass=on] .bilingual-hero h1{letter-spacing:-.4px}
 body[data-glass=on] .divider{background:var(--glass-edge)}
+
+.hide-translations .paragraph-translation{display:none}

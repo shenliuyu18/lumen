@@ -67,6 +67,8 @@ import java.time.LocalDate
 import studio.lumen.reader.ui.components.GlassButton
 import studio.lumen.reader.ui.components.GlassCard
 import studio.lumen.reader.ui.components.GlassChip
+import studio.lumen.reader.ui.components.GlassSwitch
+import studio.lumen.reader.ui.theme.LumenSchemes
 import studio.lumen.reader.ui.components.LiquidSlider
 
 @Composable
@@ -142,8 +144,23 @@ onClick = { viewModel.updateSettings(settings.copy(themeMode = value)) }
 )
                         }
                     }
+                    Spacer(Modifier.height(10.dp))
+                    Text("配色（来自阅读 app）", style = MaterialTheme.typography.labelLarge)
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        LumenSchemes.options.forEach { (id, option) ->
+                            GlassChip(
+                                label = option.first,
+                                selected = settings.colorScheme == id,
+                                dense = true,
+                                onClick = { viewModel.updateSettings(settings.copy(colorScheme = id)) }
+                            )
+                        }
+                    }
                     Spacer(Modifier.height(8.dp))
-                    SettingSwitch("Material You 动态取色", settings.dynamicColor, "Android 12+ 可用") {
+                    SettingSwitch("Material You 动态取色", settings.dynamicColor, "Android 12+ 可用；开启后忽略上面的配色") {
                         viewModel.updateSettings(settings.copy(dynamicColor = it))
                     }
                     var fontSize by remember(settings.fontSize) { mutableStateOf(settings.fontSize) }
@@ -451,7 +468,7 @@ private fun SettingSwitch(title: String, checked: Boolean, subtitle: String?, on
             Text(title, style = MaterialTheme.typography.bodyLarge)
             if (subtitle != null) Text(subtitle, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        Switch(checked = checked, onCheckedChange = onChange)
+        GlassSwitch(checked = checked, onCheckedChange = onChange)
     }
     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 }

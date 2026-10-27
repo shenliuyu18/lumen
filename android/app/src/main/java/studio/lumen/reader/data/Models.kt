@@ -25,6 +25,7 @@ data class TranslationSettings(
 @Serializable
 data class Settings(
     val themeMode: String = "system",
+    val colorScheme: String = "gr",
     val dynamicColor: Boolean = true,
     val weights: Weights = Weights(),
     val interests: List<String> = emptyList(),

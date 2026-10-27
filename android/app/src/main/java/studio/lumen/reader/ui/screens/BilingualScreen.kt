@@ -160,7 +160,7 @@ fun ReadingScreen(
                         } else {
                             Icons.Outlined.BookmarkAdd
                         },
-                        label = "稍后阅读",
+                        label = "收藏",
                         onClick = { current?.let(viewModel::toggleSaved) },
                         enabled = current != null
                     )

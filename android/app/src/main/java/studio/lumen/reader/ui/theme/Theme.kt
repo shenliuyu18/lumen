@@ -8,6 +8,19 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
+import studio.lumen.reader.ui.theme.schemes.AugustColorScheme
+import studio.lumen.reader.ui.theme.schemes.BaseColorScheme
+import studio.lumen.reader.ui.theme.schemes.CarlottaColorScheme
+import studio.lumen.reader.ui.theme.schemes.ElinkColorScheme
+import studio.lumen.reader.ui.theme.schemes.GRColorScheme
+import studio.lumen.reader.ui.theme.schemes.KoharuColorScheme
+import studio.lumen.reader.ui.theme.schemes.LemonColorScheme
+import studio.lumen.reader.ui.theme.schemes.MujikaColorScheme
+import studio.lumen.reader.ui.theme.schemes.PhoebeColorScheme
+import studio.lumen.reader.ui.theme.schemes.SoraColorScheme
+import studio.lumen.reader.ui.theme.schemes.TransparentColorScheme
+import studio.lumen.reader.ui.theme.schemes.WHColorScheme
+import studio.lumen.reader.ui.theme.schemes.YuukaColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -17,80 +30,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.sp
 
-// 取色取自阅读 app（legado-with-MD3 的 GR 配色）：浅色偏米绿纸面，深色为墨绿黑。
-private val LightColors = lightColorScheme(
-    primary = Color(0xFF4C662B),
-    onPrimary = Color(0xFFFFFFFF),
-    primaryContainer = Color(0xFFCDEDA3),
-    onPrimaryContainer = Color(0xFF354E16),
-    secondary = Color(0xFF586249),
-    onSecondary = Color(0xFFFFFFFF),
-    secondaryContainer = Color(0xFFDCE7C8),
-    onSecondaryContainer = Color(0xFF404A33),
-    tertiary = Color(0xFF386663),
-    onTertiary = Color(0xFFFFFFFF),
-    tertiaryContainer = Color(0xFFBCECE7),
-    onTertiaryContainer = Color(0xFF1F4E4B),
-    error = Color(0xFFBA1A1A),
-    onError = Color(0xFFFFFFFF),
-    errorContainer = Color(0xFFFFDAD6),
-    onErrorContainer = Color(0xFF93000A),
-    background = Color(0xFFF9FAEF),
-    onBackground = Color(0xFF1A1C16),
-    surface = Color(0xFFF9FAEF),
-    onSurface = Color(0xFF1A1C16),
-    surfaceVariant = Color(0xFFE1E4D5),
-    onSurfaceVariant = Color(0xFF44483D),
-    outline = Color(0xFF75796C),
-    outlineVariant = Color(0xFFC5C8BA),
-    inverseSurface = Color(0xFF2F312A),
-    inverseOnSurface = Color(0xFFF1F2E6),
-    inversePrimary = Color(0xFFB1D18A),
-    surfaceDim = Color(0xFFDADBD0),
-    surfaceBright = Color(0xFFF9FAEF),
-    surfaceContainerLowest = Color(0xFFFFFFFF),
-    surfaceContainerLow = Color(0xFFF3F4E9),
-    surfaceContainer = Color(0xFFEEEFE3),
-    surfaceContainerHigh = Color(0xFFE8E9DE),
-    surfaceContainerHighest = Color(0xFFE2E3D8)
-)
+// 配色来自阅读 app：GR 为默认，其余可在 设置 → 外观 切换。
+object LumenSchemes {
+    val options = listOf(
+        "gr" to ("草绿" to GRColorScheme),
+        "lemon" to ("柠檬" to LemonColorScheme),
+        "wh" to ("纯白" to WHColorScheme),
+        "elink" to ("墨韵" to ElinkColorScheme),
+        "sora" to ("苍空" to SoraColorScheme),
+        "august" to ("八月" to AugustColorScheme),
+        "carlotta" to ("焦糖" to CarlottaColorScheme),
+        "koharu" to ("小春" to KoharuColorScheme),
+        "yuuka" to ("悠花" to YuukaColorScheme),
+        "phoebe" to ("菲比" to PhoebeColorScheme),
+        "mujika" to ("梦华" to MujikaColorScheme),
+        "transparent" to ("透明" to TransparentColorScheme)
+    )
 
-private val DarkColors = darkColorScheme(
-    primary = Color(0xFFB1D18A),
-    onPrimary = Color(0xFF1F3701),
-    primaryContainer = Color(0xFF354E16),
-    onPrimaryContainer = Color(0xFFCDEDA3),
-    secondary = Color(0xFFBFCBAD),
-    onSecondary = Color(0xFF2A331E),
-    secondaryContainer = Color(0xFF404A33),
-    onSecondaryContainer = Color(0xFFDCE7C8),
-    tertiary = Color(0xFFA0D0CB),
-    onTertiary = Color(0xFF003735),
-    tertiaryContainer = Color(0xFF1F4E4B),
-    onTertiaryContainer = Color(0xFFBCECE7),
-    error = Color(0xFFFFB4AB),
-    onError = Color(0xFF690005),
-    errorContainer = Color(0xFF93000A),
-    onErrorContainer = Color(0xFFFFDAD6),
-    background = Color(0xFF12140E),
-    onBackground = Color(0xFFE2E3D8),
-    surface = Color(0xFF12140E),
-    onSurface = Color(0xFFE2E3D8),
-    surfaceVariant = Color(0xFF44483D),
-    onSurfaceVariant = Color(0xFFC5C8BA),
-    outline = Color(0xFF8F9285),
-    outlineVariant = Color(0xFF44483D),
-    inverseSurface = Color(0xFFE2E3D8),
-    inverseOnSurface = Color(0xFF2F312A),
-    inversePrimary = Color(0xFF4C662B),
-    surfaceDim = Color(0xFF12140E),
-    surfaceBright = Color(0xFF383A32),
-    surfaceContainerLowest = Color(0xFF0C0F09),
-    surfaceContainerLow = Color(0xFF1A1C16),
-    surfaceContainer = Color(0xFF1E201A),
-    surfaceContainerHigh = Color(0xFF282B24),
-    surfaceContainerHighest = Color(0xFF33362E)
-)
+    fun resolve(id: String): BaseColorScheme =
+        options.firstOrNull { it.first == id }?.second?.second ?: GRColorScheme
+}
 
 /** 标题与卡片名使用衬线，正文与标签保持无衬线，贴近参考应用的排版。 */
 private val Serif = FontFamily.Serif
@@ -117,6 +76,7 @@ private val LumenTypography = Typography(
 fun LumenTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = false,
+    schemeId: String = "gr",
     content: @Composable () -> Unit
 ) {
     val colors = when {
@@ -124,8 +84,7 @@ fun LumenTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-        darkTheme -> DarkColors
-        else -> LightColors
+        else -> LumenSchemes.resolve(schemeId).getColorScheme(darkTheme)
     }
     MaterialTheme(colorScheme = colors, typography = LumenTypography, content = content)
 }

@@ -73,7 +73,7 @@ import studio.lumen.reader.ui.components.ArcGauge
 import studio.lumen.reader.ui.components.GlassCard
 import studio.lumen.reader.ui.components.StatCard
 
-private val studyTabs = listOf("概览", "词句本", "复习", "稍后阅读", "足迹")
+private val studyTabs = listOf("概览", "词句本", "复习", "收藏", "足迹")
 
 @Composable
 fun StudyScreen(viewModel: MainViewModel, onOpenArticle: (Article) -> Unit) {
@@ -87,7 +87,7 @@ fun StudyScreen(viewModel: MainViewModel, onOpenArticle: (Article) -> Unit) {
             Column {
                 PageHeader(
                     title = "学习空间",
-                    subtitle = "词句、稍后阅读、足迹与复习",
+                    subtitle = "词句、收藏、足迹与复习",
                     actions = {
                         if (tab == 4) {
                             CircleIconButton(Icons.Outlined.DeleteSweep, "清空足迹", onClick = { viewModel.clearHistory() })

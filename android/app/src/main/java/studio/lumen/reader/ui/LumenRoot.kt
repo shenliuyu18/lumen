@@ -83,7 +83,7 @@ fun LumenRoot(viewModel: MainViewModel) {
     val contentLayer = rememberLayerBackdrop()
     val wallpaper = if (glassOn) wallpaperLayer else null
     val navLayer = if (glassOn && showNav) contentLayer else null
-    val navPadding = if (showNav) 96.dp else 0.dp
+    val navPadding = if (showNav) 108.dp else 0.dp
     LaunchedEffect(Unit) {
         viewModel.messages.collect { snackbar.showSnackbar(it) }
     }

@@ -36,6 +36,7 @@ type Rules struct {
 type GlobalRule struct {
 	Selectors    []string `json:"selectors"`
 	TextPatterns []string `json:"textPatterns"`
+	BlockHosts   []string `json:"blockHosts,omitempty"`
 }
 
 type DomainRule struct {
@@ -112,6 +113,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	blockHosts := map[string]bool{}
 	generic := map[string]bool{}
 	domainRules := map[string]map[string]bool{}
 	for _, line := range strings.Split(string(raw), "\n") {
@@ -205,6 +207,19 @@ func main() {
 		plugin.Rules.Domains[domain] = rule
 		added += len(list)
 	}
+
+	hostsSeen := map[string]bool{}
+	for _, host := range plugin.Rules.Global.BlockHosts {
+		hostsSeen[host] = true
+	}
+	addedHosts := make([]string, 0, len(blockHosts))
+	for host := range blockHosts {
+		if !hostsSeen[host] {
+			addedHosts = append(addedHosts, host)
+		}
+	}
+	sort.Strings(addedHosts)
+	plugin.Rules.Global.BlockHosts = append(plugin.Rules.Global.BlockHosts, addedHosts...)
 
 	plugin.Version = bumpMinor(plugin.Version)
 	plugin.Description = "针对 Lumen 官方来源优化的广告识别与清理规则；通用选择器合并自 adblock_auto（lingeringsound/adblock_auto，GPL-3.0）的外观过滤子集。"

@@ -24,7 +24,11 @@ class MainActivity : ComponentActivity() {
                 "dark" -> true
                 else -> systemDark
             }
-            LumenTheme(darkTheme = dark, dynamicColor = store.settings.dynamicColor) {
+            LumenTheme(
+                darkTheme = dark,
+                dynamicColor = store.settings.dynamicColor,
+                schemeId = store.settings.colorScheme
+            ) {
                 LumenRoot(viewModel)
             }
         }
