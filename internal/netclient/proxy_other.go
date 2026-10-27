@@ -8,3 +8,5 @@ import (
 )
 
 func systemProxy(*http.Request) (*url.URL, error) { return nil, nil }
+
+func EnsureLocalBypass() {}

@@ -10,6 +10,8 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	windowsopts "github.com/wailsapp/wails/v2/pkg/options/windows"
+
+	"lumen/internal/netclient"
 )
 
 //go:embed all:ui
@@ -17,6 +19,7 @@ var uiAssets embed.FS
 
 func main() {
 	waitForRestart()
+	netclient.EnsureLocalBypass()
 	app := NewApp()
 
 	ui, err := fs.Sub(uiAssets, "ui")

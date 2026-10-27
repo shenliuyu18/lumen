@@ -19,12 +19,14 @@
 - **桌面白屏**：Wails 的 `OnStartup` 在 goroutine 里执行，前端可能在资料库加载完成前请求 `State`，拿到 `{error}` 后 `setState` 抛异常导致整页空白。`State`/`Settings` 现在等待启动完成，前端改为重试并在超时后显示可重试的错误页。
 - **安卓状态栏图标**：`enableEdgeToEdge()` 只看系统深色，应用内单独切浅色主题时阅读页仍是白图标。改为在 `MainActivity` 里按应用主题设置 `isAppearanceLightStatusBars` / `isAppearanceLightNavigationBars`。
 - **桌面来源错误**：超时、域名解析失败、连接中断（EOF）、403/404 都换成中文说明，不再把原始 Go 错误直接铺在卡片上。
+- **桌面代理白屏复发**：代理软件会重写 `ProxyOverride`，把 `wails.localhost` 挤掉后开代理又会白屏。启动时若检测到系统代理开启且列表里没有该主机，就自动补上并刷新 WinINET。
 
 ### 验证
 
 - 桌面：系统代理关闭与开启（`ProxyEnable=1`，`ProxyOverride` 含 `wails.localhost`）两种状态下窗口都能渲染首页；阅读模式抽取正常（28 段 / 2487 字符）。
 - 桌面代理：用本地测试代理验证「系统代理」与「手动代理」两条路径；手动模式在 `ProxyEnable=0` 时仍能把 `feeds.bbci.co.uk`、`www.theguardian.com` 的抓取流量送进 127.0.0.1:7890。
 - 桌面悬浮：鼠标移到卡片上前后各截一张图做像素对比，卡片区域出现 3.3 万像素的位移/阴影差异；侧栏与顶栏间距在玻璃模式下截图确认。
+- 桌面白屏：把 `ProxyOverride` 改回不含 `wails.localhost` 并开启指向死端口的代理，启动后应用自动补回该主机，窗口正常渲染首页。
 - 安卓：模拟器分别验证液态玻璃开/关、深色/浅色主题、点击与拖拽切换；按压时出现折射光斑，静止时选中项为灰胶囊 + 主色图标文字。
 
 ## 1.1.0-beta.6 — 开发中
