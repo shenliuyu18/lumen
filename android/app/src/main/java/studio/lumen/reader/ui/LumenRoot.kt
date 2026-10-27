@@ -3,15 +3,21 @@ package studio.lumen.reader.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Public
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.ViewList
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -26,6 +32,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -38,8 +46,9 @@ import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import studio.lumen.reader.MainViewModel
 import studio.lumen.reader.ui.components.GlassMode
 import studio.lumen.reader.ui.components.GlassWallpaper
-import studio.lumen.reader.ui.components.AppBottomBar
-import studio.lumen.reader.ui.components.LiquidNavItem
+import studio.lumen.reader.ui.components.legado.FloatingBottomBar
+import studio.lumen.reader.ui.components.legado.FloatingBottomBarItem
+import studio.lumen.reader.ui.components.legado.FloatingNavigationContainer
 import studio.lumen.reader.ui.components.LocalFloatingNavPadding
 import studio.lumen.reader.ui.components.LocalGlassBackdrop
 import studio.lumen.reader.ui.screens.ReadingScreen
@@ -63,6 +72,8 @@ private val destinations = listOf(
 )
 
 private val mainRoutes = destinations.map { it.route }.toSet()
+
+private val navigationTabMinWidth = 76.dp
 
 @Composable
 fun LumenRoot(viewModel: MainViewModel) {
@@ -100,13 +111,50 @@ fun LumenRoot(viewModel: MainViewModel) {
                 snackbarHost = { SnackbarHost(snackbar) },
                 bottomBar = {
                     if (showNav) {
-                        AppBottomBar(
-                            items = destinations.map { LiquidNavItem(it.label, it.icon) },
-                            selectedIndex = destinations.indexOfFirst { it.route == route }.coerceAtLeast(0),
-                            onSelected = { navController.navigateMain(destinations[it].route) },
-                            glass = glassOn,
-                            backdrop = navLayer
-                        )
+                        FloatingNavigationContainer {
+                            val navigationWidth = (navigationTabMinWidth * destinations.size + 8.dp)
+                                .coerceAtMost(maxWidth)
+                            FloatingBottomBar(
+                                modifier = Modifier
+                                    .align(Alignment.BottomStart)
+                                    .offset(x = (maxWidth - navigationWidth) / 2)
+                                    .width(navigationWidth),
+                                expandedWidth = navigationWidth,
+                                selectedIndex = { destinations.indexOfFirst { it.route == route }.coerceAtLeast(0) },
+                                onSelected = { navController.navigateMain(destinations[it].route) },
+                                onReselected = { navController.navigateMain(destinations[it].route) },
+                                backdrop = contentLayer,
+                                tabsCount = destinations.size,
+                                isBlurEnabled = glassOn
+                            ) {
+                                destinations.forEachIndexed { index, destination ->
+                                    val active = destination.route == route
+                                    FloatingBottomBarItem(
+                                        onClick = { navController.navigateMain(destination.route) },
+                                        modifier = Modifier
+                                            .defaultMinSize(minWidth = navigationTabMinWidth)
+                                            .semantics(mergeDescendants = true) {
+                                                contentDescription = destination.label
+                                            }
+                                    ) {
+                                        Icon(
+                                            destination.icon,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(24.dp),
+                                            tint = if (active) MaterialTheme.colorScheme.primary
+                                            else MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        if (active) {
+                                            Text(
+                                                destination.label,
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.primary
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             ) { padding ->
