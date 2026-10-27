@@ -30,6 +30,8 @@ type Settings struct {
 	LowStorage      bool                `json:"lowStorage"`
 	DisabledPlugins []string            `json:"disabledPlugins"`
 	Glass           bool                `json:"glass"`
+	ProxyMode       string              `json:"proxyMode"`
+	ProxyURL        string              `json:"proxyUrl"`
 	Translation     TranslationSettings `json:"translation"`
 }
 
@@ -43,6 +45,7 @@ func DefaultSettings() Settings {
 		AutoRefresh:     true,
 		RecordHistory:   true,
 		Glass:           true,
+		ProxyMode:       "system",
 		Translation:     TranslationSettings{Provider: "microsoft-web", DeeplPlan: "free", UseContext: true, AIBaseURL: "https://api.openai.com/v1", AIModel: "gpt-4o-mini"},
 	}
 }

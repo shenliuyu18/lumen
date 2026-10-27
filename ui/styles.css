@@ -106,3 +106,19 @@ body[data-glass=on] .bilingual-hero h1{letter-spacing:-.4px}
 body[data-glass=on] .divider{background:var(--glass-edge)}
 
 .hide-translations .paragraph-translation{display:none}
+
+/* ── 卡片与按钮悬浮反馈（与今日精选卡片一致） ───────────────────────── */
+.source-card,.newsroom-source,.setting-panel,.side-panel,.review-card,.plugin-card,.theme-option,.source-summary,.daily-note,.newsroom-intro,.hero,.empty,.plugin-prompt,.btn,.chip{transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease,background-color .18s ease;will-change:transform}
+.source-card:hover,.newsroom-source:hover,.setting-panel:hover,.side-panel:hover,.review-card:hover,.plugin-card:hover,.theme-option:hover,.source-summary:hover,.daily-note:hover,.newsroom-intro:hover,.hero:hover,.empty:hover,.plugin-prompt:hover,.btn:not(:disabled):hover,.chip:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--accent) 45%,var(--line));box-shadow:0 12px 26px color-mix(in srgb,var(--ink) 10%,transparent)}
+body[data-glass=on] .source-card:hover,body[data-glass=on] .newsroom-source:hover,body[data-glass=on] .setting-panel:hover,body[data-glass=on] .side-panel:hover,body[data-glass=on] .review-card:hover,body[data-glass=on] .plugin-card:hover,body[data-glass=on] .theme-option:hover,body[data-glass=on] .source-summary:hover,body[data-glass=on] .daily-note:hover,body[data-glass=on] .newsroom-intro:hover,body[data-glass=on] .hero:hover,body[data-glass=on] .empty:hover,body[data-glass=on] .plugin-prompt:hover,body[data-glass=on] .btn:not(.primary):not(:disabled):hover,body[data-glass=on] .chip:hover{box-shadow:0 18px 38px color-mix(in srgb,var(--ink) 16%,transparent),inset 0 1px 0 rgba(255,255,255,.62)}
+@media(prefers-reduced-motion:reduce){.source-card,.newsroom-source,.setting-panel,.side-panel,.review-card,.plugin-card,.theme-option,.source-summary,.daily-note,.newsroom-intro,.hero,.empty,.plugin-prompt,.btn,.chip{transition:none}.source-card:hover,.newsroom-source:hover,.setting-panel:hover,.side-panel:hover,.review-card:hover,.plugin-card:hover,.theme-option:hover,.source-summary:hover,.daily-note:hover,.newsroom-intro:hover,.hero:hover,.empty:hover,.plugin-prompt:hover,.btn:not(:disabled):hover,.chip:hover{transform:none}}
+
+/* 玻璃模式下给整体留出外边距，侧栏与顶栏不再连成一块 */
+body[data-glass=on] .layout{gap:14px;padding:14px}
+body[data-glass=on] .sidebar{border:1px solid var(--glass-edge)}
+
+/* 各站前三的网络提示 */
+.network-notice{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 0 20px;padding:16px 20px;border:1px solid color-mix(in srgb,var(--warm) 70%,var(--line));border-radius:12px;background:color-mix(in srgb,var(--warm) 55%,var(--surface))}
+.network-notice strong{display:block;font-size:13px;font-weight:600;margin-bottom:4px}
+.network-notice span{font-size:11px;color:var(--muted);line-height:1.7}
+.network-notice .notice-actions{display:flex;gap:8px;flex-shrink:0}

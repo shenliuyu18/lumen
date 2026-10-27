@@ -7,6 +7,7 @@ import (
 	"io"
 	"lumen/internal/netclient"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 )
@@ -103,5 +104,22 @@ func ErrorMessage(err error) string {
 	if errors.Is(err, context.Canceled) {
 		return "更新已取消；保留上次内容"
 	}
-	return err.Error()
+	message := err.Error()
+	switch {
+	case strings.Contains(message, "no such host"),
+		strings.Contains(message, "hostname resolution"),
+		strings.Contains(message, "server misbehaving"):
+		return "域名解析失败，请检查网络或代理设置；保留上次内容"
+	case strings.Contains(message, "TLS handshake timeout"):
+		return "TLS 握手超时，请检查网络或代理设置；保留上次内容"
+	case strings.Contains(message, "connection refused"):
+		return "连接被拒绝，请检查代理地址与端口；保留上次内容"
+	case strings.Contains(message, "HTTP 403"):
+		return "源站拒绝访问（HTTP 403）；可稍后重试或进入原站阅读"
+	case strings.Contains(message, "HTTP 404"):
+		return "订阅地址已失效（HTTP 404）；保留上次内容"
+	case strings.Contains(message, "EOF"):
+		return "连接被中断（EOF），请检查网络或代理设置；保留上次内容"
+	}
+	return message
 }

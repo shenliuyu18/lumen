@@ -93,6 +93,9 @@ func New() (*Service, error) {
 		userData:   dir,
 	}
 	service.rebuildSources()
+	if err := netclient.Configure(loaded.Settings.ProxyMode, loaded.Settings.ProxyURL); err != nil {
+		fmt.Println("[lumen] proxy:", err)
+	}
 	if seeded {
 		if err := repo.Save(loaded); err != nil {
 			fmt.Println("[lumen] seed save:", err)
@@ -334,6 +337,25 @@ func (s *Service) Settings(values map[string]any) model.PublicState {
 		}
 		settings.DisabledPlugins = disabled
 	}
+	proxyChanged := false
+	if mode, ok := values["proxyMode"].(string); ok {
+		switch mode {
+		case "system", "direct", "manual":
+			settings.ProxyMode = mode
+			proxyChanged = true
+		}
+	}
+	if raw, ok := values["proxyUrl"].(string); ok {
+		settings.ProxyURL = strings.TrimSpace(raw)
+		proxyChanged = true
+	}
+	if proxyChanged {
+		if err := netclient.Configure(settings.ProxyMode, settings.ProxyURL); err != nil {
+			settings.ProxyMode = "system"
+			settings.ProxyURL = ""
+			_ = netclient.Configure("system", "")
+		}
+	}
 	s.rebuildSources()
 	if value, ok := values["fontSize"].(float64); ok {
 		settings.FontSize = clamp(int(value), 14, 28)
@@ -407,7 +429,7 @@ func (s *Service) Refresh(ctx context.Context) model.PublicState {
 				data, err := s.fetcher.Fetch(ctx, source.Feed, 18*time.Second)
 				if err != nil {
 					statusMu.Lock()
-					statuses[source.ID] = model.Status{OK: false, Error: err.Error(), At: fetchedAt}
+					statuses[source.ID] = model.Status{OK: false, Error: feed.ErrorMessage(err), At: fetchedAt}
 					statusMu.Unlock()
 					report(source.Name)
 					continue

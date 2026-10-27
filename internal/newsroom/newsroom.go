@@ -291,7 +291,7 @@ func fetchGroup(ctx context.Context, source model.Source, options Options) model
 
 	data, fetchErr := options.Fetch(ctx, source.URL, 11*time.Second)
 	if fetchErr != nil {
-		errorText = fetchErr.Error()
+		errorText = feed.ErrorMessage(fetchErr)
 	} else {
 		rule := DefaultRule()
 		if options.Spec != nil {
@@ -326,7 +326,7 @@ func fetchGroup(ctx context.Context, source model.Source, options Options) model
 			basis = "feed"
 			errorText = ""
 		} else if feedErr != nil && len(items) == 0 {
-			errorText = feedErr.Error()
+			errorText = feed.ErrorMessage(feedErr)
 		}
 	}
 
