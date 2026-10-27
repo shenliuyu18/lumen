@@ -30,6 +30,7 @@ type Settings struct {
 	LowStorage      bool                `json:"lowStorage"`
 	DisabledPlugins []string            `json:"disabledPlugins"`
 	Glass           bool                `json:"glass"`
+	AutoReading     bool                `json:"autoReading"`
 	ProxyMode       string              `json:"proxyMode"`
 	ProxyURL        string              `json:"proxyUrl"`
 	CornerRadius    int                 `json:"cornerRadius"`

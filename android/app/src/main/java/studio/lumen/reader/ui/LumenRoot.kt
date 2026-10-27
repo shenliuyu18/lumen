@@ -185,7 +185,7 @@ fun LumenRoot(viewModel: MainViewModel) {
                                     viewModel = viewModel,
                                     onOpenArticle = { article ->
                                         viewModel.openArticle(article)
-                                        navController.navigate("reader")
+                                        navController.navigate(if (store.settings.autoReading) "reader" else "site")
                                     },
                                     onOpenPlugins = { navController.navigate("plugins") }
                                 )
@@ -195,7 +195,7 @@ fun LumenRoot(viewModel: MainViewModel) {
                                     viewModel = viewModel,
                                     onOpenArticle = { article ->
                                         viewModel.openArticle(article)
-                                        navController.navigate("reader")
+                                        navController.navigate(if (store.settings.autoReading) "reader" else "site")
                                     },
                                     onOpenPlugins = { navController.navigate("plugins") }
                                 )
@@ -205,7 +205,7 @@ fun LumenRoot(viewModel: MainViewModel) {
                                     viewModel = viewModel,
                                     onOpenSource = { article ->
                                         viewModel.openArticle(article)
-                                        navController.navigate("reader")
+                                        navController.navigate(if (store.settings.autoReading) "reader" else "site")
                                     },
                                     onOpenPlugins = { navController.navigate("plugins") }
                                 )
@@ -215,7 +215,7 @@ fun LumenRoot(viewModel: MainViewModel) {
                                     viewModel = viewModel,
                                     onOpenArticle = { article ->
                                         viewModel.openArticle(article)
-                                        navController.navigate("reader")
+                                        navController.navigate(if (store.settings.autoReading) "reader" else "site")
                                     }
                                 )
                             }
@@ -239,7 +239,8 @@ fun LumenRoot(viewModel: MainViewModel) {
                             composable("site") {
                                 ReaderScreen(
                                     viewModel = viewModel,
-                                    onBack = { navController.popBackStack() }
+                                    onBack = { navController.popBackStack() },
+                                    onOpenReading = { navController.navigate("reader") }
                                 )
                             }
                         }

@@ -31,6 +31,7 @@ data class Settings(
     val interests: List<String> = emptyList(),
     val disabledSources: List<String> = emptyList(),
     val fontSize: Int = 18,
+    val autoReading: Boolean = false,
     val autoRefresh: Boolean = false,
     val recordHistory: Boolean = true,
     val lowStorage: Boolean = false,

@@ -368,6 +368,9 @@ onClick = { viewModel.updateSettings(settings.copy(translation = settings.transl
             }
             item {
                 SettingSection("阅读与存储") {
+                    SettingSwitch("自动进入阅读模式", settings.autoReading, "关闭时点文章先打开原站页面，可在原站页点「阅读模式」抽取正文") {
+                        viewModel.updateSettings(settings.copy(autoReading = it))
+                    }
                     SettingSwitch("记录阅读足迹与时长", settings.recordHistory, null) {
                         viewModel.updateSettings(settings.copy(recordHistory = it))
                     }

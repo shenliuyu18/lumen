@@ -29,6 +29,7 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Bookmark
 import androidx.compose.material.icons.outlined.BookmarkBorder
+import androidx.compose.material.icons.outlined.MenuBook
 import androidx.compose.material.icons.outlined.OpenInBrowser
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.BottomAppBar
@@ -99,7 +100,8 @@ private class SelectionBridge(private val handler: Handler, private val onSelect
 @Composable
 fun ReaderScreen(
     viewModel: MainViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onOpenReading: () -> Unit
 ) {
     val article by viewModel.currentArticle.collectAsState()
     val selection by viewModel.selected.collectAsState()
@@ -143,6 +145,9 @@ fun ReaderScreen(
                     GlassIconButton(Icons.AutoMirrored.Outlined.ArrowBack, "返回", { leave() })
                 },
                 actions = {
+                    IconButton(onClick = onOpenReading) {
+                        Icon(Icons.Outlined.MenuBook, contentDescription = "阅读模式")
+                    }
                     IconButton(onClick = { webView?.reload() }) {
                         Icon(Icons.Outlined.Refresh, contentDescription = "刷新原站")
                     }
@@ -158,6 +163,7 @@ fun ReaderScreen(
                 backdrop = readerBackdrop,
                 saved = saved,
                 onSave = { viewModel.toggleSaved(current) },
+                onReading = onOpenReading,
                 onReload = { webView?.reload() },
                 onOpen = { openExternal(context, current.url) }
             )
@@ -346,6 +352,7 @@ private fun ReaderGlassPanel(
     backdrop: LayerBackdrop,
     saved: Boolean,
     onSave: () -> Unit,
+    onReading: () -> Unit,
     onReload: () -> Unit,
     onOpen: () -> Unit
 ) {
@@ -372,6 +379,7 @@ private fun ReaderGlassPanel(
             onClick = onSave,
             showLabel = true
         )
+        GlassIconButton(Icons.Outlined.MenuBook, "阅读模式", onReading, showLabel = true)
         GlassIconButton(Icons.Outlined.Refresh, "刷新", onReload, showLabel = true)
         GlassIconButton(Icons.Outlined.OpenInBrowser, "外部打开", onOpen, showLabel = true)
     }

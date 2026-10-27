@@ -8,7 +8,7 @@ Kotlin + Jetpack Compose Material 3 的 Lumen Android 版。
 - 各站前三、媒体与机构目录、来源开关（由导入的爬虫插件提供）
 - 原站 WebView 阅读、划词、词典/翻译、收藏、阅读足迹
 - 插件中心：应用不内置插件；与桌面共用官方 ZIP，支持 ZIP/声明式 JS 导入、启停与移除
-- 点击文章直接进入阅读模式：后台加载原站、Readability 抽取正文、逐段翻译（微软官方网页 / Microsoft API / DeepL / MyMemory），原站排版按需打开
+- 阅读模式：后台加载原站、Readability 抽取正文、逐段翻译（微软官方网页 / Microsoft API / DeepL / MyMemory）。默认点文章先看原站，点顶栏书本图标或底部「阅读模式」才抽取正文；设置 → 阅读与存储 → 自动进入阅读模式 可改为直接进入
 - 针对重点来源优化的去广告插件，在原文与精读中清理广告
 - 词句本、间隔复习、收藏、足迹
 - 桌面版学习备份导入、JSON/CSV 导出
