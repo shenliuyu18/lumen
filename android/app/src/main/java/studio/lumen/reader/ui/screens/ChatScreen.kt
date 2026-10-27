@@ -114,7 +114,14 @@ fun ChatScreen(viewModel: MainViewModel, service: String, onBack: () -> Unit) {
                         "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Mobile Safari/537.36"
                     CookieManager.getInstance().setAcceptCookie(true)
                     CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
+                    isFocusableInTouchMode = true
+                    requestFocus()
                     webViewClient = object : WebViewClient() {
+                        override fun onPageFinished(view: WebView?, finishedUrl: String?) {
+                            super.onPageFinished(view, finishedUrl)
+                            view?.evaluateJavascript(CARET_GUARD_SCRIPT, null)
+                        }
+
                         override fun onReceivedError(
                             view: WebView?,
                             request: android.webkit.WebResourceRequest?,
@@ -130,7 +137,31 @@ fun ChatScreen(viewModel: MainViewModel, service: String, onBack: () -> Unit) {
                     webView = this
                 }
             },
-            update = { if (it.url != url) it.loadUrl(url) }
+            update = { if (it.url.isNullOrEmpty()) it.loadUrl(url) }
         )
     }
 }
+
+/**
+ * 真机上部分输入法在站点受控输入框里输入时，光标会被留在开头，导致数字倒序
+ * （1 → 61 → 8761）。这里只在「新内容被插到最前面且光标停在 0」时把光标移回末尾，
+ * 组词中和正常输入都不受影响。
+ */
+private val CARET_GUARD_SCRIPT = """
+(function () {
+  if (window.__lumenCaretGuard) return;
+  window.__lumenCaretGuard = true;
+  document.addEventListener('input', function (event) {
+    var el = event.target;
+    if (!el || (el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA')) return;
+    if (event.isComposing) return;
+    if (document.activeElement !== el) return;
+    var value = el.value || '';
+    var data = event.data;
+    if (!data || !value) return;
+    if (el.selectionStart !== 0 || el.selectionEnd !== 0) return;
+    if (value.indexOf(data) !== 0) return;
+    try { el.setSelectionRange(value.length, value.length); } catch (err) {}
+  }, true);
+})();
+""".trimIndent()
