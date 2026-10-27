@@ -29,3 +29,7 @@ android/window.xml
 
 # 内部设计草稿
 docs/superpowers/
+
+# 临时 UI 层级转储
+ui-dump.xml
+android/ui-dump.xml
