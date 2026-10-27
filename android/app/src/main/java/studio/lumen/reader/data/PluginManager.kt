@@ -60,6 +60,17 @@ class PluginManager(private val context: Context, dataDir: File) {
         return all().firstOrNull { it.type == "crawler" && enabled(it, disabled) }?.newsroom
     }
 
+    /** 已启用去广告插件的域名屏蔽表，供 WebView 请求拦截使用。 */
+    fun blockHosts(disabledPlugins: List<String>): Set<String> {
+        val disabled = disabledPlugins.toSet()
+        return all()
+            .filter { it.type == "adblock" && enabled(it, disabled) && it.rules != null }
+            .flatMap { plugin -> plugin.rules!!.global.blockHosts }
+            .map { it.trim().lowercase().removePrefix("www.") }
+            .filter { it.isNotEmpty() }
+            .toSet()
+    }
+
     fun adScript(disabledPlugins: List<String>): String {
         val disabled = disabledPlugins.toSet()
         var found = false

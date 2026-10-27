@@ -58,6 +58,9 @@ class LumenRepository(private val context: Context) {
     val storeFlow: kotlinx.coroutines.flow.StateFlow<Store> get() = _store
 
     fun catalogScripts(): Pair<String, String> = catalog.readabilityScript() to catalog.extractionScript()
+    fun blockHosts(): Set<String> =
+        pluginManager.blockHosts(current.settings.disabledPlugins)
+
     fun adblockScript(): String = pluginManager.adScript(current.settings.disabledPlugins)
     fun pluginDirectory(): File = pluginManager.directory
 

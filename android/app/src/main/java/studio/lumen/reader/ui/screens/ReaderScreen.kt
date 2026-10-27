@@ -195,7 +195,30 @@ fun ReaderScreen(
                     CookieManager.getInstance().setAcceptCookie(true)
                     CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
                     addJavascriptInterface(SelectionBridge(mainHandler) { viewModel.setSelection(it) }, "LumenAndroid")
+                    val blocked = viewModel.blockedHosts()
                     webViewClient = object : WebViewClient() {
+                        override fun shouldInterceptRequest(
+                            view: WebView?,
+                            request: android.webkit.WebResourceRequest?
+                        ): android.webkit.WebResourceResponse? {
+                            // 主文档永远放行：屏蔽表来自广告列表，不能把文章本身挡掉。
+                            if (request == null || request.isForMainFrame) return null
+                            val host = request.url.host?.lowercase()?.removePrefix("www.") ?: return null
+                            if (blocked.isEmpty()) return null
+                            var current = host
+                            while (true) {
+                                if (current in blocked) {
+                                    return android.webkit.WebResourceResponse(
+                                        "text/plain", "utf-8",
+                                        java.io.ByteArrayInputStream(ByteArray(0))
+                                    )
+                                }
+                                val dot = current.indexOf('.')
+                                if (dot < 0) return null
+                                current = current.substring(dot + 1)
+                            }
+                        }
+
                         override fun onPageFinished(view: WebView?, url: String?) {
                             super.onPageFinished(view, url)
                             view?.evaluateJavascript(SELECTION_SCRIPT, null)

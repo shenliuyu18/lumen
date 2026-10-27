@@ -23,6 +23,7 @@ var pluginIDPattern = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$`)
 type AdRuleSet struct {
 	Selectors    []string `json:"selectors"`
 	TextPatterns []string `json:"textPatterns"`
+	BlockHosts   []string `json:"blockHosts"`
 }
 
 type AdRules struct {
@@ -156,6 +157,7 @@ func (m *Manager) AdScript(disabled []string) string {
 		found = true
 		merged.Global.Selectors = append(merged.Global.Selectors, plugin.Rules.Global.Selectors...)
 		merged.Global.TextPatterns = append(merged.Global.TextPatterns, plugin.Rules.Global.TextPatterns...)
+		merged.Global.BlockHosts = append(merged.Global.BlockHosts, plugin.Rules.Global.BlockHosts...)
 		for domain, rules := range plugin.Rules.Domains {
 			current := merged.Domains[domain]
 			current.Selectors = append(current.Selectors, rules.Selectors...)
@@ -175,6 +177,24 @@ func (m *Manager) AdScript(disabled []string) string {
 	}
 	payload, _ := json.Marshal(merged)
 	return "window.__LUMEN_AD_RULES__ = " + string(payload) + ";\n" + m.engine
+}
+
+// BlockHosts 汇总已启用去广告插件的域名级屏蔽表，供 WebView 请求拦截使用。
+func (m *Manager) BlockHosts(disabled []string) map[string]bool {
+	disabledSet := disabledSet(disabled)
+	hosts := map[string]bool{}
+	for _, plugin := range m.all() {
+		if plugin.Type != "adblock" || disabledSet[plugin.ID] || plugin.Rules == nil {
+			continue
+		}
+		for _, host := range plugin.Rules.Global.BlockHosts {
+			host = strings.TrimPrefix(strings.ToLower(strings.TrimSpace(host)), "www.")
+			if host != "" {
+				hosts[host] = true
+			}
+		}
+	}
+	return hosts
 }
 
 // Install accepts a ZIP package or a declarative JS module. JS files are parsed,

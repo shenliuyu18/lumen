@@ -4,6 +4,16 @@
 
 上游 Electron 版（`sadinoel0106/Lumen`）的最后版本号为 1.0.6；本仓库的 Wails + Android 重写从 1.0.0 起算，两条版本号线索互相独立。
 
+## 1.1.0-beta.4 — 开发中
+
+### 新增
+
+- **去广告请求拦截（双端）**：`lumen-adblock` 1.5.0 从 adblock_auto 提取 `||域名…` 网络规则（约 18.5 万个域名），桌面 WebView2 用 `WebResourceRequested` 直接回 403，安卓用 `shouldInterceptRequest` 拦截，广告资源不再发出请求。
+
+### 变更
+
+- 插件体积涨到 1.5 MB（域名表）；主文档请求永远放行，只拦截子资源。
+
 ## 1.1.0-beta.3 — 开发中
 
 ### 新增

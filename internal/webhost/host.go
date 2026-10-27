@@ -29,6 +29,7 @@ type command struct {
 
 type Options struct {
 	DataPath        string
+	BlockFunc       func(url string) bool
 	ExtractScript   string
 	OnMessage       func(string)
 	EnableSelection bool
@@ -47,6 +48,7 @@ type Host struct {
 	main      uintptr
 	child     uintptr
 	chrome    *edge.Chromium
+	blockFunc func(string) bool
 	cmds      chan command
 	onMessage func(string)
 	ready     chan error
@@ -72,6 +74,7 @@ func New(options Options) *Host {
 		ready:     make(chan error, 1),
 		resultCh:  make(chan string, 1),
 		extractJS: options.ExtractScript,
+		blockFunc: options.BlockFunc,
 		dataPath:  options.DataPath,
 		selection: options.EnableSelection,
 		topLevel:  options.TopLevel,
@@ -167,9 +170,26 @@ func (h *Host) run() {
 		dataPath = filepath.Join(os.Getenv("APPDATA"), "Lumen", "webview2", "reader")
 	}
 	chromium.DataPath = dataPath
+	if h.blockFunc != nil {
+		// 域名级广告屏蔽：命中规则的请求直接回 403 空响应，页面根本拿不到广告资源。
+		block := h.blockFunc
+		chromium.WebResourceRequestedCallback = func(request *edge.ICoreWebView2WebResourceRequest, args *edge.ICoreWebView2WebResourceRequestedEventArgs) {
+			target, err := request.GetUri()
+			if err != nil || !block(target) {
+				return
+			}
+			response, err := chromium.Environment().CreateWebResourceResponse([]byte{}, 403, "Blocked", "Content-Type: text/plain")
+			if err != nil {
+				return
+			}
+			defer response.Release()
+			_ = args.PutResponse(response)
+		}
+	}
 	chromium.SetErrorCallback(func(err error) {
 		fmt.Println("[webhost] error:", err)
 	})
+	chromium.AddWebResourceRequestedFilter("*", edge.COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL)
 	chromium.MessageCallback = func(message string, _ *edge.ICoreWebView2, _ *edge.ICoreWebView2WebMessageReceivedEventArgs) {
 		if strings.Contains(message, `"type":"extract-result"`) {
 			select {

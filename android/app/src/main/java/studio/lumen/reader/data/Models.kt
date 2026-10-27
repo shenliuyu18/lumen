@@ -265,7 +265,8 @@ data class NewsroomSpec(
 @Serializable
 data class AdRuleSet(
     val selectors: List<String> = emptyList(),
-    val textPatterns: List<String> = emptyList()
+    val textPatterns: List<String> = emptyList(),
+    val blockHosts: List<String> = emptyList()
 )
 
 @Serializable

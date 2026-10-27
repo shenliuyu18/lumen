@@ -118,7 +118,13 @@ func main() {
 	domainRules := map[string]map[string]bool{}
 	for _, line := range strings.Split(string(raw), "\n") {
 		line = strings.TrimSpace(line)
-		if line == "" || strings.HasPrefix(line, "!") || !strings.Contains(line, "##") {
+		if line == "" || strings.HasPrefix(line, "!") {
+			continue
+		}
+		if !strings.Contains(line, "##") {
+			if host := blockedHost(line); host != "" {
+				blockHosts[host] = true
+			}
 			continue
 		}
 		parts := strings.SplitN(line, "##", 2)
@@ -219,7 +225,7 @@ func main() {
 		}
 	}
 	sort.Strings(addedHosts)
-	plugin.Rules.Global.BlockHosts = append(plugin.Rules.Global.BlockHosts, addedHosts...)
+	plugin.Rules.Global.BlockHosts = addedHosts
 
 	plugin.Version = bumpMinor(plugin.Version)
 	plugin.Description = "针对 Lumen 官方来源优化的广告识别与清理规则；通用选择器合并自 adblock_auto（lingeringsound/adblock_auto，GPL-3.0）的外观过滤子集。"
@@ -245,4 +251,21 @@ func bumpMinor(version string) string {
 	minor := 0
 	fmt.Sscanf(parts[1], "%d", &minor)
 	return fmt.Sprintf("%s.%d.0", parts[0], minor+1)
+}
+
+// blockedHost 从网络规则里取整域屏蔽：||example.com^ 这类。
+func blockedHost(line string) string {
+	if !strings.HasPrefix(line, "||") {
+		return ""
+	}
+	rest := line[2:]
+	end := strings.IndexAny(rest, "^/$|")
+	if end <= 0 {
+		return ""
+	}
+	host := strings.ToLower(rest[:end])
+	if strings.ContainsAny(host, "*=|") || !strings.Contains(host, ".") || len(host) > 120 {
+		return ""
+	}
+	return host
 }

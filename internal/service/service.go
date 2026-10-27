@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -34,6 +35,7 @@ type Service struct {
 	store      model.Store
 	sources    []model.Source
 	sourceByID map[string]model.Source
+	blockHosts map[string]bool
 	categories map[string]bool
 	fetcher    *feed.Fetcher
 	secrets    *secrets.Manager
@@ -82,6 +84,7 @@ func New() (*Service, error) {
 		store:      loaded,
 		sources:    sources,
 		sourceByID: map[string]model.Source{},
+		blockHosts: map[string]bool{},
 		categories: map[string]bool{},
 		fetcher:    feed.NewFetcher(),
 		secrets:    secrets.New(filepath.Join(dir, "translation-keys.bin")),
@@ -112,6 +115,7 @@ func (s *Service) Sources() []model.Source {
 }
 
 func (s *Service) rebuildSources() {
+	s.blockHosts = s.plugins.BlockHosts(s.store.Settings.DisabledPlugins)
 	sources := s.plugins.Sources(s.store.Settings.DisabledPlugins)
 	s.sourceByID = map[string]model.Source{}
 	s.categories = map[string]bool{}
@@ -178,6 +182,31 @@ func (s *Service) ReloadPlugins() model.PublicState {
 
 func (s *Service) PluginDir() string {
 	return s.plugins.Dir()
+}
+
+// BlockURL 判断请求是否命中插件的域名屏蔽表；命中后 WebView 直接拿到空响应。
+func (s *Service) BlockURL(raw string) bool {
+	parsed, err := url.Parse(raw)
+	if err != nil {
+		return false
+	}
+	host := strings.ToLower(parsed.Hostname())
+	if host == "" {
+		return false
+	}
+	s.mu.Lock()
+	hosts := s.blockHosts
+	s.mu.Unlock()
+	for {
+		if hosts[host] {
+			return true
+		}
+		dot := strings.IndexByte(host, '.')
+		if dot < 0 {
+			return false
+		}
+		host = host[dot+1:]
+	}
 }
 
 func (s *Service) AdScript() string {

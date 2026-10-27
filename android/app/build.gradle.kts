@@ -20,8 +20,8 @@ android {
         applicationId = "studio.lumen.reader"
         minSdk = 26
         targetSdk = 36
-        versionCode = 4
-        versionName = "1.1.0-beta.3"
+        versionCode = 5
+        versionName = "1.1.0-beta.4"
     }
 
     signingConfigs {

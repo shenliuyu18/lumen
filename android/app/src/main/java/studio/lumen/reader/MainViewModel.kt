@@ -133,6 +133,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun adblockScript(): String = repository.adblockScript()
 
+    fun blockedHosts(): Set<String> = repository.blockHosts()
+
     fun pluginDirectory(): java.io.File = repository.pluginDirectory()
 
     fun finishReading() {

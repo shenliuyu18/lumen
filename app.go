@@ -88,6 +88,9 @@ func (a *App) domReady(ctx context.Context) {
 		ExtractScript:   script,
 		OnMessage:       a.handleReaderMessage,
 		EnableSelection: true,
+		BlockFunc: func(raw string) bool {
+			return a.svc != nil && a.svc.BlockURL(raw)
+		},
 	})
 	if err := a.host.Start(15 * time.Second); err != nil {
 		fmt.Println("[lumen] webhost:", err)
