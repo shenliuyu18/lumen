@@ -108,6 +108,10 @@ fun ChatScreen(viewModel: MainViewModel, service: String, onBack: () -> Unit) {
                     settings.domStorageEnabled = true
                     settings.databaseEnabled = true
                     settings.setSupportMultipleWindows(false)
+                    // 站点对 WebView UA（含 "; wv"）会走兼容分支，登录页白屏且输入框字符乱序；
+                    // 换成标准移动版 Chrome UA，行为与浏览器一致。
+                    settings.userAgentString =
+                        "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Mobile Safari/537.36"
                     CookieManager.getInstance().setAcceptCookie(true)
                     CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
                     webViewClient = object : WebViewClient() {

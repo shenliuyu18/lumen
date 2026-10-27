@@ -12,6 +12,8 @@
 - **安卓底栏**：整套换成阅读 app 的悬浮玻璃底栏——`FloatingBottomBar`、`DampedDragAnimation`、`GlassDefaults`、`InteractiveHighlight`、`FloatingNavigationContainer` 全部按上游文件搬运，仅保留一个主题适配层；调用处补上等宽标签与 `expandedWidth`，选中项在胶囊里显示图标与文字，可按住拖动切换。
 - **桌面悬浮动效**：所有卡片与按钮沿用今日精选卡片的鼠标悬浮反馈（上浮 2px、边框提亮、阴影加深），并适配玻璃模式与减少动效偏好。
 - **桌面布局间距**：玻璃模式下给整体加外边距与列间距，侧栏和顶栏不再连成一块。
+- **桌面设置排版**：设置页左右卡片改为各自按内容高度收拢，不再互相撑高留下大片空白。
+- **桌面右侧间距**：玻璃模式下主区域右侧留出 12px，顶栏卡片不再贴住滚动条。
 - **桌面网络设置**：设置新增「网络与代理」（跟随系统 / 直连 / 手动），手动模式可填写 `127.0.0.1:7890` 这类地址，抓取、词典和翻译都走同一条线路；各站前三新增失败来源汇总条，直接给出重试与代理设置入口。
 
 ### 修复
@@ -19,6 +21,7 @@
 - **桌面白屏**：Wails 的 `OnStartup` 在 goroutine 里执行，前端可能在资料库加载完成前请求 `State`，拿到 `{error}` 后 `setState` 抛异常导致整页空白。`State`/`Settings` 现在等待启动完成，前端改为重试并在超时后显示可重试的错误页。
 - **安卓状态栏图标**：`enableEdgeToEdge()` 只看系统深色，应用内单独切浅色主题时阅读页仍是白图标。改为在 `MainActivity` 里按应用主题设置 `isAppearanceLightStatusBars` / `isAppearanceLightNavigationBars`。
 - **桌面来源错误**：超时、域名解析失败、连接中断（EOF）、403/404 都换成中文说明，不再把原始 Go 错误直接铺在卡片上。
+- **安卓 DeepSeek 网页**：聊天 WebView 的 UA 含 `; wv` 被站点判为 WebView，登录页整屏黑色不加载；改用标准移动版 Chrome UA 后页面正常渲染。
 - **桌面代理白屏复发**：代理软件会重写 `ProxyOverride`，把 `wails.localhost` 挤掉后开代理又会白屏。启动时若检测到系统代理开启且列表里没有该主机，就自动补上并刷新 WinINET。
 
 ### 验证
