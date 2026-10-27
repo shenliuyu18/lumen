@@ -20,11 +20,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
@@ -40,9 +40,12 @@ fun LiquidSlider(
     onValueChangeFinished: (() -> Unit)? = null
 ) {
     val scheme = MaterialTheme.colorScheme
-    val density = LocalDensity.current
     val span = (valueRange.endInclusive - valueRange.start).takeIf { it > 0f } ?: 1f
     val fraction = ((value - valueRange.start) / span).coerceIn(0f, 1f)
+    // pointerInput 的协程只在 key 变化时重启，直接闭包会永远用第一次组合的回调，
+    // 于是「应用字号」之后滑条写进的是已经废弃的 state，看起来像拖不动。
+    val latestChange by rememberUpdatedState(onValueChange)
+    val latestFinished by rememberUpdatedState(onValueChangeFinished)
 
     BoxWithConstraints(
         modifier
@@ -53,18 +56,17 @@ fun LiquidSlider(
         val thumbSize = 18.dp
         val travel = (maxWidth - thumbSize).coerceAtLeast(0.dp)
         val thumbOffset by animateDpAsState(travel * fraction, label = "thumb")
-        val trackWidthPx = with(density) { maxWidth.toPx() }
 
-        fun commit(x: Float) {
-            if (!enabled) return
-            val ratio = (x / trackWidthPx).coerceIn(0f, 1f)
+        fun commit(x: Float, widthPx: Float) {
+            if (!enabled || widthPx <= 0f) return
+            val ratio = (x / widthPx).coerceIn(0f, 1f)
             var next = valueRange.start + ratio * span
             if (steps > 0) {
                 val unit = span / (steps + 1)
                 next = valueRange.start + ((next - valueRange.start) / unit).roundToInt() * unit
             }
-            onValueChange(next.coerceIn(valueRange.start, valueRange.endInclusive))
-            onValueChangeFinished?.invoke()
+            latestChange(next.coerceIn(valueRange.start, valueRange.endInclusive))
+            latestFinished?.invoke()
         }
 
         Box(
@@ -102,12 +104,12 @@ fun LiquidSlider(
             Modifier
                 .matchParentSize()
                 .pointerInput(valueRange, steps, enabled) {
-                    detectTapGestures { offset -> commit(offset.x) }
+                    detectTapGestures { offset -> commit(offset.x, size.width.toFloat()) }
                 }
                 .pointerInput(valueRange, steps, enabled) {
                     detectHorizontalDragGestures(
-                        onDragStart = { offset -> commit(offset.x) },
-                        onHorizontalDrag = { change, _ -> commit(change.position.x) }
+                        onDragStart = { offset -> commit(offset.x, size.width.toFloat()) },
+                        onHorizontalDrag = { change, _ -> commit(change.position.x, size.width.toFloat()) }
                     )
                 }
         )

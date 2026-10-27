@@ -218,7 +218,7 @@ type Options struct {
 func Update(ctx context.Context, options Options) model.Newsroom {
 	concurrency := options.Concurrency
 	if concurrency <= 0 {
-		concurrency = 6
+		concurrency = 12
 	}
 	started := time.Now().UnixMilli()
 	queue := make(chan model.Source)

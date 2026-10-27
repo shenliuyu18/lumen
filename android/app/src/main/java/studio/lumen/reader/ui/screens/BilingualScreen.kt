@@ -29,7 +29,6 @@ import androidx.compose.material.icons.outlined.ArrowOutward
 import androidx.compose.material.icons.outlined.BookmarkAdded
 import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.material.icons.outlined.ErrorOutline
-import androidx.compose.material.icons.outlined.QuestionAnswer
 import androidx.compose.material.icons.outlined.Translate
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.AlertDialog
@@ -83,7 +82,6 @@ import studio.lumen.reader.ui.components.GlassIconButton
 fun ReadingScreen(
     viewModel: MainViewModel,
     onBack: () -> Unit,
-    onAsk: (String) -> Unit,
     onOpenSite: () -> Unit
 ) {
     val context = LocalContext.current
@@ -164,7 +162,6 @@ fun ReadingScreen(
                         onClick = { current?.let(viewModel::toggleSaved) },
                         enabled = current != null
                     )
-                    GlassIconButton(Icons.Outlined.QuestionAnswer, "提问", { onAsk("deepseek") })
                     GlassIconButton(Icons.Outlined.Refresh, "刷新", { attempt++ }, enabled = url.isNotBlank())
                     GlassIconButton(
                         icon = Icons.AutoMirrored.Outlined.OpenInNew,
@@ -231,15 +228,11 @@ fun ReadingScreen(
                         saveParagraph = paragraph
                         meaning = ""
                     },
-                    onAsk = { onAsk("deepseek") },
                     onRetry = { viewModel.retryParagraph(index) }
                 )
             }
             item {
-                FooterCard(
-                    onBack = onBack,
-                    onAsk = { onAsk("deepseek") }
-                )
+                FooterCard(onBack = onBack)
             }
         }
     }
@@ -366,7 +359,7 @@ private fun MetaChip(text: String, color: Color) {
 }
 
 @Composable
-private fun FooterCard(onBack: () -> Unit, onAsk: () -> Unit) {
+private fun FooterCard(onBack: () -> Unit) {
     Spacer(Modifier.height(28.dp))
     GlassCard(contentPadding = 20.dp) {
             Text(
@@ -377,18 +370,13 @@ private fun FooterCard(onBack: () -> Unit, onAsk: () -> Unit) {
             )
             Spacer(Modifier.height(6.dp))
             Text(
-                "原文与译文都已保留。可以回到原站继续浏览，或带着不理解的段落向 DeepSeek 提问。",
+                "原文与译文都已保留。可以回到原站继续浏览，也可以把不理解的段落收进词句本，稍后复习。",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(Modifier.height(14.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = onBack) { Text("回到原文") }
-                Button(onClick = onAsk) {
-                    Icon(Icons.Outlined.QuestionAnswer, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text("继续提问")
-                }
             }
     }
 }
@@ -400,7 +388,6 @@ private fun ParagraphBlock(
     fontSize: Int,
     showTranslation: Boolean,
     onSave: () -> Unit,
-    onAsk: () -> Unit,
     onRetry: () -> Unit
 ) {
     val isHeading = paragraph.tag.startsWith("h")
@@ -426,7 +413,7 @@ private fun ParagraphBlock(
                 Spacer(Modifier.width(12.dp))
                 Text("SECTION ${(index + 1).toString().padStart(2, '0')}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                 Spacer(Modifier.weight(1f))
-                ParagraphActions(onSave = onSave, onAsk = onAsk)
+                ParagraphActions(onSave = onSave)
             }
             Spacer(Modifier.height(8.dp))
         } else {
@@ -454,7 +441,7 @@ private fun ParagraphBlock(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                ParagraphActions(onSave = onSave, onAsk = onAsk)
+                ParagraphActions(onSave = onSave)
             }
         }
         Spacer(Modifier.height(8.dp))
@@ -463,20 +450,12 @@ private fun ParagraphBlock(
 }
 
 @Composable
-private fun ParagraphActions(onSave: () -> Unit, onAsk: () -> Unit) {
+private fun ParagraphActions(onSave: () -> Unit) {
     Row {
         IconButton(onClick = onSave, modifier = Modifier.size(34.dp)) {
             Icon(
                 Icons.Outlined.BookmarkAdd,
                 contentDescription = "保存这段话",
-                modifier = Modifier.size(18.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        IconButton(onClick = onAsk, modifier = Modifier.size(34.dp)) {
-            Icon(
-                Icons.Outlined.QuestionAnswer,
-                contentDescription = "结合这段向 DeepSeek 提问",
                 modifier = Modifier.size(18.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )

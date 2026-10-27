@@ -145,7 +145,7 @@ onClick = { viewModel.updateSettings(settings.copy(themeMode = value)) }
                         }
                     }
                     Spacer(Modifier.height(10.dp))
-                    Text("配色（来自阅读 app）", style = MaterialTheme.typography.labelLarge)
+                    Text("配色", style = MaterialTheme.typography.labelLarge)
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                         verticalArrangement = Arrangement.spacedBy(6.dp)
@@ -172,6 +172,20 @@ onClick = { viewModel.updateSettings(settings.copy(themeMode = value)) }
                     )
                     Spacer(Modifier.height(6.dp))
                     GlassButton(label = "应用字号", onClick = { viewModel.updateSettings(settings.copy(fontSize = fontSize)) })
+                    Spacer(Modifier.height(10.dp))
+                    var corner by remember(settings.cornerRadius) { mutableStateOf(settings.cornerRadius) }
+                    Text("界面圆角：$corner dp", style = MaterialTheme.typography.labelLarge)
+                    LiquidSlider(
+                        value = corner.toFloat(),
+                        onValueChange = { corner = it.toInt() },
+                        valueRange = 0f..28f,
+                        onValueChangeFinished = { viewModel.updateSettings(settings.copy(cornerRadius = corner)) }
+                    )
+                    Text(
+                        "统一卡片与按钮的圆角半径，0 为直角；与桌面端「界面圆角」是同一个设置。",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
             item {

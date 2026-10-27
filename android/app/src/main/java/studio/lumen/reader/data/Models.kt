@@ -35,6 +35,7 @@ data class Settings(
     val recordHistory: Boolean = true,
     val lowStorage: Boolean = false,
     val glassEffect: String = "liquid",
+    val cornerRadius: Int = 16,
     val dailyGoal: Int = 10,
     val disabledPlugins: List<String> = emptyList(),
     val translation: TranslationSettings = TranslationSettings()

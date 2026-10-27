@@ -30,6 +30,12 @@ private const val UserAgent =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0"
 
 class LumenRepository(private val context: Context) {
+    companion object {
+        // 同时抓取的来源数；1.1.0-beta.9 起与桌面端一起翻倍。
+        const val feedWorkers = 24
+        const val newsroomWorkers = 12
+    }
+
     val json = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true
@@ -265,7 +271,7 @@ class LumenRepository(private val context: Context) {
                 updateNewsroom(desk, base.newsroom, feedItems, ::report)
             }
             coroutineScope {
-                repeat(12) {
+                repeat(feedWorkers) {
                     launch(Dispatchers.IO) {
                         while (true) {
                             val source = queueMutex.withLock { queue.pollFirst() } ?: break
@@ -312,7 +318,7 @@ class LumenRepository(private val context: Context) {
         val queue = java.util.ArrayDeque(sources)
         val queueMutex = Mutex()
         coroutineScope {
-            repeat(6) {
+            repeat(newsroomWorkers) {
                 launch(Dispatchers.IO) {
                     while (true) {
                         val source = queueMutex.withLock { queue.pollFirst() } ?: break

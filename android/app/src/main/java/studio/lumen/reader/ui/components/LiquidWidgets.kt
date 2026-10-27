@@ -60,6 +60,9 @@ import kotlin.math.tanh
 /** 全局共享的背景层：所有玻璃表面都从这里采样页面内容。 */
 val LocalGlassBackdrop = compositionLocalOf<LayerBackdrop?> { null }
 
+/** 卡片与按钮共用的圆角半径，由 设置 → 界面圆角 决定（圆形图标按钮不受影响）。 */
+val LocalCornerRadius = compositionLocalOf { 16.dp }
+
 /** 玻璃是否可用：需要背景层，且系统支持 AGSL 折射（Android 13+）。 */
 @Composable
 fun glassAvailable(): Boolean = LocalGlassBackdrop.current != null && interactiveHighlightSupported()
@@ -131,7 +134,7 @@ fun Modifier.liquidGlass(
         .then(highlight?.gestureModifier ?: Modifier)
 }
 
-/** 大块内容容器：圆角 24dp 的玻璃卡。 */
+/** 大块内容容器：圆角跟随「界面圆角」设置的玻璃卡。 */
 @Composable
 fun GlassCard(
     modifier: Modifier = Modifier,
@@ -139,7 +142,7 @@ fun GlassCard(
     contentPadding: Dp = 18.dp,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val shape = RoundedCornerShape(24.dp)
+    val shape = RoundedCornerShape(LocalCornerRadius.current)
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -162,19 +165,19 @@ fun GlassButton(
     val scheme = MaterialTheme.colorScheme
     Row(
         modifier = modifier
-            .clip(RoundedCornerShape(percent = 50))
-            .then(if (enabled) Modifier.liquidGlass(interactive = true) else Modifier)
+            .clip(RoundedCornerShape(LocalCornerRadius.current))
+            .then(if (enabled) Modifier.liquidGlass(shape = RoundedCornerShape(LocalCornerRadius.current), interactive = true) else Modifier)
             .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier)
-            .padding(horizontal = 18.dp, vertical = 12.dp),
+            .padding(horizontal = 14.dp, vertical = 9.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (icon != null) {
-            Icon(icon, contentDescription = null, tint = scheme.onSurface, modifier = Modifier.size(18.dp))
+            Icon(icon, contentDescription = null, tint = scheme.onSurface, modifier = Modifier.size(16.dp))
             Spacer(Modifier.width(8.dp))
         }
         Text(
             label,
-            style = MaterialTheme.typography.titleSmall,
+            style = MaterialTheme.typography.labelLarge,
             color = if (enabled) scheme.onSurface else scheme.onSurfaceVariant
         )
     }
@@ -192,19 +195,20 @@ fun GlassChip(
     val scheme = MaterialTheme.colorScheme
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(percent = 50))
+            .clip(RoundedCornerShape(LocalCornerRadius.current))
             .liquidGlass(
+                shape = RoundedCornerShape(LocalCornerRadius.current),
                 blurRadius = if (selected) 8.dp else 5.dp,
-                lensRadius = if (selected) 20.dp else 14.dp,
+                lensRadius = if (selected) 16.dp else 12.dp,
                 surfaceColor = if (selected) scheme.primary.copy(alpha = 0.16f) else scheme.surface.copy(alpha = 0.4f),
                 shadow = selected
             )
             .clickable(onClick = onClick)
-            .padding(horizontal = if (dense) 12.dp else 16.dp, vertical = if (dense) 6.dp else 9.dp)
+            .padding(horizontal = if (dense) 10.dp else 13.dp, vertical = if (dense) 4.dp else 6.dp)
     ) {
         Text(
             label,
-            style = if (dense) MaterialTheme.typography.labelLarge else MaterialTheme.typography.titleSmall,
+            style = if (dense) MaterialTheme.typography.labelMedium else MaterialTheme.typography.labelLarge,
             color = if (selected) scheme.primary else scheme.onSurfaceVariant
         )
     }
@@ -223,14 +227,14 @@ fun GlassIconButton(
 ) {
     val scheme = MaterialTheme.colorScheme
     Column(
-        modifier = modifier.width(if (showLabel) 66.dp else 48.dp),
+        modifier = modifier.width(if (showLabel) 56.dp else 40.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
             modifier = Modifier
-                .size(48.dp)
+                .size(40.dp)
                 .clip(CircleShape)
-                .then(if (enabled) Modifier.liquidGlass(lensRadius = 20.dp) else Modifier)
+                .then(if (enabled) Modifier.liquidGlass(lensRadius = 16.dp) else Modifier)
                 .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier),
             contentAlignment = Alignment.Center
         ) {
@@ -238,7 +242,7 @@ fun GlassIconButton(
                 icon,
                 contentDescription = label,
                 tint = if (enabled) tint else scheme.onSurfaceVariant,
-                modifier = Modifier.size(21.dp)
+                modifier = Modifier.size(18.dp)
             )
         }
         if (showLabel) {

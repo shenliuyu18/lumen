@@ -362,6 +362,9 @@ func (s *Service) Settings(values map[string]any) model.PublicState {
 	if value, ok := values["fontSize"].(float64); ok {
 		settings.FontSize = clamp(int(value), 14, 28)
 	}
+	if value, ok := values["cornerRadius"].(float64); ok {
+		settings.CornerRadius = clamp(int(value), 0, 28)
+	}
 	if raw, ok := values["display"].(map[string]any); ok {
 		settings.Display = settings.Display.MergeDisplay(raw)
 	}
@@ -428,7 +431,7 @@ func (s *Service) Refresh(ctx context.Context) model.PublicState {
 	var statusMu sync.Mutex
 	queue := make(chan model.Source)
 	var workers sync.WaitGroup
-	for i := 0; i < 12; i++ {
+	for i := 0; i < feedWorkers; i++ {
 		workers.Add(1)
 		go func() {
 			defer workers.Done()
@@ -521,6 +524,9 @@ func (s *Service) emitEvent(event string, data any) {
 		s.emit(event, data)
 	}
 }
+
+// feedWorkers 是同时抓取的来源数；1.1.0-beta.9 起翻倍，来源清单有 120+ 个。
+const feedWorkers = 24
 
 func clamp(value, low, high int) int {
 	if value < low {

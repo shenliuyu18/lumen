@@ -151,6 +151,17 @@ func normalize(store *model.Store) {
 		store.Settings.ChatWindow = model.DefaultChatWindowSettings()
 	}
 	store.Settings.ChatWindow = store.Settings.ChatWindow.Normalized()
+	// version 1 的资料库没有 cornerRadius 字段，读出来是 0，会被误当成「直角」。
+	if store.Version < 2 {
+		store.Settings.CornerRadius = model.DefaultCornerRadius
+		store.Version = 2
+	}
+	if store.Settings.CornerRadius < 0 {
+		store.Settings.CornerRadius = 0
+	}
+	if store.Settings.CornerRadius > 28 {
+		store.Settings.CornerRadius = 28
+	}
 }
 
 func fileExists(path string) bool {

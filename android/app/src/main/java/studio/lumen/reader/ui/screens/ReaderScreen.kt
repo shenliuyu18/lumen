@@ -29,11 +29,8 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Bookmark
 import androidx.compose.material.icons.outlined.BookmarkBorder
-import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material.icons.outlined.QuestionAnswer
 import androidx.compose.material.icons.outlined.OpenInBrowser
 import androidx.compose.material.icons.outlined.Refresh
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -84,6 +81,7 @@ import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import studio.lumen.reader.ui.components.GlassIconButton
+import studio.lumen.reader.ui.components.LocalCornerRadius
 import studio.lumen.reader.ui.components.liquidGlass
 
 private class SelectionBridge(private val handler: Handler, private val onSelection: (SelectionInfo) -> Unit) {
@@ -101,8 +99,7 @@ private class SelectionBridge(private val handler: Handler, private val onSelect
 @Composable
 fun ReaderScreen(
     viewModel: MainViewModel,
-    onBack: () -> Unit,
-    onAsk: (String) -> Unit
+    onBack: () -> Unit
 ) {
     val article by viewModel.currentArticle.collectAsState()
     val selection by viewModel.selected.collectAsState()
@@ -110,7 +107,6 @@ fun ReaderScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val mainHandler = remember { Handler(Looper.getMainLooper()) }
-    var askDialog by remember { mutableStateOf(false) }
 
     val current = article
     if (current == null) {
@@ -153,9 +149,6 @@ fun ReaderScreen(
                     IconButton(onClick = { openExternal(context, current.url) }) {
                         Icon(Icons.Outlined.OpenInBrowser, contentDescription = "系统浏览器")
                     }
-                    IconButton(onClick = { askDialog = true }) {
-                        Icon(Icons.Outlined.MoreVert, contentDescription = "更多")
-                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
@@ -165,7 +158,6 @@ fun ReaderScreen(
                 backdrop = readerBackdrop,
                 saved = saved,
                 onSave = { viewModel.toggleSaved(current) },
-                onAsk = { askDialog = true },
                 onReload = { webView?.reload() },
                 onOpen = { openExternal(context, current.url) }
             )
@@ -271,22 +263,6 @@ fun ReaderScreen(
         }
     }
 
-    if (askDialog) {
-        AlertDialog(
-            onDismissRequest = { askDialog = false },
-            title = { Text("向 AI 提问") },
-            text = { Text("选择要打开的网页版助手。当前选文会保留，可在提问页复制上下文。") },
-            confirmButton = {
-                Row {
-                    TextButton(onClick = { askDialog = false; onAsk("chatgpt") }) { Text("ChatGPT") }
-                    TextButton(onClick = { askDialog = false; onAsk("deepseek") }) { Text("DeepSeek") }
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { askDialog = false }) { Text("取消") }
-            }
-        )
-    }
 }
 
 @Composable
@@ -370,7 +346,6 @@ private fun ReaderGlassPanel(
     backdrop: LayerBackdrop,
     saved: Boolean,
     onSave: () -> Unit,
-    onAsk: () -> Unit,
     onReload: () -> Unit,
     onOpen: () -> Unit
 ) {
@@ -381,7 +356,7 @@ private fun ReaderGlassPanel(
             .navigationBarsPadding()
             .padding(horizontal = 16.dp, vertical = 12.dp)
             .liquidGlass(
-                shape = RoundedCornerShape(30.dp),
+                shape = RoundedCornerShape(LocalCornerRadius.current),
                 blurRadius = 16.dp,
                 lensRadius = 22.dp,
                 surfaceColor = scheme.surface.copy(alpha = 0.55f),
@@ -397,7 +372,6 @@ private fun ReaderGlassPanel(
             onClick = onSave,
             showLabel = true
         )
-        GlassIconButton(Icons.Outlined.QuestionAnswer, "提问", onAsk, showLabel = true)
         GlassIconButton(Icons.Outlined.Refresh, "刷新", onReload, showLabel = true)
         GlassIconButton(Icons.Outlined.OpenInBrowser, "外部打开", onOpen, showLabel = true)
     }

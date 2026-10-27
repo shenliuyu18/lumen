@@ -47,7 +47,7 @@ func checkReadingContext(raw any) (readingContext, error) {
 		return empty, fmt.Errorf("选文或文章语境无效。")
 	}
 	parsed, err := url.Parse(link)
-	if err != nil || (parsed.Scheme != "http:" && parsed.Scheme != "https:") {
+	if err != nil || (parsed.Scheme != "http" && parsed.Scheme != "https") {
 		return empty, fmt.Errorf("文章来源地址无效。")
 	}
 	return readingContext{text: text, title: title, link: link, kind: kind, truncated: truncated}, nil

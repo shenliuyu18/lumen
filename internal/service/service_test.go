@@ -94,6 +94,13 @@ func TestGuanduAskFollowsTranslationProvider(t *testing.T) {
 	}); err == nil || !strings.Contains(err.Error(), "来源地址") {
 		t.Fatalf("err = %v, want the context URL rejected first", err)
 	}
+	// https 地址要通过校验，报错只剩「翻译服务不是大模型」这一条。
+	if _, err := svc.Ask("session", map[string]any{
+		"question": "解释选文",
+		"context":  map[string]any{"text": "would you have gone", "title": "A", "url": "https://www.technologyreview.com/a/1", "kind": "selection", "truncated": false},
+	}); err == nil || !strings.Contains(err.Error(), "翻译接口") {
+		t.Fatalf("err = %v, want an https source accepted by the context check", err)
+	}
 	if _, err := svc.Ask("session", map[string]any{
 		"question": "解释选文",
 		"history":  []any{map[string]any{"role": "user", "content": strings.Repeat("长", 12001)}},

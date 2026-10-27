@@ -38,7 +38,6 @@ type Grant struct {
 	Token      string
 	Provider   string
 	Paragraphs []string
-	Texts      map[string]bool
 }
 
 type Service struct {
@@ -175,13 +174,11 @@ func (s *Service) Authorize(ctx context.Context, provider string, confirm func(a
 
 	token := randomToken()
 	texts := make([]string, 0, len(article.Paragraphs))
-	set := map[string]bool{}
 	for _, paragraph := range article.Paragraphs {
 		texts = append(texts, paragraph.Text)
-		set[paragraph.Text] = true
 	}
 	s.mu.Lock()
-	s.grant = &Grant{Token: token, Provider: provider, Paragraphs: texts, Texts: set}
+	s.grant = &Grant{Token: token, Provider: provider, Paragraphs: texts}
 	s.mu.Unlock()
 	return map[string]any{"token": token, "publicVerified": publicVerified}, nil
 }
@@ -195,18 +192,16 @@ func (s *Service) Validate(payload map[string]any, provider string) error {
 	token, _ := payload["authorization"].(string)
 	text, _ := payload["text"].(string)
 	contextText, _ := payload["context"].(string)
-	if token == "" || token != s.grant.Token || provider != s.grant.Provider || !s.grant.Texts[text] {
+	if token == "" || token != s.grant.Token || provider != s.grant.Provider {
 		return fmt.Errorf("自动翻译授权已失效，请重新进入精读。")
 	}
-	index := -1
-	for i, value := range s.grant.Paragraphs {
-		if value == text {
-			index = i
-			break
-		}
+	index, ok := grantIndex(payload["index"], len(s.grant.Paragraphs))
+	if !ok {
+		return fmt.Errorf("翻译请求缺少段落序号，请重新进入精读。")
 	}
-	if index < 0 {
-		return fmt.Errorf("自动翻译授权已失效，请重新进入精读。")
+	// 按序号取段：文章里常有完全相同的短句（By、作者名），靠文字反查会命中别处。
+	if s.grant.Paragraphs[index] != text {
+		return fmt.Errorf("段落与授权文章不符，请重新进入精读。")
 	}
 	start := max(0, index-1)
 	end := min(len(s.grant.Paragraphs), index+2)
@@ -215,6 +210,18 @@ func (s *Service) Validate(payload map[string]any, provider string) error {
 		return fmt.Errorf("段落语境与授权文章不符")
 	}
 	return nil
+}
+
+func grantIndex(value any, total int) (int, bool) {
+	number, ok := value.(float64)
+	if !ok {
+		return 0, false
+	}
+	index := int(number)
+	if index < 0 || index >= total {
+		return 0, false
+	}
+	return index, true
 }
 
 func (s *Service) Restore(article *Article) {

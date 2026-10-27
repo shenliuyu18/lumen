@@ -68,7 +68,6 @@ fun ArticleCard(
     saved: Boolean,
     onClick: () -> Unit,
     onToggleSaved: () -> Unit,
-    onAsk: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     GlassCard(modifier = modifier, onClick = onClick) {
@@ -87,9 +86,6 @@ fun ArticleCard(
                 Spacer(Modifier.width(8.dp))
                 Text(article.category + " · " + relativeTime(article.publishedAt), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.weight(1f))
-                if (article.score > 0) {
-                    GlassChip(label = "推荐 ${article.score}", selected = false, onClick = onAsk)
-                }
                 GlassIconButton(
                     icon = if (saved) Icons.Outlined.Bookmark else Icons.Outlined.BookmarkBorder,
                     label = "收藏",
@@ -117,12 +113,7 @@ fun ArticleCard(
             }
             Spacer(Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                article.quality?.label?.takeIf { it.isNotBlank() }?.let {
-                    GlassChip(label = it, selected = false, onClick = onAsk)
-                }
                 Spacer(Modifier.weight(1f))
-                GlassButton(label = "提问", onClick = onAsk)
-                Spacer(Modifier.width(8.dp))
                 GlassButton(label = "阅读", onClick = onClick, icon = Icons.Outlined.ArrowForward)
             }
         }

@@ -39,7 +39,8 @@ class MainActivity : ComponentActivity() {
             LumenTheme(
                 darkTheme = dark,
                 dynamicColor = store.settings.dynamicColor,
-                schemeId = store.settings.colorScheme
+                schemeId = store.settings.colorScheme,
+                cornerRadius = store.settings.cornerRadius
             ) {
                 LumenRoot(viewModel)
             }

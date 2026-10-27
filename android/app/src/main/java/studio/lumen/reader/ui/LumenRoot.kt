@@ -35,12 +35,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import studio.lumen.reader.MainViewModel
@@ -52,7 +50,6 @@ import studio.lumen.reader.ui.components.legado.FloatingNavigationContainer
 import studio.lumen.reader.ui.components.LocalFloatingNavPadding
 import studio.lumen.reader.ui.components.LocalGlassBackdrop
 import studio.lumen.reader.ui.screens.ReadingScreen
-import studio.lumen.reader.ui.screens.ChatScreen
 import studio.lumen.reader.ui.screens.DiscoverScreen
 import studio.lumen.reader.ui.screens.NewsroomScreen
 import studio.lumen.reader.ui.screens.PluginsScreen
@@ -236,24 +233,12 @@ fun LumenRoot(viewModel: MainViewModel) {
                                         viewModel.finishReading()
                                         navController.popBackStack()
                                     },
-                                    onAsk = { service -> navController.navigate("chat/$service") },
                                     onOpenSite = { navController.navigate("site") }
                                 )
                             }
                             composable("site") {
                                 ReaderScreen(
                                     viewModel = viewModel,
-                                    onBack = { navController.popBackStack() },
-                                    onAsk = { service -> navController.navigate("chat/$service") }
-                                )
-                            }
-                            composable(
-                                "chat/{service}",
-                                arguments = listOf(navArgument("service") { type = NavType.StringType })
-                            ) { entry ->
-                                ChatScreen(
-                                    viewModel = viewModel,
-                                    service = entry.arguments?.getString("service") ?: "chatgpt",
                                     onBack = { navController.popBackStack() }
                                 )
                             }

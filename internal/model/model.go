@@ -32,10 +32,14 @@ type Settings struct {
 	Glass           bool                `json:"glass"`
 	ProxyMode       string              `json:"proxyMode"`
 	ProxyURL        string              `json:"proxyUrl"`
+	CornerRadius    int                 `json:"cornerRadius"`
 	Translation     TranslationSettings `json:"translation"`
 	Display         DisplaySettings     `json:"display"`
 	ChatWindow      ChatWindowSettings  `json:"chatWindow"`
 }
+
+// DefaultCornerRadius 是卡片与按钮的统一圆角；0 是合法的「直角」选择，所以旧资料库靠版本号补默认值。
+const DefaultCornerRadius = 16
 
 func DefaultSettings() Settings {
 	return Settings{
@@ -48,6 +52,7 @@ func DefaultSettings() Settings {
 		RecordHistory:   true,
 		Glass:           true,
 		ProxyMode:       "system",
+		CornerRadius:    DefaultCornerRadius,
 		Translation:     TranslationSettings{Provider: "microsoft-web", DeeplPlan: "free", UseContext: true, AIBaseURL: "https://api.openai.com/v1", AIModel: "gpt-4o-mini"},
 		Display:         DefaultDisplaySettings(),
 		ChatWindow:      DefaultChatWindowSettings(),
@@ -179,7 +184,7 @@ type Store struct {
 
 func DefaultStore() Store {
 	return Store{
-		Version:      1,
+		Version:      2,
 		Settings:     DefaultSettings(),
 		Articles:     []Article{},
 		Statuses:     map[string]Status{},

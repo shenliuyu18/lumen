@@ -210,7 +210,6 @@ fun DiscoverScreen(
                         saved = article.url in savedUrls,
                         onClick = { onOpenArticle(article) },
                         onToggleSaved = { viewModel.toggleSaved(article) },
-                        onAsk = { onOpenArticle(article) },
                         modifier = Modifier.padding(horizontal = 20.dp)
                     )
                 }
@@ -248,7 +247,7 @@ private fun HeroCard(article: Article, saved: Boolean, onOpen: () -> Unit, onSav
             )
             Spacer(Modifier.height(12.dp))
             Text(
-                article.source + " · " + (article.quality?.label ?: "拓展阅读"),
+                article.source,
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

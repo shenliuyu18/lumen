@@ -11,8 +11,8 @@ Kotlin + Jetpack Compose Material 3 的 Lumen Android 版。
 - 点击文章直接进入阅读模式：后台加载原站、Readability 抽取正文、逐段翻译（微软官方网页 / Microsoft API / DeepL / MyMemory），原站排版按需打开
 - 针对重点来源优化的去广告插件，在原文与精读中清理广告
 - 词句本、间隔复习、收藏、足迹
-- 内置 ChatGPT / DeepSeek 网页（WebView，需登录）
 - 桌面版学习备份导入、JSON/CSV 导出
+- 22 套配色（12 套 legado 色板 + 10 套与桌面同名的主题）与「界面圆角」滑条，圆角设置与桌面端共用
 - Material 3 动态取色、深浅色、字号与推荐权重设置
 - 深色优先的衬线版式：大号页面标题、圆形图标按钮、近黑分组卡片、蓝色衬线小节标题、环形阅读目标仪表、封面横滚
 - 液态玻璃（`io.github.kyant0:backdrop`）覆盖全部界面：卡片、按钮、页签、开关、滑块与悬浮底栏共用同一套玻璃表面，选中气泡会横向拉伸、纵向压扁。玻璃采样的是内容下方的壁纸层，底栏采样内容层——玻璃若采样自己所在的渲染层会形成循环引用并崩溃。默认开启，可在 设置 → 界面质感 关闭：Android 13+ 完整折射，Android 12 仅背景模糊，更低版本回退为半透明面板。
@@ -75,6 +75,6 @@ gradle testDebugUnitTest
 
 - 应用不内置来源插件；首次使用需在插件中心导入 `dist/plugins/lumen-crawler-*.zip`，否则媒体目录与各站前三为空，可从空状态直接进入插件中心。
 - 默认翻译为「微软网页」（Edge 内置的免密钥接口，与桌面端同一条通道）；该接口非公开、可能限流，可改用微软 API / DeepL / MyMemory。
-- ChatGPT/DeepSeek 是内置网页版，需要自行登录且受网络可达性影响。
+- 1.1.0-beta.9 起不再内置 ChatGPT / DeepSeek 网页助手；阅读提问只在桌面端的观读轻译小窗里进行。
 - 轻量存储仅停止持久化文章/译文/各站快照；WebView 登录数据不会切换临时档案。
 - 安装包为 release 自签名 APK（`CN=Lumen Reader`），不是 Google Play 的上架签名；未开启代码裁剪，因为 WebView 的 `@JavascriptInterface` 桥接还缺少经过验证的 R8 keep 规则。
