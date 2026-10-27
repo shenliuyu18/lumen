@@ -13,6 +13,7 @@
 ### 修复
 
 - **桌面白屏**：Wails 的 `OnStartup` 在 goroutine 里执行，前端可能在资料库加载完成前请求 `State`，拿到 `{error}` 后 `setState` 抛异常导致整页空白。`State`/`Settings` 现在等待启动完成，前端改为重试并在超时后显示可重试的错误页。
+- **安卓状态栏图标**：`enableEdgeToEdge()` 只看系统深色，应用内单独切浅色主题时阅读页仍是白图标。改为在 `MainActivity` 里按应用主题设置 `isAppearanceLightStatusBars` / `isAppearanceLightNavigationBars`。
 
 ### 验证
 
