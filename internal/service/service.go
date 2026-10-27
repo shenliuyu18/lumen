@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -44,6 +43,9 @@ type Service struct {
 	refreshing bool
 	emit       EmitFunc
 	userData   string
+	askMu      sync.Mutex
+
+	askSessions map[string]context.CancelFunc
 }
 
 func New() (*Service, error) {
@@ -359,6 +361,12 @@ func (s *Service) Settings(values map[string]any) model.PublicState {
 	s.rebuildSources()
 	if value, ok := values["fontSize"].(float64); ok {
 		settings.FontSize = clamp(int(value), 14, 28)
+	}
+	if raw, ok := values["display"].(map[string]any); ok {
+		settings.Display = settings.Display.MergeDisplay(raw)
+	}
+	if raw, ok := values["chatWindow"].(map[string]any); ok {
+		settings.ChatWindow = settings.ChatWindow.MergeChatWindow(raw)
 	}
 	s.saveLocked()
 	return s.stateLocked()
@@ -693,103 +701,6 @@ func (s *Service) TranslationTest() (map[string]any, error) {
 	})
 }
 
-func (s *Service) DeepSeekConfig(key string) (model.PublicState, error) {
-	key = strings.TrimSpace(key)
-	if key == "" {
-		return model.PublicState{}, fmt.Errorf("请填写 DeepSeek API 密钥")
-	}
-	if len(key) > 1024 || strings.ContainsAny(key, "\r\n") {
-		return model.PublicState{}, fmt.Errorf("密钥格式无效")
-	}
-	if err := s.secrets.Set("deepseek", key); err != nil {
-		return model.PublicState{}, err
-	}
-	s.mu.RLock()
-	state := s.stateLocked()
-	s.mu.RUnlock()
-	return state, nil
-}
-
-func (s *Service) DeepSeekAsk(ctx context.Context, question, contextText string) (map[string]any, error) {
-	question = strings.TrimSpace(question)
-	if question == "" {
-		return nil, fmt.Errorf("请输入问题")
-	}
-	question = truncate(question, 4000)
-	contextText = truncate(strings.TrimSpace(contextText), 12000)
-	key := s.secrets.Get("deepseek")
-	if key == "" {
-		return nil, fmt.Errorf("请先在 DeepSeek 面板保存 API 密钥")
-	}
-
-	messages := []map[string]string{
-		{"role": "system", "content": "你是 Lumen 的英语阅读助手。请用简体中文回答，先给结论，再解释依据。不要编造上下文没有的信息；上下文不足时请明确说明。"},
-	}
-	user := question
-	if contextText != "" {
-		user = "文章上下文：\n" + contextText + "\n\n问题：" + question
-	}
-	messages = append(messages, map[string]string{"role": "user", "content": user})
-	payload, _ := json.Marshal(map[string]any{
-		"model":       "deepseek-chat",
-		"messages":    messages,
-		"stream":      false,
-		"temperature": 0.3,
-	})
-	request, err := http.NewRequestWithContext(ctx, http.MethodPost, "https://api.deepseek.com/chat/completions", strings.NewReader(string(payload)))
-	if err != nil {
-		return nil, err
-	}
-	request.Header.Set("Content-Type", "application/json")
-	request.Header.Set("Authorization", "Bearer "+key)
-	client := &http.Client{Timeout: 90 * time.Second, Transport: &http.Transport{Proxy: http.ProxyFromEnvironment}}
-	response, err := client.Do(request)
-	if err != nil {
-		return nil, fmt.Errorf("DeepSeek 连接失败: %w", err)
-	}
-	defer response.Body.Close()
-	body, err := io.ReadAll(io.LimitReader(response.Body, 4_000_000))
-	if err != nil {
-		return nil, err
-	}
-	if response.StatusCode < 200 || response.StatusCode >= 300 {
-		messagesByStatus := map[int]string{
-			401: "DeepSeek 密钥无效",
-			402: "DeepSeek 账户余额不足",
-			429: "DeepSeek 请求过于频繁或达到配额",
-		}
-		message := messagesByStatus[response.StatusCode]
-		if message == "" {
-			message = fmt.Sprintf("DeepSeek HTTP %d", response.StatusCode)
-		}
-		return nil, fmt.Errorf("%s", message)
-	}
-	var parsed struct {
-		Choices []struct {
-			Message struct {
-				Content string `json:"content"`
-			} `json:"message"`
-		} `json:"choices"`
-		Error *struct {
-			Message string `json:"message"`
-		} `json:"error"`
-	}
-	if err := json.Unmarshal(body, &parsed); err != nil {
-		return nil, fmt.Errorf("无法解析 DeepSeek 响应")
-	}
-	if parsed.Error != nil && parsed.Error.Message != "" {
-		return nil, fmt.Errorf("%s", parsed.Error.Message)
-	}
-	if len(parsed.Choices) == 0 || strings.TrimSpace(parsed.Choices[0].Message.Content) == "" {
-		return nil, fmt.Errorf("DeepSeek 未返回有效回答")
-	}
-	return map[string]any{
-		"text":  parsed.Choices[0].Message.Content,
-		"model": "deepseek-chat",
-		"at":    time.Now().UnixMilli(),
-	}, nil
-}
-
 func translationMap(translation model.Translation) map[string]any {
 	result := map[string]any{"text": translation.Text, "provider": translation.Provider, "at": translation.At}
 	if translation.Cached {
@@ -977,7 +888,7 @@ func (s *Service) StorageInfo() map[string]any {
 	}
 	webviewRoot := filepath.Join(os.Getenv("APPDATA"), "Lumen", "webview2")
 	var webBytes int64
-	for _, name := range []string{"reader", "chat", "chat-popup", "translator", "translator-window"} {
+	for _, name := range webProfiles(webviewRoot, false) {
 		webBytes += directorySize(filepath.Join(webviewRoot, name))
 	}
 	return map[string]any{
@@ -1184,7 +1095,7 @@ func applyPendingWebClear(dir string) {
 	}
 	kind := strings.TrimSpace(string(data))
 	root := filepath.Join(dir, "webview2")
-	for _, role := range []string{"reader", "chat", "chat-popup", "translator", "translator-window"} {
+	for _, role := range webProfiles(root, false) {
 		profile := filepath.Join(root, role)
 		if kind == "sites" || kind == "sites-clear" {
 			_ = os.RemoveAll(profile)

@@ -143,6 +143,14 @@ func normalize(store *model.Store) {
 	if store.Settings.Translation.DeeplPlan == "" {
 		store.Settings.Translation.DeeplPlan = "free"
 	}
+	if store.Settings.Display == (model.DisplaySettings{}) {
+		store.Settings.Display = model.DefaultDisplaySettings()
+	}
+	store.Settings.Display = store.Settings.Display.Normalized()
+	if store.Settings.ChatWindow == (model.ChatWindowSettings{}) {
+		store.Settings.ChatWindow = model.DefaultChatWindowSettings()
+	}
+	store.Settings.ChatWindow = store.Settings.ChatWindow.Normalized()
 }
 
 func fileExists(path string) bool {

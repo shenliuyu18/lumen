@@ -45,7 +45,7 @@ func (m *Manager) Status() map[string]bool {
 	return map[string]bool{
 		"microsoft": m.keys["microsoft"] != "",
 		"deepl":     m.keys["deepl"] != "",
-		"deepseek":  m.keys["deepseek"] != "",
+		"ai":        m.keys["ai"] != "",
 	}
 }
 

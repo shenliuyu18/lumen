@@ -18,6 +18,19 @@ Lumen 应用自有源码采用 [MIT](LICENSE)。下列第三方组件保留其�
 
 `plugins/lumen-adblock` 的通用选择器子集与部分域名规则由 `cmd/import-adblock` 从 **adblock_auto**（`https://github.com/lingeringsound/adblock_auto`，GPL-3.0）提取，插件因此以 GPL-3.0 分发（见 [plugins/lumen-adblock/NOTICE](plugins/lumen-adblock/NOTICE)）。只导入外观过滤选择器，网络拦截与脚本注入规则不会被使用。
 
+## 观读轻译 · 双语阅读（桌面译文显示与提问小窗）
+
+桌面端的译文排版系统与阅读提问小窗移植自 **观读轻译 1.4.1**（`guandu-lite-extension`，作者提供的 Chrome/Edge 扩展）：
+
+- `ui/guandu-appearance.js` ← 扩展 `shared/appearance.js`（字体族、配色表与译文套用逻辑逐行保留，仅去掉扩展与后台通信的最后一块，并把 `resolveTheme` 一并导出给设置预览使用）。
+- `ui/guandu.css` ← 扩展 `content/page.css` 的译文节点规则与 `content/chat.js` 内联的小窗样式，逐条保留；只把 `.lite-translate-output[data-lite-translate-owned]` 改名为 `.gd-translation[data-guandu-owned]`，并新增一层把扩展的界面变量映射到 Lumen 主题变量的适配规则。设置编辑器样式来自扩展 `ui/lumen.css` 的 `.translation-display-editor`。
+- `ui/guandu-chat-format.js` ← 扩展 `content/chat-format.js`（Markdown 解析 + emoji 分段 + 白名单 DOM 构建）逐行保留。
+- `ui/guandu-chat.js` ← 扩展 `content/chat.js` 的界面结构与交互（悬浮球、停靠、用选文 / 附带本文、快捷问题、停止、新对话、复制回答、历史裁剪规则）；`chrome.runtime` 通信换成 Lumen 的 `GuanduAsk` / `GuanduCancel` 绑定，文章标题与网址改由当前阅读条目提供。
+- 显示配置字段与取值、提问窗口配置与问答消息链分别对应扩展的 `core/display.mjs`、`core/chat-config.mjs`、`core/chat.mjs`，长度上限（4,000 / 18,000 / 12,000 / 48,000、四轮历史）保持一致；提示词原文照搬。
+- `ui/vendor/markdown-it.min.js`（markdown-it 15.0.3，MIT，Copyright (c) 2014 Vitaly Puzrin, Alex Kocharin）与 `ui/vendor/markdown-it-emoji.min.js`（markdown-it-emoji 3.1.0，MIT，Copyright (c) 2014 Vitaly Puzrin）按扩展原样打包，许可证见 [ui/vendor/LICENSE-markdown-it.txt](ui/vendor/LICENSE-markdown-it.txt)、[ui/vendor/LICENSE-markdown-it-emoji.txt](ui/vendor/LICENSE-markdown-it-emoji.txt)，其传递依赖许可证保存在 [ui/vendor/licenses/](ui/vendor/licenses/)（argparse PSF-2.0、entities BSD-2-Clause、linkify-it、mdurl、punycode.js、uc.micro MIT）。
+
+扩展自身的其余能力（术语库、专家、连续翻译、配置导入导出等）不在本次移植范围内；Lumen 的翻译请求仍由 Go 侧的翻译服务发出，不加载扩展脚本。
+
 ## Android 依赖
 
 - Backdrop / Liquid Glass（`io.github.kyant0:backdrop`，含传递依赖 `io.github.kyant0:shapes`）：Apache License 2.0，用于 Android 端液态玻璃的背景采样、模糊与 AGSL 折射。版权归 Kyant0 及贡献者所有。

@@ -215,6 +215,78 @@ func firstNonEmpty(values ...string) string {
 	return ""
 }
 
+// ChatMessage 是提问小窗使用的对话消息；接口地址、模型与密钥沿用翻译服务配置。
+type ChatMessage struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
+
+func BuildChatRequest(settings model.TranslationSettings, key string, messages []ChatMessage) (Request, error) {
+	if settings.Provider != "ai" {
+		return Request{}, fmt.Errorf("提问沿用翻译接口配置：请在「偏好设置 → 翻译服务」选择「大模型 · OpenAI 兼容」，填写接口地址、模型与密钥（DeepSeek 官方填 https://api.deepseek.com/v1 与 deepseek-chat）。")
+	}
+	if strings.TrimSpace(key) == "" {
+		return Request{}, fmt.Errorf("请先在「偏好设置 → 翻译服务」填写大模型的 API 密钥。")
+	}
+	if len(messages) == 0 {
+		return Request{}, fmt.Errorf("没有需要发送的问题。")
+	}
+	base := strings.TrimSpace(settings.AIBaseURL)
+	if base == "" {
+		base = "https://api.openai.com/v1"
+	}
+	modelName := strings.TrimSpace(settings.AIModel)
+	if modelName == "" {
+		modelName = "gpt-4o-mini"
+	}
+	body, _ := json.Marshal(map[string]any{
+		"model":       modelName,
+		"temperature": 0.3,
+		"stream":      false,
+		"messages":    messages,
+	})
+	return Request{
+		URL:    strings.TrimSuffix(base, "/") + "/chat/completions",
+		Method: http.MethodPost,
+		Headers: map[string]string{
+			"Content-Type":  "application/json",
+			"Authorization": "Bearer " + key,
+		},
+		Body: body,
+	}, nil
+}
+
+func ParseChatResponse(data []byte) (string, error) {
+	var payload struct {
+		Choices []struct {
+			Message struct {
+				Content string `json:"content"`
+			} `json:"message"`
+			FinishReason string `json:"finish_reason"`
+		} `json:"choices"`
+		Error *struct {
+			Message string `json:"message"`
+		} `json:"error"`
+	}
+	if err := json.Unmarshal(data, &payload); err != nil {
+		return "", fmt.Errorf("无法解析大模型响应")
+	}
+	if payload.Error != nil && strings.TrimSpace(payload.Error.Message) != "" {
+		return "", fmt.Errorf("%s", payload.Error.Message)
+	}
+	if len(payload.Choices) == 0 {
+		return "", fmt.Errorf("大模型未返回有效回答")
+	}
+	content := strings.TrimSpace(payload.Choices[0].Message.Content)
+	if content == "" {
+		return "", fmt.Errorf("大模型未返回有效回答")
+	}
+	if payload.Choices[0].FinishReason == "length" {
+		return content, fmt.Errorf("回答达到模型输出上限，请缩短问题或分次提问")
+	}
+	return content, nil
+}
+
 func EncodeRequest(request Request) (*http.Request, error) {
 	req, err := http.NewRequest(request.Method, request.URL, bytes.NewReader(request.Body))
 	if err != nil {

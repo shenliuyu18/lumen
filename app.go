@@ -38,16 +38,8 @@ type App struct {
 	restartMu        sync.Mutex
 	restarting       bool
 	readStart        time.Time
-	chat             *webhost.Host
-	chatMu           sync.Mutex
-	chatBounds       map[string]float64
 	lowStorage       bool
 	tempWebRoot      string
-	chatPopup        *webhost.Host
-	deepseek         *webhost.Host
-	deepseekMu       sync.Mutex
-	deepseekBounds   map[string]float64
-	deepseekPopup    *webhost.Host
 	ready            chan struct{}
 }
 
@@ -163,33 +155,14 @@ func (a *App) beforeClose(ctx context.Context) bool {
 	if a.host != nil {
 		a.host.Close()
 	}
-	a.chatMu.Lock()
-	chat := a.chat
-	a.chatMu.Unlock()
-	if chat != nil {
-		chat.Close()
+	if a.svc != nil {
+		a.svc.CloseAskSessions()
 	}
 	a.extractorMu.Lock()
 	extractor := a.extractor
 	a.extractorMu.Unlock()
 	if extractor != nil {
 		extractor.Close()
-	}
-	a.chatMu.Lock()
-	chatPopup := a.chatPopup
-	a.chatMu.Unlock()
-	if chatPopup != nil {
-		chatPopup.Close()
-	}
-	a.deepseekMu.Lock()
-	deepseek := a.deepseek
-	deepseekPopup := a.deepseekPopup
-	a.deepseekMu.Unlock()
-	if deepseek != nil {
-		deepseek.Close()
-	}
-	if deepseekPopup != nil {
-		deepseekPopup.Close()
 	}
 	if a.tempWebRoot != "" {
 		_ = os.RemoveAll(a.tempWebRoot)
@@ -254,8 +227,6 @@ func (a *App) ReaderOpen(article map[string]any) map[string]any {
 	a.access.Reset()
 	a.setReaderURL(safe)
 	a.finishRead()
-	a.hideChat()
-	a.hideDeepSeek()
 	a.host.Show(true)
 	a.host.Navigate(safe)
 	if a.svc != nil && a.svc.RecordHistoryEnabled() {
@@ -280,8 +251,6 @@ func (a *App) ReaderHide() bool {
 		return false
 	}
 	a.finishRead()
-	a.hideChat()
-	a.hideDeepSeek()
 	a.host.Show(false)
 	return true
 }
@@ -327,8 +296,6 @@ func (a *App) ExtractArticle(article map[string]any) any {
 	a.access.Reset()
 	a.setReaderURL(safe)
 	a.finishRead()
-	a.hideChat()
-	a.hideDeepSeek()
 	if a.host != nil {
 		a.host.Show(false)
 	}
@@ -578,22 +545,21 @@ func (a *App) PluginOpenFolder() any {
 	return map[string]any{"ok": true}
 }
 
-func (a *App) DeepSeekConfig(key string) (any, error) {
-	if a.svc == nil {
+// GuanduAsk 是观读轻译提问小窗的问答入口。
+func (a *App) GuanduAsk(sessionID string, payload map[string]any) (any, error) {
+	svc := a.waitService()
+	if svc == nil {
 		return nil, fmt.Errorf("资料库尚未就绪")
 	}
-	state, err := a.svc.DeepSeekConfig(key)
-	if err != nil {
-		return nil, err
-	}
-	return state, nil
+	return svc.Ask(sessionID, payload)
 }
 
-func (a *App) DeepSeekAsk(question, contextText string) (any, error) {
-	if a.svc == nil {
-		return nil, fmt.Errorf("资料库尚未就绪")
+func (a *App) GuanduCancel(sessionID string) bool {
+	svc := a.waitService()
+	if svc == nil {
+		return false
 	}
-	return a.svc.DeepSeekAsk(a.ctx, question, contextText)
+	return svc.CancelAsk(sessionID)
 }
 
 func (a *App) Lookup(text string) any {
@@ -895,272 +861,4 @@ func (a *App) confirm(title, message, confirmButton string) (bool, error) {
 		return false, err
 	}
 	return choice == confirmButton, nil
-}
-
-func (a *App) ensureChat() (*webhost.Host, error) {
-	a.chatMu.Lock()
-	defer a.chatMu.Unlock()
-	if a.chat != nil {
-		return a.chat, nil
-	}
-	host := webhost.New(webhost.Options{
-		DataPath:  a.webDataPath("chat"),
-		OnMessage: a.handleChatMessage,
-	})
-	if err := host.Start(15 * time.Second); err != nil {
-		return nil, err
-	}
-	host.Navigate("https://chatgpt.com/")
-	a.chat = host
-	return host, nil
-}
-
-func (a *App) ensureDeepSeek() (*webhost.Host, error) {
-	a.deepseekMu.Lock()
-	defer a.deepseekMu.Unlock()
-	if a.deepseek != nil {
-		return a.deepseek, nil
-	}
-	host := webhost.New(webhost.Options{
-		DataPath:  a.webDataPath("deepseek"),
-		OnMessage: a.handleDeepSeekMessage,
-	})
-	if err := host.Start(15 * time.Second); err != nil {
-		return nil, err
-	}
-	host.Navigate("https://chat.deepseek.com/")
-	a.deepseek = host
-	return host, nil
-}
-
-func (a *App) DeepSeekShow() bool {
-	host, err := a.ensureDeepSeek()
-	if err != nil {
-		wailsRuntime.EventsEmit(a.ctx, "deepseek-status", map[string]any{"loading": false, "error": err.Error()})
-		return false
-	}
-	a.deepseekMu.Lock()
-	bounds := a.deepseekBounds
-	a.deepseekMu.Unlock()
-	if bounds != nil {
-		host.SetBoundsCSS(bounds["x"], bounds["y"], bounds["width"], bounds["height"])
-	}
-	host.Show(true)
-	wailsRuntime.EventsEmit(a.ctx, "deepseek-status", map[string]any{"loading": true})
-	return true
-}
-
-func (a *App) DeepSeekHide() bool {
-	a.hideDeepSeek()
-	return true
-}
-
-func (a *App) DeepSeekBounds(bounds map[string]float64) bool {
-	if bounds["width"] <= 0 || bounds["height"] <= 0 {
-		return false
-	}
-	a.deepseekMu.Lock()
-	a.deepseekBounds = map[string]float64{
-		"x": bounds["x"], "y": bounds["y"], "width": bounds["width"], "height": bounds["height"],
-	}
-	host := a.deepseek
-	a.deepseekMu.Unlock()
-	if host != nil {
-		host.SetBoundsCSS(bounds["x"], bounds["y"], bounds["width"], bounds["height"])
-	}
-	return true
-}
-
-func (a *App) DeepSeekReload() bool {
-	a.deepseekMu.Lock()
-	host := a.deepseek
-	a.deepseekMu.Unlock()
-	if host != nil {
-		host.Control("reload")
-	}
-	return true
-}
-
-func (a *App) DeepSeekPopout() bool {
-	a.deepseekMu.Lock()
-	if a.deepseekPopup == nil {
-		host := webhost.New(webhost.Options{
-			DataPath:  a.webDataPath("deepseek-popup"),
-			OnMessage: a.handleDeepSeekMessage,
-			TopLevel:  true,
-			Title:     "DeepSeek · Lumen 阅读提问",
-			Width:     500,
-			Height:    760,
-		})
-		if err := host.Start(15 * time.Second); err == nil {
-			host.Navigate("https://chat.deepseek.com/")
-			a.deepseekPopup = host
-		}
-	}
-	window := a.deepseekPopup
-	a.deepseekMu.Unlock()
-	if window == nil {
-		wailsRuntime.BrowserOpenURL(a.ctx, "https://chat.deepseek.com/")
-		return false
-	}
-	window.Show(true)
-	return true
-}
-
-func (a *App) hideDeepSeek() {
-	a.deepseekMu.Lock()
-	host := a.deepseek
-	a.deepseekMu.Unlock()
-	if host != nil {
-		host.Show(false)
-	}
-}
-
-func (a *App) handleDeepSeekMessage(message string) {
-	var payload struct {
-		Type  string `json:"type"`
-		URL   string `json:"url"`
-		Title string `json:"title"`
-	}
-	if json.Unmarshal([]byte(message), &payload) != nil {
-		return
-	}
-	if payload.Type == "open-external" {
-		if safe, ok := rank.SafeURL(payload.URL); ok {
-			wailsRuntime.BrowserOpenURL(a.ctx, safe)
-		}
-		return
-	}
-	if payload.Type != "location" {
-		return
-	}
-	if strings.HasPrefix(payload.URL, "chrome-error:") {
-		wailsRuntime.EventsEmit(a.ctx, "deepseek-status", map[string]any{
-			"loading": false, "error": "无法连接 chat.deepseek.com，请检查网络或使用浏览器打开。",
-		})
-		return
-	}
-	wailsRuntime.EventsEmit(a.ctx, "deepseek-status", map[string]any{
-		"loading": false, "url": payload.URL, "title": payload.Title,
-	})
-}
-
-func (a *App) ChatShow() bool {
-	host, err := a.ensureChat()
-	if err != nil {
-		wailsRuntime.EventsEmit(a.ctx, "chat-status", map[string]any{"loading": false, "error": err.Error()})
-		return false
-	}
-	a.chatMu.Lock()
-	bounds := a.chatBounds
-	a.chatMu.Unlock()
-	if bounds != nil {
-		host.SetBoundsCSS(bounds["x"], bounds["y"], bounds["width"], bounds["height"])
-	}
-	host.Show(true)
-	wailsRuntime.EventsEmit(a.ctx, "chat-status", map[string]any{"loading": true})
-	return true
-}
-
-func (a *App) ChatHide() bool {
-	a.hideChat()
-	return true
-}
-
-func (a *App) ChatBounds(bounds map[string]float64) bool {
-	if bounds["width"] <= 0 || bounds["height"] <= 0 {
-		return false
-	}
-	a.chatMu.Lock()
-	a.chatBounds = map[string]float64{
-		"x": bounds["x"], "y": bounds["y"], "width": bounds["width"], "height": bounds["height"],
-	}
-	host := a.chat
-	a.chatMu.Unlock()
-	if host != nil {
-		host.SetBoundsCSS(bounds["x"], bounds["y"], bounds["width"], bounds["height"])
-	}
-	return true
-}
-
-func (a *App) ChatReload() bool {
-	a.chatMu.Lock()
-	host := a.chat
-	a.chatMu.Unlock()
-	if host != nil {
-		host.Control("reload")
-	}
-	return true
-}
-
-func (a *App) ChatPopout() bool {
-	a.chatMu.Lock()
-	if a.chatPopup == nil {
-		host := webhost.New(webhost.Options{
-			DataPath:  a.webDataPath("chat-popup"),
-			OnMessage: a.handleChatMessage,
-			TopLevel:  true,
-			Title:     "ChatGPT · Lumen 阅读提问",
-			Width:     500,
-			Height:    760,
-		})
-		if err := host.Start(15 * time.Second); err == nil {
-			host.Navigate("https://chatgpt.com/")
-			a.chatPopup = host
-		}
-	}
-	window := a.chatPopup
-	a.chatMu.Unlock()
-	if window == nil {
-		wailsRuntime.BrowserOpenURL(a.ctx, "https://chatgpt.com/")
-		return false
-	}
-	window.Show(true)
-	return true
-}
-
-func (a *App) ChatCopyContext(text string) bool {
-	if runes := []rune(text); len(runes) > 15000 {
-		text = string(runes[:15000])
-	}
-	wailsRuntime.ClipboardSetText(a.ctx, text)
-	return true
-}
-
-func (a *App) hideChat() {
-	a.chatMu.Lock()
-	host := a.chat
-	a.chatMu.Unlock()
-	if host != nil {
-		host.Show(false)
-	}
-}
-
-func (a *App) handleChatMessage(message string) {
-	var payload struct {
-		Type  string `json:"type"`
-		URL   string `json:"url"`
-		Title string `json:"title"`
-	}
-	if json.Unmarshal([]byte(message), &payload) != nil {
-		return
-	}
-	if payload.Type == "open-external" {
-		if safe, ok := rank.SafeURL(payload.URL); ok {
-			wailsRuntime.BrowserOpenURL(a.ctx, safe)
-		}
-		return
-	}
-	if payload.Type != "location" {
-		return
-	}
-	if strings.HasPrefix(payload.URL, "chrome-error:") {
-		wailsRuntime.EventsEmit(a.ctx, "chat-status", map[string]any{
-			"loading": false, "error": "无法连接 chatgpt.com，请检查网络、代理或使用浏览器打开。",
-		})
-		return
-	}
-	wailsRuntime.EventsEmit(a.ctx, "chat-status", map[string]any{
-		"loading": false, "url": payload.URL, "title": payload.Title,
-	})
 }

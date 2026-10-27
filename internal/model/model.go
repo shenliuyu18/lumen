@@ -33,6 +33,8 @@ type Settings struct {
 	ProxyMode       string              `json:"proxyMode"`
 	ProxyURL        string              `json:"proxyUrl"`
 	Translation     TranslationSettings `json:"translation"`
+	Display         DisplaySettings     `json:"display"`
+	ChatWindow      ChatWindowSettings  `json:"chatWindow"`
 }
 
 func DefaultSettings() Settings {
@@ -47,6 +49,8 @@ func DefaultSettings() Settings {
 		Glass:           true,
 		ProxyMode:       "system",
 		Translation:     TranslationSettings{Provider: "microsoft-web", DeeplPlan: "free", UseContext: true, AIBaseURL: "https://api.openai.com/v1", AIModel: "gpt-4o-mini"},
+		Display:         DefaultDisplaySettings(),
+		ChatWindow:      DefaultChatWindowSettings(),
 	}
 }
 

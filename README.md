@@ -28,7 +28,8 @@
 - **阅读模式**：点击文章不再打开原站页面，而是在后台加载并抽取正文；顶栏保留双语、稍后阅读、提问、重新抽取与原站入口。Android 默认只显示原文，点「双语」后逐段翻译。过滤广告、导航等独立区域，把译文放在英文段落下方。
 - **划词与翻译**：查词、句段翻译；默认用微软官方网页翻译（免密钥，即 Edge 内置的翻译服务），可改用 Microsoft Translator、DeepL、OpenAI 兼容的大模型（地址、模型与密钥都可自定义）或 MyMemory。
 - **词句本与复习**：保存词句、间隔复习、收藏文章，支持学习资料 JSON 备份与 CSV 导出。
-- **阅读时提问**：侧栏可嵌入 ChatGPT 官方网页；DeepSeek 默认内嵌官方网页，支持复制选文、刷新、小窗和浏览器打开，也可切换到 API 问答。
+- **阅读时提问**：阅读页右下角的「问」悬浮球打开提问小窗（移植自观读轻译），可附带选文或本文节选、连续追问、停止回答、复制回答，回答按 Markdown 与 emoji 排版；窗口可左右停靠、宽 320–900px、高 360–1000px。问答沿用「翻译服务」的接口地址、模型与密钥，只选「大模型 · OpenAI 兼容」时可提问，不再单独保存一套 Key。
+- **译文显示设置**：双语段落支持排版、底色与边框、8 套配色、8 种字体、字重、字号、行距、对齐、留白、字距、首行缩进与圆角，附「经典暖纸 / 雾蓝轻读 / 宋体书页 / 重点加粗」四个预设与实时预览；只重排译文块，不改原站页面。
 - **插件中心**：Lumen 不内置来源或广告规则。爬虫与去广告插件独立打包，桌面与安卓共用；支持导入 ZIP 或声明式 JS、启停与移除。去广告插件针对 Lumen 目录中的重点来源优化，在原文与精读中清理广告。
 - **十款主题、足迹与缓存管理**：浅色配色、阅读足迹、缓存清理与轻量存储模式。
 - **界面质感**：Android 端卡片、按钮、页签、滑块与底栏共用一套液态玻璃表面；桌面端在 设置 → 界面质感 可开启同样的玻璃主题。两者都可在设置里关掉。Android 13+ 有完整折射，Android 12 只有背景模糊，更低版本回退为半透明面板。
@@ -83,13 +84,13 @@ wails build -platform windows/amd64 -nsis -installscope user -webview2 download
 ## 数据与迁移
 
 - 资料库：`%APPDATA%\Lumen\library.json`。
-- 网站登录与缓存：`%APPDATA%\Lumen\webview2\<reader|chat|deepseek|translator|ui>`。
+- 网站登录与缓存：`%APPDATA%\Lumen\webview2\<ui|reader|extractor>`；旧版 ChatGPT / DeepSeek / 翻译面板留下的档案目录会在清理缓存时一并处理。
 - 用户插件：`%APPDATA%\Lumen\plugins\<id>`；应用只携带去广告运行引擎，不携带插件清单。
 - 首次启动会检测 Electron 版的 `%APPDATA%\lumen-reader\library.json`，备份后导入文章、设置、词句、收藏和足迹。
 - Electron 使用系统能力加密的翻译 API 密钥无法跨运行时迁移，需要在偏好设置中重新录入；新密钥使用 Windows DPAPI 保存，不进入备份。
 - 轻量存储模式使用临时网站资料目录，关闭应用后丢弃；该设置重启后生效。
 - 启动时会清理各 WebView2 档案的组件、GPU 与 HTTP 缓存（保留 Cookie 与登录态），并限制子视图缓存上限。旧 Electron 版的 `%APPDATA%\lumen-reader` 缓存不会自动删除。
-- DeepSeek 网页版需要自行登录 DeepSeek 账户；API 问答模式需要自行填写密钥，密钥使用 DPAPI 保存且不进入备份。
+- 阅读提问与翻译共用一套接口配置：在偏好设置里选「大模型 · OpenAI 兼容」，填接口地址、模型与密钥（DeepSeek 官方为 `https://api.deepseek.com/v1` + `deepseek-chat`），密钥使用 DPAPI 保存且不进入备份。1.1.0-beta.8 起不再有内嵌的 ChatGPT / DeepSeek 网页面板。
 
 ## 结构
 
