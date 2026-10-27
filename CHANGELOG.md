@@ -4,6 +4,21 @@
 
 上游 Electron 版（`sadinoel0106/Lumen`）的最后版本号为 1.0.6；本仓库的 Wails + Android 重写从 1.0.0 起算，两条版本号线索互相独立。
 
+## 1.1.0-beta.7 — 开发中
+
+### 变更
+
+- **安卓底栏**：整套换成阅读 app 的悬浮玻璃底栏——`FloatingBottomBar`、`DampedDragAnimation`、`GlassDefaults`、`InteractiveHighlight`、`FloatingNavigationContainer` 全部按上游文件搬运，仅保留一个主题适配层；调用处补上等宽标签与 `expandedWidth`，选中项在胶囊里显示图标与文字，可按住拖动切换。
+
+### 修复
+
+- **桌面白屏**：Wails 的 `OnStartup` 在 goroutine 里执行，前端可能在资料库加载完成前请求 `State`，拿到 `{error}` 后 `setState` 抛异常导致整页空白。`State`/`Settings` 现在等待启动完成，前端改为重试并在超时后显示可重试的错误页。
+
+### 验证
+
+- 桌面：系统代理关闭与开启（`ProxyEnable=1`，`ProxyOverride` 含 `wails.localhost`）两种状态下窗口都能渲染首页；阅读模式抽取正常（28 段 / 2487 字符）。
+- 安卓：模拟器分别验证液态玻璃开/关、深色/浅色主题、点击与拖拽切换；按压时出现折射光斑，静止时选中项为灰胶囊 + 主色图标文字。
+
 ## 1.1.0-beta.6 — 开发中
 
 ### 新增
