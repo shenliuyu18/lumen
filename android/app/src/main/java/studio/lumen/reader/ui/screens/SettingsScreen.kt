@@ -188,7 +188,7 @@ onClick = { viewModel.updateSettings(settings.copy(glassEffect = if (value) "liq
                         }
                     }
                     Text(
-                        "液态玻璃会实时折射底栏与卡片下方的内容。Android 13+ 有完整折射效果，Android 12 只有背景模糊，更低版本回退为半透明面板；关闭后回到纯色界面。",
+                        "液态玻璃让底栏实时折射下方内容，页面背景始终为纯色。Android 13+ 有完整折射效果，Android 12 只有背景模糊，更低版本回退为半透明面板；关闭后底栏也回到纯色。",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

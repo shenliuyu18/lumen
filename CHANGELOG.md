@@ -8,6 +8,7 @@
 
 ### 变更
 
+- **安卓纯色背景**：所有页面统一使用主题纯色背景，移除底层彩色光斑；玻璃只保留在底栏（采样内容层），卡片与控件回到实心质感。设置里的质感说明同步改写。
 - **安卓底栏**：整套换成阅读 app 的悬浮玻璃底栏——`FloatingBottomBar`、`DampedDragAnimation`、`GlassDefaults`、`InteractiveHighlight`、`FloatingNavigationContainer` 全部按上游文件搬运，仅保留一个主题适配层；调用处补上等宽标签与 `expandedWidth`，选中项在胶囊里显示图标与文字，可按住拖动切换。
 
 ### 修复
