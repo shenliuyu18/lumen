@@ -2,7 +2,7 @@
   "format": 1,
   "id": "lumen-paywall",
   "name": "付费墙清理 · BPC 精简",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "type": "adblock",
   "description": "从 bypass-paywalls-chrome-clean 提取的付费墙脚本域名与遮挡层选择器。只清理页面元素、拦截付费墙脚本请求，不抓取存档、不改正文；对服务端截断全文的站点无法解锁。",
   "author": "Lumen",

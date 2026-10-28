@@ -2,7 +2,7 @@
   "format": 1,
   "id": "lumen-adblock",
   "name": "Lumen 去广告",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "type": "adblock",
   "description": "针对 Lumen 官方来源优化的广告识别与清理规则；通用选择器合并自 adblock_auto（lingeringsound/adblock_auto，GPL-3.0）的外观过滤子集。",
   "author": "Lumen",

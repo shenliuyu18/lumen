@@ -2,7 +2,7 @@
   "format": 1,
   "id": "lumen-crawler",
   "name": "Lumen 官方来源爬虫",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "type": "crawler",
   "description": "123 个英文媒体与机构的 RSS 与首页头条解析规则。",
   "author": "Lumen",

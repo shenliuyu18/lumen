@@ -105,6 +105,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun openArticle(article: Article) {
         finishReading()
         _selected.value = null
+        // 换文章就丢掉上一篇的正文：离开阅读模式没有统一出口（系统返回键不经过顶栏的 onBack），
+        // 留着会让阅读页把旧文章当成「已抽取」直接显示。
+        if (_currentArticle.value?.url != article.url) _bilingual.value = null
         _currentArticle.value = article
         _autoBilingualUrl.value = article.url.takeUnless { article.id.startsWith("source-") }
         repository.addHistory(article)
@@ -170,7 +173,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /** 打开阅读模式：只抽取正文，译文由用户点「双语」后再开始。 */
-    fun startReading(extracted: ExtractedArticle) {
+    fun startReading(extracted: ExtractedArticle, requestedUrl: String) {
+        // 离屏 WebView 销毁后仍会投递结果（45 秒超时、evaluateJavascript 回调都没随销毁取消），
+        // 当前文章已经换掉时丢弃，别让上一篇的抽取结果盖到新文章上。
+        if (_currentArticle.value?.url != requestedUrl) return
         val article = BilingualArticle(
             title = extracted.title,
             url = extracted.url,

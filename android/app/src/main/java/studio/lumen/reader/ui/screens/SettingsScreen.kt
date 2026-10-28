@@ -57,6 +57,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import studio.lumen.reader.BuildConfig
 import studio.lumen.reader.MainViewModel
 import studio.lumen.reader.data.Settings
 import studio.lumen.reader.data.Weights
@@ -420,7 +421,7 @@ onClick = { viewModel.updateSettings(settings.copy(translation = settings.transl
             }
             item {
                 SettingSection("关于") {
-                    Text("Lumen · 观读 Android 1.0.0", style = MaterialTheme.typography.titleMedium)
+                    Text("Lumen · 观读 Android ${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.titleMedium)
                     Text("Material 3 · WebView 阅读 · 数据保存在本机", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text("原站阅读受站点登录与网络影响；登录、订阅和地区限制仍由原站决定。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }

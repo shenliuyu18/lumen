@@ -104,7 +104,7 @@ fun ReadingScreen(
         failure = null
         extractor.load(url) { result ->
             extracting = false
-            result.onSuccess { viewModel.startReading(it) }.onFailure { failure = it.message }
+            result.onSuccess { viewModel.startReading(it, url) }.onFailure { failure = it.message }
         }
     }
     val article = bilingual
