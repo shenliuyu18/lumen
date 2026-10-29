@@ -10,6 +10,8 @@
 
 ## 下载
 
+项目主页：<https://shenliuyu18.github.io/lumen/>（两端安装包与官方插件的下载入口、功能介绍与许可说明）。
+
 [Releases](https://github.com/shenliuyu18/lumen/releases) 页面提供：
 
 | 文件 | 说明 |
