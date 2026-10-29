@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lumen · 观读 — 英文世界，读懂一点</title>
+<meta name="description" content="Lumen · 观读：面向英语学习的阅读应用，Windows 桌面版与原生 Android 版。原文阅读、逐段双语、提问小窗、词句本，学习数据只保存在本机。">
+<link rel="icon" type="image/png" href="assets/mark.png">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <img src="assets/mark.png" alt="Lumen 图标" width="26" height="26">
+      <span>Lumen <small>观读</small></span>
+    </a>
+    <nav class="nav">
+      <a class="text-link" href="#features">功能</a>
+      <a class="text-link" href="#release">更新</a>
+      <a class="text-link" href="#license">许可</a>
+      <a href="https://github.com/shenliuyu18/lumen" target="_blank" rel="noreferrer" aria-label="GitHub 仓库" class="icon-btn">
+        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38l-.01-1.34c-2.23.48-2.7-1.07-2.7-1.07-.36-.92-.89-1.17-.89-1.17-.73-.5.05-.49.05-.49.8.06 1.23.83 1.23.83.72 1.23 1.87.87 2.33.67.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.03 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48l-.01 2.19c0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+      </a>
+      <a class="btn btn-primary" href="#download">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 19h16"/></svg>
+        下载
+      </a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <img class="wordmark" src="assets/wordmark.png" alt="Lumen" width="2048" height="1078">
+      <p class="hero-tagline">英文世界，读懂一点。</p>
+      <p class="hero-sub">面向英语学习的阅读应用：连接英文媒体、大学与研究机构，在原文里逐段读懂，顺手记下词句。桌面版与安卓版都在本机保存学习记录。</p>
+      <div class="btn-row">
+        <span class="btn-stack">
+          <a class="btn btn-primary" href="https://github.com/shenliuyu18/lumen/releases/latest/download/Lumen-Setup-1.1.1.exe">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 5.6 10.4 4.5v7.1H3V5.6Zm0 12.8 7.4 1.1v-6.9H3v5.8Zm8.6 1.3L21 21V12.6h-9.4v7.1Zm0-15.4V11.6H21V3l-9.4 1.3Z"/></svg>
+            Windows 桌面版
+          </a>
+          <a class="btn btn-primary caret" href="https://github.com/shenliuyu18/lumen/releases/latest/download/Lumen-Android-1.1.1.apk" aria-label="下载 Android APK">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </a>
+        </span>
+        <a class="btn" href="https://github.com/shenliuyu18/lumen/releases/latest/download/Lumen-Android-1.1.1.apk">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.9a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm10.8 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2ZM6.9 12.6v4.9a.9.9 0 0 0 1.8 0v-4.9h6.6v4.9a.9.9 0 0 0 1.8 0v-4.9H6.9Zm-2.7 0a1.2 1.2 0 0 0-1.2 1.2v3.7a1.2 1.2 0 0 0 2.4 0v-3.7a1.2 1.2 0 0 0-1.2-1.2Zm15.6 0a1.2 1.2 0 0 0-1.2 1.2v3.7a1.2 1.2 0 0 0 2.4 0v-3.7a1.2 1.2 0 0 0-1.2-1.2ZM7.6 4.6l-.8-1.4a.3.3 0 0 1 .5-.26l.85 1.44A6.9 6.9 0 0 1 12 3.6c1.1 0 2.13.23 3.02.63l.84-1.43a.3.3 0 1 1 .52.3l-.8 1.4a5.9 5.9 0 0 1 2.32 3.9H5.28a5.9 5.9 0 0 1 2.32-4.2Z"/></svg>
+          Android 版
+        </a>
+        <a class="btn" href="https://github.com/shenliuyu18/lumen" target="_blank" rel="noreferrer">
+          <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38l-.01-1.34c-2.23.48-2.7-1.07-2.7-1.07-.36-.92-.89-1.17-.89-1.17-.73-.5.05-.49.05-.49.8.06 1.23.83 1.23.83.72 1.23 1.87.87 2.33.67.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.03 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48l-.01 2.19c0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+          GitHub
+        </a>
+      </div>
+      <p class="meta">
+        <span class="chip chip-accent">v1.1.1 · 2026-10-28</span>
+        <span>安装包未签名 · SmartScreen 选「仍要运行」</span>
+      </p>
+    </div>
+    <div class="mascot">
+      <img src="assets/mascot.png" alt="Lumen 插画" width="1250" height="1244">
+    </div>
+  </div>
+</section>
+
+<section id="download">
+  <div class="wrap">
+    <p class="eyebrow">Download</p>
+    <h2 class="section-title">选一个平台开始读</h2>
+    <p class="section-lead">桌面版与安卓版共用同一套来源与广告规则插件；装好应用后，在插件中心导入下面三个 ZIP 即可。</p>
+
+    <div class="grid grid-2">
+      <article class="card dl-card">
+        <span class="dl-icon"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 5.6 10.4 4.5v7.1H3V5.6Zm0 12.8 7.4 1.1v-6.9H3v5.8Zm8.6 1.3L21 21V12.6h-9.4v7.1Zm0-15.4V11.6H21V3l-9.4 1.3Z"/></svg></span>
+        <h3>Windows 桌面版</h3>
+        <p>Wails + 系统 WebView2，安装包不携带 Chromium。</p>
+        <p class="meta">
+          <span>Windows 10 / 11 · x64</span>
+          <span>7.0 MB</span>
+          <span>SHA-256 <code>0ba082fd</code><button class="hash-btn" data-hash="0ba082fde54e593836eaf7e8aed71348bf2cc365838bec491e57ab22a1c2d792" title="复制完整哈希">复制</button></span>
+        </p>
+        <a class="btn btn-primary" href="https://github.com/shenliuyu18/lumen/releases/latest/download/Lumen-Setup-1.1.1.exe">下载 Lumen-Setup-1.1.1.exe</a>
+      </article>
+
+      <article class="card dl-card">
+        <span class="dl-icon"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.9a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm10.8 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2ZM6.9 12.6v4.9a.9.9 0 0 0 1.8 0v-4.9h6.6v4.9a.9.9 0 0 0 1.8 0v-4.9H6.9Zm-2.7 0a1.2 1.2 0 0 0-1.2 1.2v3.7a1.2 1.2 0 0 0 2.4 0v-3.7a1.2 1.2 0 0 0-1.2-1.2Zm15.6 0a1.2 1.2 0 0 0-1.2 1.2v3.7a1.2 1.2 0 0 0 2.4 0v-3.7a1.2 1.2 0 0 0-1.2-1.2ZM7.6 4.6l-.8-1.4a.3.3 0 0 1 .5-.26l.85 1.44A6.9 6.9 0 0 1 12 3.6c1.1 0 2.13.23 3.02.63l.84-1.43a.3.3 0 1 1 .52.3l-.8 1.4a5.9 5.9 0 0 1 2.32 3.9H5.28a5.9 5.9 0 0 1 2.32-4.2Z"/></svg></span>
+        <h3>Android 版</h3>
+        <p>Kotlin + Jetpack Compose，Material 3 与液态玻璃底栏。</p>
+        <p class="meta">
+          <span>Android 8.0+（minSdk 26）</span>
+          <span>16.1 MB</span>
+          <span>SHA-256 <code>3e0f9138</code><button class="hash-btn" data-hash="3e0f91387802f8e4b469cd8a670ccf8696136516380fe4a0f0c5ed0f405a21a3" title="复制完整哈希">复制</button></span>
+        </p>
+        <a class="btn btn-primary" href="https://github.com/shenliuyu18/lumen/releases/latest/download/Lumen-Android-1.1.1.apk">下载 Lumen-Android-1.1.1.apk</a>
+      </article>
+    </div>
+
+    <p class="eyebrow" style="margin-top:44px">Plugins</p>
+    <h2 class="section-title" style="font-size:22px">官方插件</h2>
+    <p class="section-lead">应用不内置来源与广告规则，插件是可导入的 ZIP，桌面与安卓共用同一份。</p>
+
+    <div class="grid grid-3">
+      <article class="card plugin-card">
+        <span class="chip">爬虫</span>
+        <h4>lumen-crawler</h4>
+        <p>123 个英文媒体与机构的 RSS、目录与「各站前三」解析规则。</p>
+        <a class="btn" href="https://github.com/shenliuyu18/lumen/releases/latest/download/lumen-crawler-1.1.1.zip">下载 <span class="file">6.3 KB</span></a>
+        <span class="file">lumen-crawler-1.1.1.zip · <code>21415943</code></span>
+      </article>
+      <article class="card plugin-card">
+        <span class="chip">去广告</span>
+        <h4>lumen-adblock</h4>
+        <p>通用外观过滤选择器，外加约 18.5 万个广告域名的请求拦截（主文档永远放行）。</p>
+        <a class="btn" href="https://github.com/shenliuyu18/lumen/releases/latest/download/lumen-adblock-1.1.1.zip">下载 <span class="file">1.5 MB</span></a>
+        <span class="file">lumen-adblock-1.1.1.zip · <code>954a72c4</code></span>
+      </article>
+      <article class="card plugin-card">
+        <span class="chip">付费墙</span>
+        <h4>lumen-paywall</h4>
+        <p>清理遮挡层与付费墙脚本域名；不抓取存档，服务端截断全文的站点无法解锁。</p>
+        <a class="btn" href="https://github.com/shenliuyu18/lumen/releases/latest/download/lumen-paywall-1.1.1.zip">下载 <span class="file">1.6 KB</span></a>
+        <span class="file">lumen-paywall-1.1.1.zip · <code>4b007a97</code></span>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <p class="eyebrow">Features</p>
+    <h2 class="section-title">读一篇，就把它读懂</h2>
+    <p class="section-lead">原站页面随时可回，抽取与翻译都在应用里完成；查词、译文显示和提问都可以按自己的习惯调。</p>
+
+    <div class="grid grid-3">
+      <article class="card feature">
+        <span class="dl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5v-13Zm16 0V18.5A1.5 1.5 0 0 1 18.5 20H13V4h5.5A1.5 1.5 0 0 1 20 5.5Z"/></svg></span>
+        <h3>阅读模式</h3>
+        <p>后台加载原站、抽取正文并过滤导航与广告区，译文排在英文段落下方；默认先看原站，开关可改成点文章直接精读。</p>
+      </article>
+      <article class="card feature">
+        <span class="dl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h9M8.5 4v2c0 4.4-2.1 7.6-4.5 9M6 11c1.6 3 4.1 5 6.5 5.8M13 20l4.5-10 4.5 10m-7.6-2.4h6.2"/></svg></span>
+        <h3>逐段双语</h3>
+        <p>点「双语」逐段翻译并显示进度，可随时暂停或恢复原文；默认用免密钥的微软网页翻译，也能换 DeepL、MyMemory 或 OpenAI 兼容大模型。</p>
+      </article>
+      <article class="card feature">
+        <span class="dl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a7.5 7.5 0 0 1-11 6.7L4.5 20l1.3-4.2A7.5 7.5 0 1 1 20 12Z"/></svg></span>
+        <h3>提问小窗</h3>
+        <p>阅读页右下角的「问」悬浮球打开可停靠小窗，附带选文或本文追问，回答按 Markdown 排版；问答沿用翻译服务的接口与密钥。</p>
+      </article>
+      <article class="card feature">
+        <span class="dl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.4 0 2.3-1 2.3-2.2 0-.6-.2-1-.6-1.4-.4-.4-.6-.9-.6-1.4 0-1.2 1-2.2 2.3-2.2H17A5 5 0 0 0 21 8.5C20.4 5.4 16.6 3 12 3Z"/><circle cx="7.5" cy="11.5" r="1"/><circle cx="11" cy="7.5" r="1"/><circle cx="16" cy="8.5" r="1"/></svg></span>
+        <h3>22 套配色与圆角</h3>
+        <p>桌面 10 款明亮主题，安卓另有 legado 12 套色板；「界面圆角」滑条（0–28）统一两端卡片与按钮的半径。</p>
+      </article>
+      <article class="card feature">
+        <span class="dl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 5 6v5.5c0 4.3 2.9 7.7 7 9.5 4.1-1.8 7-5.2 7-9.5V6l-7-3Z"/></svg></span>
+        <h3>本机数据</h3>
+        <p>收藏、生词、阅读足迹与译文缓存都只写在应用数据目录；支持学习备份 JSON 与词句 CSV 导出导入。</p>
+      </article>
+      <article class="card feature">
+        <span class="dl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3 5 14h5l-1 7 8-11h-5l1-7Z"/></svg></span>
+        <h3>更新更快</h3>
+        <p>订阅抓取 24 路并发、各站前三 12 路，统一浏览器 UA 与超时重试，失败原因用中文说明。</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="preview">
+  <div class="wrap">
+    <p class="eyebrow">Preview</p>
+    <h2 class="section-title">两端同一套阅读体验</h2>
+    <p class="section-lead">桌面端把正文、译文与查词侧栏放在同一屏；安卓端用衬线版式与悬浮玻璃底栏，读长文也不挤。</p>
+    <div class="preview">
+      <div class="window">
+        <div class="window-bar" aria-hidden="true"><i></i><i></i><i></i></div>
+        <img src="assets/shot-desktop.png" alt="桌面端阅读模式：英文段落下方显示中文译文，右侧是查词与词句侧栏" width="2139" height="1355">
+      </div>
+      <div>
+        <div class="phone">
+          <img src="assets/shot-android.png" alt="安卓版精选页：今日首读大图与悬浮玻璃底栏" width="1080" height="2400">
+        </div>
+        <ul class="preview-notes" style="margin-top:26px">
+          <li>双语只在点开「双语」后逐段出现，平时保持原文干净。</li>
+          <li>划词查词、加入词句本与间隔复习在同一屏完成。</li>
+          <li>液态玻璃可整体关闭，回到实心纸面配色。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="release">
+  <div class="wrap">
+    <p class="eyebrow">Release notes</p>
+    <h2 class="section-title">最近的变化</h2>
+    <p class="section-lead">完整历史见仓库里的 <a href="https://github.com/shenliuyu18/lumen/blob/main/CHANGELOG.md" target="_blank" rel="noreferrer" style="color:var(--accent-ink);text-decoration:underline">CHANGELOG.md</a>。</p>
+
+    <div class="log">
+      <article class="card log-item">
+        <div><span class="chip chip-accent">1.1.1</span><p class="meta" style="margin-top:8px">2026-10-28</p></div>
+        <div>
+          <h3>修复安卓阅读模式串台</h3>
+          <ul>
+            <li>看过一篇后再点别的文章，阅读模式仍显示第一篇：换文章时丢弃上一篇正文，抽取结果绑定发起时的地址，晚到的旧结果直接丢弃。</li>
+            <li>设置「关于」的版本号改为读取构建版本，不再写死。</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="card log-item">
+        <div><span class="chip">1.1.0</span><p class="meta" style="margin-top:8px">2026-10-27</p></div>
+        <div>
+          <h3>阅读路径与外观系统重做</h3>
+          <ul>
+            <li>新增「自动进入阅读模式」开关（默认关闭），安卓原站页补上进入阅读模式的入口。</li>
+            <li>桌面移植观读轻译的译文显示系统与提问小窗；移除内置 ChatGPT / DeepSeek 网页面板。</li>
+            <li>统一圆角设置（0–28）、安卓追加桌面 10 套配色、去广告请求拦截、抓取并发翻倍。</li>
+            <li>修复双语「段落语境与授权文章不符」、启动白屏、代理改写导致的空白窗口与安卓滑条失效。</li>
+          </ul>
+        </div>
+      </article>
+    </div>
+
+    <div class="btn-row" style="margin-top:24px">
+      <a class="btn" href="https://github.com/shenliuyu18/lumen/releases" target="_blank" rel="noreferrer">查看全部版本</a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="card cta">
+      <h2>每天一篇，慢慢读懂世界。</h2>
+      <p>装上桌面版或安卓版，导入三个官方插件，从今天的精选开始。</p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="https://github.com/shenliuyu18/lumen/releases/latest/download/Lumen-Setup-1.1.1.exe">下载 Windows 版</a>
+        <a class="btn" href="https://github.com/shenliuyu18/lumen/releases/latest/download/Lumen-Android-1.1.1.apk">下载 Android 版</a>
+      </div>
+      <a class="star" href="https://github.com/shenliuyu18/lumen" target="_blank" rel="noreferrer">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 3 2.6 5.6 6.1.8-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.4l6.1-.8L12 3Z"/></svg>
+        在 GitHub 上为 Lumen 点亮 Star
+      </a>
+    </div>
+  </div>
+</section>
+
+<section id="community">
+  <div class="wrap">
+    <p class="eyebrow">Feedback</p>
+    <h2 class="section-title">问题与反馈</h2>
+    <p class="section-lead">应用是独立开发的学习工具，欢迎把读不懂、抓不到、翻译不对的地方反馈过来。</p>
+    <div class="rows">
+      <a class="card row" href="https://github.com/shenliuyu18/lumen/issues/new" target="_blank" rel="noreferrer">
+        <span class="dl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v5m0 3h.01"/></svg></span>
+        <span class="body"><h3>提交 Issue</h3><p>报 bug、提需求，附上版本号与复现步骤。</p></span>
+        <span class="arrow">→</span>
+      </a>
+      <a class="card row" href="https://github.com/shenliuyu18/lumen/pulls" target="_blank" rel="noreferrer">
+        <span class="dl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="6" r="2.4"/><circle cx="7" cy="18" r="2.4"/><circle cx="17" cy="9" r="2.4"/><path d="M7 8.4v7.2M17 11.4c0 3-2.4 4.2-5 4.4"/></svg></span>
+        <span class="body"><h3>提交 PR</h3><p>来源与规则也可以做成插件，不必改应用本体。</p></span>
+        <span class="arrow">→</span>
+      </a>
+      <a class="card row" href="https://github.com/shenliuyu18/lumen/blob/main/docs/DEVELOPMENT.md" target="_blank" rel="noreferrer">
+        <span class="dl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 5.5h16M4 12h16M4 18.5h10"/></svg></span>
+        <span class="body"><h3>开发说明</h3><p>构建、版本号规则与插件格式的约定都写在仓库文档里。</p></span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section id="license">
+  <div class="wrap">
+    <p class="eyebrow">License &amp; Credits</p>
+    <h2 class="section-title">许可与致谢</h2>
+    <p class="section-lead">Lumen 是延续自开源项目的学习工具，不隶属任何媒体机构；下列第三方组件按其原许可证使用。</p>
+    <div class="rows">
+      <a class="card row" href="https://github.com/sadinoel0106/Lumen" target="_blank" rel="noreferrer">
+        <span class="body"><h3>sadinoel0106/Lumen（MIT）</h3><p>产品概念、界面文案、推荐与排序规则、学习功能设计均沿自上游，并已获原作者授权继续开发。</p></span>
+        <span class="arrow">→</span>
+      </a>
+      <a class="card row" href="https://github.com/shenliuyu18/lumen/blob/main/THIRD_PARTY_NOTICES.md" target="_blank" rel="noreferrer">
+        <span class="body"><h3>观读轻译 1.4.1（MIT）</h3><p>桌面端的译文显示系统与提问小窗移植自这个 Chrome / Edge 扩展；Markdown 渲染使用 markdown-it 15.0.3 与 markdown-it-emoji 3.1.0。</p></span>
+        <span class="arrow">→</span>
+      </a>
+      <a class="card row" href="https://github.com/HapeLee/legado-with-MD3" target="_blank" rel="noreferrer">
+        <span class="body"><h3>legado-with-MD3（GPL-3.0）</h3><p>安卓端的悬浮玻璃底栏等交互组件按其源码改写，因此 <code>android/</code> 模块以 GPL-3.0 发布，其余部分仍为 MIT。</p></span>
+        <span class="arrow">→</span>
+      </a>
+      <a class="card row" href="https://github.com/lingeringsound/adblock_auto" target="_blank" rel="noreferrer">
+        <span class="body"><h3>adblock_auto（GPL-3.0）</h3><p>去广告插件的外观过滤选择器与网络拦截域名取自这个项目，插件因此以 GPL-3.0 分发。</p></span>
+        <span class="arrow">→</span>
+      </a>
+      <a class="card row" href="https://github.com/shenliuyu18/lumen/blob/main/plugins/lumen-paywall/README.md" target="_blank" rel="noreferrer">
+        <span class="body"><h3>bypass-paywalls-chrome-clean（MIT）</h3><p>付费墙清理插件的遮挡层选择器与脚本域名提取自这个项目，只清理页面元素、不执行脚本、不抓取存档。</p></span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <h4>产品</h4>
+        <ul>
+          <li><a href="#download">Windows 桌面版</a></li>
+          <li><a href="#download">Android 版</a></li>
+          <li><a href="https://github.com/shenliuyu18/lumen/releases" target="_blank" rel="noreferrer">更新日志</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>功能</h4>
+        <ul>
+          <li><a href="#features">阅读模式</a></li>
+          <li><a href="#features">逐段双语</a></li>
+          <li><a href="#features">提问小窗</a></li>
+          <li><a href="#download">插件中心</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>资源</h4>
+        <ul>
+          <li><a href="https://github.com/shenliuyu18/lumen" target="_blank" rel="noreferrer">GitHub 仓库</a></li>
+          <li><a href="https://github.com/shenliuyu18/lumen/issues" target="_blank" rel="noreferrer">问题反馈</a></li>
+          <li><a href="https://github.com/shenliuyu18/lumen/blob/main/THIRD_PARTY_NOTICES.md" target="_blank" rel="noreferrer">第三方声明</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>许可</h4>
+        <ul>
+          <li><a href="https://github.com/shenliuyu18/lumen/blob/main/LICENSE" target="_blank" rel="noreferrer">MIT License</a></li>
+          <li><a href="#license">GPL-3.0 组件说明</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="foot-note">
+      Lumen · 观读 是个人维护的开源学习工具，与所收录的媒体、大学与研究机构无任何隶属或代言关系。<br>
+      推荐评分是基于标题与摘要的规则启发，不代表实测流量，也不构成事实核查；订阅墙与地区访问限制仍由原站决定。<br>
+      安装包未做代码签名；收藏、词句与阅读记录只保存在本机。© 2026 shenliuyu18
+    </p>
+  </div>
+</footer>
+
+<div class="copied" id="copied" role="status" aria-live="polite">已复制</div>
+
+<script>
+  const tip = document.getElementById('copied');
+  document.querySelectorAll('.hash-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const value = btn.dataset.hash;
+      try {
+        await navigator.clipboard.writeText(value);
+      } catch (e) {
+        const helper = document.createElement('textarea');
+        helper.value = value;
+        document.body.appendChild(helper);
+        helper.select();
+        document.execCommand('copy');
+        helper.remove();
+      }
+      tip.classList.add('show');
+      setTimeout(() => tip.classList.remove('show'), 1400);
+    });
+  });
+</script>
+
+</body>
+</html>
