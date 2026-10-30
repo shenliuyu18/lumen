@@ -147,6 +147,11 @@ section + section { border-top: 1px solid var(--line); }
 
 .btn-primary:hover { background: var(--accent-ink); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-ink) 70%, #000), 0 8px 18px rgb(0 0 0 / 14%); }
 
+@media (prefers-color-scheme: dark) {
+  /* 深色模式的强调色偏浅，白字对比度不够，改用深色字。 */
+  .btn-primary { color: #0b1a12; box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 55%, #000), 0 1px 2px rgb(0 0 0 / 40%); }
+}
+
 .btn-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 
 /* ---------- hero ---------- */
@@ -165,9 +170,7 @@ section + section { border-top: 1px solid var(--line); }
 
 .wordmark { display: block; width: min(640px, 100%); height: auto; }
 
-@media (prefers-color-scheme: dark) {
-  .wordmark { filter: brightness(0) invert(1); opacity: .92; }
-}
+.hero picture { display: block; }
 
 .hero-tagline { margin: 20px 0 6px; font-family: var(--serif); font-size: clamp(22px, 2.6vw, 28px); font-weight: 500; letter-spacing: -.01em; }
 
@@ -186,12 +189,25 @@ section + section { border-top: 1px solid var(--line); }
 .mascot img { display: block; width: 100%; height: auto; }
 
 @media (prefers-color-scheme: dark) {
-  .mascot img { filter: brightness(.97) saturate(.92); opacity: .95; }
+  /* 插画是黑色线稿 + 白色填充，整体反相会把白填充变黑、只剩描边；改成放进浅色卡片里保持原样。 */
+  .mascot {
+    margin-right: 0;
+    transform: none;
+    padding: 18px 12px 0;
+    border-radius: 26px;
+    background: #f3f6f3;
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 8%), 0 26px 60px rgb(0 0 0 / 55%);
+    overflow: hidden;
+  }
 }
 
 @media (max-width: 900px) {
   .hero .wrap { grid-template-columns: 1fr; min-height: 0; padding-top: 40px; }
   .mascot { max-width: 400px; margin: 24px auto -4%; transform: none; }
+}
+
+@media (prefers-color-scheme: dark) and (max-width: 900px) {
+  .mascot { margin: 24px auto 0; }
 }
 
 /* ---------- chips & meta ---------- */
